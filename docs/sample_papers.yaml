@@ -1,0 +1,20 @@
+
+papers:
+  - title: "Deep Learning in Neural Networks"
+    abstract: "A comprehensive review of the development and advancements in deep learning architectures and techniques."
+    url: "https://example.com/deep-learning-paper"
+    keywords: "tota array whatever"
+    document: |
+      # astrac
+      This paper presents a detailed exploration of deep learning methods, including key challenges and case studies.
+      # intro
+      This whatever sample
+      
+  - title: "A Survey on Reinforcement Learning"
+    abstract: "An extensive survey of reinforcement learning methodologies and their real-world applications."
+    url: "https://example.com/rl-survey"
+    keywords: "tota array whatever"
+    document: |
+      # Introduction
+      Reinforcement learning has emerged as a pivotal strategy in dynamic decision-making tasks.
+
