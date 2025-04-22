@@ -16,3 +16,11 @@ Sample command line to download arXiv Computer Science paper PDFs from February 
 ```
 uv run .\paper_downloading\download_arxiv.py --output-dir arxiv_papers --start-date 20230201 --end-date 20230601
 ```
+
+## ACM Yaml
+
+Sample command line to add paper information to ComputerArchitecture.yaml
+
+```
+uv run .\clustering\ACM_yaml_generator.py -o clustering\yaml_files\ComputerArchitecture.yaml
+```
