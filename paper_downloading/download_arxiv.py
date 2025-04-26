@@ -4,6 +4,7 @@ import time
 import os
 import argparse
 import yaml
+import re
 
 # Comment these out if you don't need markdown conversion
 from marker.converters.pdf import PdfConverter
@@ -49,8 +50,10 @@ def download_arxiv_pdf(limit, output_dir, start_date, end_date, category):
             pdf_url = entry.id.replace('abs', 'pdf')
             paper_id = entry.id.split('/')[-1]
             pdf_filepath = f"{output_dir}/{paper_id}.pdf"
+
+            print(pdf_url)
             if not os.path.exists(pdf_filepath):
-                print(f"Downloading {pdf_filepath}")
+                #print(f"Downloading {pdf_filepath}")
                 pdf = requests.get(pdf_url + ".pdf")
 
                 if pdf.status_code == 404:
@@ -135,6 +138,38 @@ def download_arxiv_md(limit, output_dir, start_date, end_date, category):
     except OSError:
         raise OSError("Failed to delete temporary files after execution")
     
+def extract_metadata(sections, markdown_text=None):
+    keywords = ""
+
+    for key in sections:
+        lowered = key.lower().replace('*', '').replace('_', ' ').strip()
+        if not keywords and any(kw in lowered for kw in ["keywords", "key words", "index terms", "index term"]):
+            keywords = re.sub(r'[_\n]+', ' ', sections[key]).strip()
+
+    if not keywords and markdown_text:
+        pattern = re.compile(
+            r'\*(?:index terms|keywords|key words|index term)\*\s*[—\-–]?\s*(.+?)(?:\n|\#|\Z)', 
+            re.IGNORECASE | re.DOTALL
+        )
+        match = pattern.search(markdown_text)
+        if match:
+            keywords = match.group(1).strip()
+            keywords = keywords.split('\n')[0].strip()
+            keywords = re.sub(r'\s+', ' ', keywords) 
+
+    return keywords
+
+def trim_document(markdown_text):
+    intro_pattern = re.compile(
+        r"(?m)^(?:#+\s*)?(?:\d+\.\d*\s*)?(?:[IVXLCDM]+\.\s*)?(?:Introduction|INTRODUCTION)\b"
+    )
+    
+    match = intro_pattern.search(markdown_text)
+    if match:
+        return markdown_text[match.start():].strip()
+    
+    return markdown_text.strip()
+    
 
 def generate_yaml(limit, output_dir, start_date, end_date, category):
 
@@ -192,11 +227,14 @@ def generate_yaml(limit, output_dir, start_date, end_date, category):
                 print(f"Converting {pdf_filepath} to {md_filepath}")
                 rendered = converter(pdf_filepath)
                 text, _, _ = text_from_rendered(rendered)
+                keywords = extract_metadata({}, text)
+                document = trim_document(text)
                 papers.append({
                     "title": entry.title,
                     "abstract": entry.summary,
                     "url": entry.id,
-                    "document": text
+                    "keywords": keywords,
+                    "document": document
                 })
 
                 # Delete pdf after conversion
