@@ -1,0 +1,149 @@
+[
+  {
+    "id": "ai",
+    "name": "Artificial Intelligence",
+    "slug": "ai",
+    "description": "Research in AI, machine learning, and computational intelligence.",
+    "color": "#3498db",
+    "subcategories": [
+      {
+        "name": "Computer Vision",
+        "slug": "vision",
+        "description": "Image recognition, object detection, and scene understanding.",
+        "arxivCategories": ["cs.CV"]
+      },
+      {
+        "name": "Machine Learning",
+        "slug": "ml",
+        "description": "Algorithms and methods for training systems from data.",
+        "arxivCategories": ["cs.LG", "stat.ML"]
+      },
+      {
+        "name": "Natural Language Processing",
+        "slug": "nlp",
+        "description": "Text analysis, language understanding, and generation.",
+        "arxivCategories": ["cs.CL"]
+      },
+      {
+        "name": "Large Language Models",
+        "slug": "llm",
+        "description": "Research on transformer-based language models and their applications.",
+        "arxivCategories": ["cs.CL", "cs.LG"]
+      },
+      {
+        "name": "Robotics & AI",
+        "slug": "robotics",
+        "description": "AI methods for robotics and autonomous systems.",
+        "arxivCategories": ["cs.RO"]
+      }
+    ]
+  },
+  {
+    "id": "architecture",
+    "name": "Computer Architecture",
+    "slug": "architecture",
+    "description": "Design and optimization of computer hardware systems.",
+    "color": "#e74c3c",
+    "subcategories": [
+      {
+        "name": "Processor Design",
+        "slug": "processors",
+        "description": "CPU architecture, pipeline design, and instruction sets.",
+        "arxivCategories": ["cs.AR"]
+      },
+      {
+        "name": "Memory Systems",
+        "slug": "memory",
+        "description": "Memory hierarchies, caching, and storage systems.",
+        "arxivCategories": ["cs.AR"]
+      },
+      {
+        "name": "Hardware Accelerators",
+        "slug": "accelerators",
+        "description": "Specialized processors for AI, graphics, and other domains.",
+        "arxivCategories": ["cs.AR", "cs.DC"]
+      }
+    ]
+  },
+  {
+    "id": "os",
+    "name": "Operating Systems",
+    "slug": "os",
+    "description": "Research on OS design, resource management, and system software.",
+    "color": "#2ecc71",
+    "subcategories": [
+      {
+        "name": "Kernel Design",
+        "slug": "kernel",
+        "description": "OS kernel architecture, scheduling, and resource management.",
+        "arxivCategories": ["cs.OS"]
+      },
+      {
+        "name": "Virtualization",
+        "slug": "virtualization",
+        "description": "Virtual machines, containers, and system virtualization.",
+        "arxivCategories": ["cs.OS", "cs.DC"]
+      },
+      {
+        "name": "Distributed Systems",
+        "slug": "distributed",
+        "description": "Distributed operating systems and coordination.",
+        "arxivCategories": ["cs.OS", "cs.DC"]
+      }
+    ]
+  },
+  {
+    "id": "networking",
+    "name": "Computer Networks",
+    "slug": "networking",
+    "description": "Research on network protocols, architectures, and applications.",
+    "color": "#9b59b6",
+    "subcategories": [
+      {
+        "name": "Network Protocols",
+        "slug": "protocols",
+        "description": "Communication protocols and network architecture.",
+        "arxivCategories": ["cs.NI"]
+      },
+      {
+        "name": "Wireless Networks",
+        "slug": "wireless",
+        "description": "Wireless communication, mobile networks, and IoT.",
+        "arxivCategories": ["cs.NI"]
+      },
+      {
+        "name": "Network Security",
+        "slug": "network-security",
+        "description": "Security aspects of network systems and protocols.",
+        "arxivCategories": ["cs.NI", "cs.CR"]
+      }
+    ]
+  },
+  {
+    "id": "security",
+    "name": "Computer Security",
+    "slug": "security",
+    "description": "Research on security, privacy, and cryptography.",
+    "color": "#f39c12",
+    "subcategories": [
+      {
+        "name": "Cryptography",
+        "slug": "crypto",
+        "description": "Cryptographic algorithms, protocols, and applications.",
+        "arxivCategories": ["cs.CR"]
+      },
+      {
+        "name": "System Security",
+        "slug": "systems",
+        "description": "Security of operating systems, hardware, and distributed systems.",
+        "arxivCategories": ["cs.CR"]
+      },
+      {
+        "name": "Privacy",
+        "slug": "privacy",
+        "description": "Privacy-enhancing technologies and privacy analysis.",
+        "arxivCategories": ["cs.CR"]
+      }
+    ]
+  }
+]
