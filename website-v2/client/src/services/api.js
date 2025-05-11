@@ -182,6 +182,85 @@ export const searchPapers = async (query, filters = {}) => {
   }
 };
 
+// Agentic APIs
+
+export const getAgents = async () => {
+  return await api.get('/agents');
+};
+
+export const getAgent = async (id) => {
+  return await api.get(`/agents/${id}`);
+};
+
+export const getAgentMatches = async (id, params = {}) => {
+  return await api.get(`/agents/${id}/matches`, { params });
+};
+
+export const getAgentPerformance = async (id) => {
+  return await api.get(`/agents/${id}/performance`);
+};
+
+export const getAgentComparison = async (agentIds) => {
+  if (!Array.isArray(agentIds)) {
+    throw new Error('agentIds must be an array');
+  }
+  
+  return await api.get(`/agents/stats`, { 
+    params: { agents: agentIds.join(',') } 
+  });
+};
+
+export const getMatches = async (params = {}) => {
+  return await api.get('/matches', { params });
+};
+
+export const getMatch = async (id) => {
+  return await api.get(`/matches/${id}`);
+};
+
+export const getMatchReviews = async (id) => {
+  return await api.get(`/matches/${id}/reviews`);
+};
+
+export const getMatchEvaluation = async (id) => {
+  return await api.get(`/matches/${id}/evaluation`);
+};
+
+export const runMatch = async (id) => {
+  return await api.post(`/matches/run/${id}`);
+};
+
+export const generateMatches = async (data) => {
+  return await api.post('/matches/generate', data);
+};
+
+export const runPendingMatches = async (data) => {
+  return await api.post('/matches/run-pending', data);
+};
+
+// Leaderboard endpoint
+export const getLeaderboard = async () => {
+  return await api.get('/leaderboard');
+};
+
+// Papers endpoints
+export const getPapers = async (params = {}) => {
+  return await api.get('/papers', { params });
+};
+
+export const getPaper = async (id) => {
+  return await api.get(`/papers/${id}`);
+};
+
+export const getPapersByTopic = async (topic, params = {}) => {
+  return await api.get(`/papers/topic/${topic}`, { params });
+};
+
+export const getPaperMatches = async (id, params = {}) => {
+  return await api.get(`/papers/${id}/matches`, { params });
+};
+
+
 /**
  * Test API connectivity
  * @returns {Promise<Object>} Connection test results

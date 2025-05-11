@@ -7,7 +7,7 @@ const Boom = require('@hapi/boom');
 require('dotenv').config();
 
 // Import routes
-const routes = require('./routes');
+const routes = require('./src/routes');
 
 // Set up the server
 const init = async () => {

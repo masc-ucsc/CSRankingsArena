@@ -3,6 +3,10 @@
 const categoryController = require('../controllers/categoryController');
 const paperController = require('../controllers/paperController');
 const Joi = require('@hapi/joi');
+const matches = require('./matches');
+const leaderboard = require('./leaderboard');
+const feedback = require('./feedback');
+//const auth = require('./auth.routes');
 
 module.exports = [
   // Categories routes
@@ -68,6 +72,10 @@ module.exports = [
       }
     }
   },
+
+
+
+
   
   // Not found handler - must be the last route
   {
@@ -80,5 +88,9 @@ module.exports = [
         statusCode: 404
       }).code(404);
     }
-  }
+  },
+    ...matches,
+    ...leaderboard,
+    ...feedback
+    // ...auth
 ];
