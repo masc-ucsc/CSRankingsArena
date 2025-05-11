@@ -435,3 +435,461 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* Navigation Styles */
+.main-nav {
+  margin: 0 20px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 20px;
+}
+
+.nav-links li {
+  position: relative;
+}
+
+.nav-links a {
+  color: #333;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  background-color: #f5f5f5;
+}
+
+.nav-links a.active {
+  color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+.sub-nav {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  min-width: 160px;
+  z-index: 1000;
+  display: none;
+}
+
+.nav-links li:hover .sub-nav {
+  display: block;
+}
+
+.sub-nav li {
+  margin: 0;
+}
+
+.sub-nav a {
+  display: block;
+  padding: 8px 16px;
+  color: #333;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.sub-nav a:hover {
+  background-color: #f5f5f5;
+}
+
+.sub-nav a.active {
+  color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+/* Competition Dashboard Styles */
+.dashboard-container {
+  padding: 24px;
+}
+
+.dashboard-stats {
+  margin-bottom: 24px;
+}
+
+.dashboard-charts {
+  margin-bottom: 24px;
+}
+
+.leaderboard-table {
+  margin-bottom: 24px;
+}
+
+/* Match Comparison Styles */
+.match-comparison {
+  padding: 24px;
+}
+
+.review-content {
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+.review-feedback {
+  margin-top: 16px;
+}
+
+.feedback-list {
+  margin-top: 16px;
+}
+
+/* Paper Browser Styles */
+.paper-browser {
+  padding: 24px;
+}
+
+.paper-filters {
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+.paper-table {
+  margin-top: 16px;
+}
+
+/* Competition Section Styles */
+.competition-section {
+    background: linear-gradient(135deg, #f6f8fa 0%, #ffffff 100%);
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.competition-section .ant-card-body {
+    padding: 32px;
+}
+
+.competition-features {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.competition-features .feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+    min-width: 200px;
+}
+
+.competition-features .feature .anticon {
+    margin-bottom: 12px;
+}
+
+.competition-features .feature .ant-typography {
+    margin: 4px 0;
+}
+
+.competition-features .feature .ant-typography-secondary {
+    font-size: 14px;
+}
+
+/* Responsive styles for competition section */
+@media (max-width: 768px) {
+    .competition-features .ant-space {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .competition-features .feature {
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+    .competition-section .ant-space {
+        width: 100%;
+    }
+
+    .competition-section .ant-space-item {
+        width: 100%;
+    }
+
+    .competition-section .ant-btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+/* Match Creation Styles */
+.match-type-selector {
+  margin-bottom: 24px;
+}
+
+.selected-papers {
+  background-color: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.paper-card {
+  transition: all 0.3s ease;
+}
+
+.paper-card.selected {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.paper-card .paper-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.paper-card .paper-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.paper-card .paper-abstract {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+/* Year filter styles */
+.year-filter {
+  margin-bottom: 24px;
+}
+
+.year-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.year-tab {
+  padding: 8px 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.year-tab:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.year-tab.active {
+  background: #1890ff;
+  border-color: #1890ff;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .year-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .year-tab {
+    flex: 1 1 calc(33.333% - 8px);
+    text-align: center;
+  }
+  
+  .selected-papers {
+    padding: 12px;
+  }
+  
+  .paper-card .paper-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* Match Results Styles */
+.match-results {
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.match-results .ant-card {
+  transition: all 0.3s ease;
+}
+
+.match-results .ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.match-results .ant-list-item {
+  padding: 8px 0;
+}
+
+.match-results .ant-tag {
+  margin-right: 8px;
+}
+
+.match-results .ant-rate {
+  color: #faad14;
+}
+
+.match-results .feedback-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.match-results .judge-decision {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+  padding: 16px;
+  border-radius: 4px;
+  margin-top: 24px;
+}
+
+.match-results .winner-tag {
+  font-size: 16px;
+  padding: 4px 12px;
+}
+
+/* Responsive adjustments for match results */
+@media (max-width: 768px) {
+  .match-results {
+    padding: 16px;
+  }
+
+  .match-results .ant-card {
+    margin-bottom: 16px;
+  }
+
+  .match-results .feedback-actions {
+    flex-direction: column;
+  }
+
+  .match-results .feedback-actions .ant-btn {
+    width: 100%;
+  }
+}
+
+/* Feedback History and Performance Chart Styles */
+.feedback-history,
+.agent-performance-chart {
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-history .ant-timeline-item-content {
+  margin-left: 28px;
+  margin-bottom: 16px;
+}
+
+.feedback-history .ant-card,
+.agent-performance-chart .ant-card {
+  transition: all 0.3s ease;
+}
+
+.feedback-history .ant-card:hover,
+.agent-performance-chart .ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.feedback-history .ant-statistic,
+.agent-performance-chart .ant-statistic {
+  text-align: center;
+}
+
+.feedback-history .ant-statistic-title,
+.agent-performance-chart .ant-statistic-title {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.feedback-history .ant-tag {
+  margin-right: 0;
+}
+
+.agent-performance-chart .ant-radio-group {
+  margin-bottom: 16px;
+}
+
+.agent-performance-chart .ant-statistic-card {
+  text-align: center;
+  padding: 16px;
+}
+
+.agent-performance-chart .ant-statistic-card .ant-statistic-content {
+  font-size: 24px;
+  color: #1890ff;
+}
+
+.agent-performance-chart .ant-plot {
+  transition: all 0.3s ease;
+}
+
+.agent-performance-chart .ant-plot:hover {
+  transform: scale(1.02);
+}
+
+.feedback-history .ant-space {
+  margin-bottom: 16px;
+}
+
+.feedback-history .ant-select,
+.feedback-history .ant-picker {
+  min-width: 160px;
+}
+
+.feedback-history .ant-timeline-item-tail {
+  border-inline-start: 2px solid #f0f0f0;
+}
+
+.feedback-history .ant-timeline-item-head {
+  background-color: #fff;
+  border-color: #1890ff;
+}
+
+.feedback-history .ant-timeline-item-head-custom {
+  background: transparent;
+  border: 0;
+  top: 5.5px;
+}
+
+@media (max-width: 768px) {
+  .feedback-history,
+  .agent-performance-chart {
+    padding: 16px;
+  }
+
+  .feedback-history .ant-timeline-item-content {
+    margin-left: 20px;
+  }
+
+  .agent-performance-chart .ant-statistic-card {
+    padding: 12px;
+  }
+
+  .agent-performance-chart .ant-statistic-card .ant-statistic-content {
+    font-size: 20px;
+  }
+}

@@ -1,6 +1,10 @@
 import React from 'react';
+import { Card, Button, Space, Typography } from 'antd';
+import { RobotOutlined } from '@ant-design/icons';
 
-const PaperCard = ({ paper }) => {
+const { Title, Text } = Typography;
+
+const PaperCard = ({ paper, onSelectForMatch, showMatchButton, selectedForMatch }) => {
   // Format the authors list
   const formatAuthors = (authors) => {
     if (!authors || authors.length === 0) return 'Unknown Authors';
@@ -23,36 +27,43 @@ const PaperCard = ({ paper }) => {
   };
   
   return (
-    <div className="paper-card">
-      <h3 className="paper-title">
-        <a href={paper.url} target="_blank" rel="noopener noreferrer">
-          {paper.title}
-        </a>
-      </h3>
-      <div className="paper-metadata">
-        <p className="paper-authors">{formatAuthors(paper.authors)}</p>
-        <p className="paper-date">{formatDate(paper.published)}</p>
-      </div>
-      <p className="paper-abstract">{paper.abstract}</p>
-      <div className="paper-actions">
-        <a
-          href={paper.pdfUrl}
-          className="btn btn-primary"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          PDF
-        </a>
-        <a
-          href={paper.url}
-          className="btn btn-secondary"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          arXiv
-        </a>
-      </div>
-    </div>
+    <Card 
+      className={`paper-card ${selectedForMatch ? 'selected' : ''}`}
+      style={{ 
+        marginBottom: '16px',
+        border: selectedForMatch ? '2px solid #1890ff' : undefined,
+        backgroundColor: selectedForMatch ? '#e6f7ff' : undefined
+      }}
+    >
+      <Space direction="vertical" size="small" style={{ width: '100%' }}>
+        <Title level={5}>{paper.title}</Title>
+        
+        <Text type="secondary">
+          Authors: {paper.authors.join(', ')}
+        </Text>
+        
+        <Text className="paper-abstract">
+          {paper.abstract}
+        </Text>
+        
+        <div className="paper-meta">
+          <Text type="secondary">Year: {paper.year}</Text>
+          <Text type="secondary">Venue: {paper.venue}</Text>
+        </div>
+
+        {showMatchButton && (
+          <div className="paper-actions">
+            <Button
+              type={selectedForMatch ? "primary" : "default"}
+              icon={<RobotOutlined />}
+              onClick={() => onSelectForMatch(selectedForMatch ? null : 'paper1')}
+            >
+              {selectedForMatch ? 'Selected' : 'Select for Match'}
+            </Button>
+          </div>
+        )}
+      </Space>
+    </Card>
   );
 };
 

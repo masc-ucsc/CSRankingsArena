@@ -4,13 +4,13 @@ const Boom = require('@hapi/boom');
 const categoryModel = require('../models/categoryModel');
 
 // Get all categories
-exports.getCategories = async (request, h) => {
+exports.getCategories = async () => {
   try {
     const categories = await categoryModel.getAllCategories();
-    return h.response(categories);
+    return categories;
   } catch (error) {
     console.error('Error getting categories:', error);
-    return Boom.badImplementation('Failed to retrieve categories');
+    throw error;  // Let the route handler handle the error
   }
 };
 

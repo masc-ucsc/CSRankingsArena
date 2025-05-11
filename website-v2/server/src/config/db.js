@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Create a PostgreSQL pool
 const pool = new Pool({
-  user: process.env.PGUSER || 'postgres',
+  user: process.env.PGUSER || 'cs_rankings_admin',
   host: process.env.PGHOST || 'localhost',
   database: process.env.PGDATABASE || 'cs_rankings',
   password: process.env.PGPASSWORD || 'postgres',

@@ -1,5 +1,6 @@
 const Joi = require('@hapi/joi');
 const db = require('../config/db');
+const websocketService = require('../services/websocketService');
 //const logger = require('../utils/logger');
 
 module.exports = [
@@ -67,117 +68,88 @@ module.exports = [
       description: 'Add feedback for a match',
       validate: {
         payload: Joi.object({
-          match_id: Joi.string().guid().required(),
-          vote: Joi.string().valid('agree', 'disagree').optional(),
-          comment: Joi.string().min(1).max(1000).optional()
+          matchId: Joi.string().required(),
+          agentId: Joi.string().required(),
+          rating: Joi.number().min(1).max(5).required(),
+          comment: Joi.string().allow('').optional(),
+          liked: Joi.boolean().optional()
         })
       },
       handler: async (request, h) => {
+        const { matchId, agentId, rating, comment, liked } = request.payload;
+        const userId = request.auth.credentials.id;
+
         try {
-          const { match_id, vote, comment } = request.payload;
-          const user_id = request.auth.credentials.id;
-          
-          // Validate that at least vote or comment is provided
-          if (!vote && !comment) {
-            return h.response({ message: 'Either vote or comment must be provided' }).code(400);
-          }
-          
-          // Check if match exists
-          const match = await db('matches').where('id', match_id).first();
-          
-          if (!match) {
-            return h.response({ message: 'Match not found' }).code(404);
-          }
-          
-          // Check if user already submitted feedback with a vote
-          if (vote) {
-            const existingVote = await db('feedback')
-              .where({
-                match_id,
-                user_id
-              })
-              .whereNotNull('vote')
-              .first();
-              
-            if (existingVote) {
-              // Update existing vote
-              await db('feedback')
-                .where('id', existingVote.id)
-                .update({
-                  vote,
-                  comment: comment || existingVote.comment,
-                  updated_at: new Date()
-                });
-                
-              const updatedFeedback = await db('feedback')
-                .where('id', existingVote.id)
-                .first();
-                
-              return { 
-                message: 'Feedback updated', 
-                feedback: updatedFeedback 
-              };
-            }
-          }
-          
-          // Create new feedback
-          const [feedback] = await db('feedback')
+          const feedback = await db('feedback')
             .insert({
-              match_id,
-              user_id,
-              vote,
+              match_id: matchId,
+              agent_id: agentId,
+              user_id: userId,
+              rating,
               comment,
+              liked,
+              likes: 0,
               created_at: new Date()
             })
-            .returning('*');
-            
-          return { message: 'Feedback added', feedback };
+            .returning('*')
+            .first();
+
+          // Get user and agent info for the response
+          const [user, agent] = await Promise.all([
+            db('users').where('id', userId).first(),
+            db('agents').where('id', agentId).first()
+          ]);
+
+          const feedbackWithDetails = {
+            ...feedback,
+            user: {
+              id: user.id,
+              username: user.username
+            },
+            agent: {
+              id: agent.id,
+              name: agent.name
+            }
+          };
+
+          // Broadcast the new feedback via WebSocket
+          await websocketService.handleNewFeedback(matchId, feedbackWithDetails);
+
+          return h.response(feedbackWithDetails).code(201);
         } catch (error) {
           //logger.error('Error adding feedback:', error);
-          return h.response({ 
-            message: 'Error adding feedback', 
-            error: error.message 
-          }).code(500);
+          return h.response({ error: 'Failed to add feedback' }).code(500);
         }
       }
     }
   },
   {
     method: 'POST',
-    path: '/api/feedback/{id}/like',
+    path: '/api/feedback/{feedbackId}/like',
     options: {
       // auth: 'jwt',
       tags: ['api', 'feedback'],
       description: 'Like a feedback comment',
       validate: {
         params: Joi.object({
-          id: Joi.number().integer().required()
+          feedbackId: Joi.string().required()
+        }),
+        payload: Joi.object({
+          matchId: Joi.string().required(),
+          liked: Joi.boolean().required()
         })
       },
       handler: async (request, h) => {
+        const { feedbackId } = request.params;
+        const { matchId, liked } = request.payload;
+
         try {
-          const { id } = request.params;
-          
-          // Check if feedback exists
-          const feedback = await db('feedback').where('id', id).first();
-          
-          if (!feedback) {
-            return h.response({ message: 'Feedback not found' }).code(404);
-          }
-          
-          // Increment likes
-          const [updatedFeedback] = await db('feedback')
-            .where('id', id)
-            .increment('likes', 1)
-            .returning('*');
-            
-          return { message: 'Feedback liked', feedback: updatedFeedback };
+          // Update likes count and broadcast via WebSocket
+          await websocketService.handleFeedbackLike(matchId, feedbackId, liked);
+          return h.response({ success: true }).code(200);
         } catch (error) {
-          //logger.error(`Error liking feedback ${request.params.id}:`, error);
-          return h.response({ 
-            message: 'Error liking feedback', 
-            error: error.message 
-          }).code(500);
+          //logger.error(`Error updating feedback like: ${request.params.feedbackId}:`, error);
+          return h.response({ error: 'Failed to update feedback like' }).code(500);
         }
       }
     }
