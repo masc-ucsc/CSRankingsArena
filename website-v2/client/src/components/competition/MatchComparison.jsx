@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Row, Col, Rate, List, Button, Divider, Statistic, message, Avatar, Space } from 'antd';
+import { Card, Row, Col, Rate, List, Button, Divider, Statistic, message, Avatar, Space, Modal, Typography, Input } from 'antd';
 import { LikeOutlined, DislikeOutlined, UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
@@ -12,6 +12,10 @@ const MatchComparison = () => {
     const [loading, setLoading] = useState(true);
     const [feedback, setFeedback] = useState({});
     const [submittingFeedback, setSubmittingFeedback] = useState(false);
+    const [feedbackComment, setFeedbackComment] = useState('');
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [selectedReviewId, setSelectedReviewId] = useState(null);
+    const [rating, setRating] = useState(0);
 
     useEffect(() => {
         fetchMatchData();
@@ -34,15 +38,23 @@ const MatchComparison = () => {
     };
 
     const handleFeedback = async (reviewId, rating, isPositive) => {
+        setSelectedReviewId(reviewId);
+        setShowFeedbackModal(true);
+    };
+
+    const submitFeedback = async () => {
         if (submittingFeedback) return;
         setSubmittingFeedback(true);
 
         try {
-            await axios.post(`/api/competition/reviews/${reviewId}/feedback`, {
-                rating: isPositive ? 5 : 1,
-                comment: isPositive ? 'Helpful review' : 'Unhelpful review'
+            await axios.post(`/api/competition/reviews/${selectedReviewId}/feedback`, {
+                rating: rating,
+                comment: feedbackComment || (rating >= 4 ? 'Helpful review' : 'Unhelpful review')
             });
             message.success('Feedback submitted successfully');
+            setShowFeedbackModal(false);
+            setFeedbackComment('');
+            setRating(0);
             fetchMatchData(); // Refresh feedback data
         } catch (error) {
             console.error('Error submitting feedback:', error);
@@ -236,6 +248,39 @@ const MatchComparison = () => {
                 <p>Match Status: {match.status}</p>
                 <p>Created: {new Date(match.created_at).toLocaleString()}</p>
             </Card>
+
+            <Modal
+                title="Provide Feedback"
+                open={showFeedbackModal}
+                onOk={submitFeedback}
+                onCancel={() => {
+                    setShowFeedbackModal(false);
+                    setFeedbackComment('');
+                    setRating(0);
+                }}
+                confirmLoading={submittingFeedback}
+            >
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    <div>
+                        <Typography.Text>Rating:</Typography.Text>
+                        <Rate 
+                            value={rating} 
+                            onChange={setRating}
+                            style={{ marginLeft: '8px' }}
+                        />
+                    </div>
+                    <div>
+                        <Typography.Text>Comment (optional):</Typography.Text>
+                        <Input.TextArea
+                            value={feedbackComment}
+                            onChange={e => setFeedbackComment(e.target.value)}
+                            placeholder="Share your thoughts about this review..."
+                            rows={4}
+                            style={{ marginTop: '8px' }}
+                        />
+                    </div>
+                </Space>
+            </Modal>
         </div>
     );
 };

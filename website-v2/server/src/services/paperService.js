@@ -1,7 +1,73 @@
 const db = require('../config/db');
 
 class PaperService {
-    // ... existing code ...
+    /**
+     * Get papers for a subcategory, with demo papers as fallback
+     * @param {string} category - Main category
+     * @param {string} subcategory - Subcategory
+     * @param {number} limit - Maximum number of papers to return
+     * @returns {Promise<Array>} Array of papers
+     */
+    async getPapersForSubcategory(category, subcategory, limit = 10) {
+        // First try to get real papers
+        let papers = await db('papers')
+            .where({
+                category,
+                subcategory,
+                is_demo: false
+            })
+            .orderBy('created_at', 'desc')
+            .limit(limit);
+
+        // If no real papers found, get demo papers
+        if (papers.length === 0) {
+            papers = await db('papers')
+                .where({
+                    category,
+                    subcategory,
+                    is_demo: true
+                })
+                .orderBy('created_at', 'desc')
+                .limit(limit);
+        }
+
+        return papers;
+    }
+
+    /**
+     * Get a specific paper by ID
+     * @param {number} paperId - ID of the paper
+     * @returns {Promise<Object>} Paper object
+     */
+    async getPaper(paperId) {
+        const paper = await db('papers')
+            .where('id', paperId)
+            .first();
+        
+        if (!paper) {
+            throw new Error('Paper not found');
+        }
+        
+        return paper;
+    }
+
+    /**
+     * Get random demo papers for a subcategory
+     * @param {string} category - Main category
+     * @param {string} subcategory - Subcategory
+     * @param {number} count - Number of papers to return
+     * @returns {Promise<Array>} Array of demo papers
+     */
+    async getRandomDemoPapers(category, subcategory, count = 1) {
+        return db('papers')
+            .where({
+                category,
+                subcategory,
+                is_demo: true
+            })
+            .orderByRaw('RANDOM()')
+            .limit(count);
+    }
 
     async getPapersByCategory(categorySlug) {
         const query = `

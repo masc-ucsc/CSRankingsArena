@@ -5,7 +5,8 @@ import { AppProvider } from './context/AppContext';
 // Import pages
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
-import SubcategoryPage from './pages/SubCategoryPage'; // Fixed case sensitivity issue
+import SubcategoryPage from './pages/SubCategoryPage';
+import SubcategoryPageV2 from './pages/v2/SubCategoryPage';
 import SearchPage from './pages/SearchPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CategoryMatchPage from './pages/CategoryMatchPage';
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/category/:categorySlug/:subcategorySlug" element={<SubcategoryPage />} />
+          <Route path="/v2/category/:categorySlug/:subcategorySlug" element={<SubcategoryPageV2 />} />
           <Route path="/category/:categorySlug/match" element={<CategoryMatchPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/competition" element={<Dashboard />} />

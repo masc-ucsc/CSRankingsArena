@@ -26,9 +26,12 @@ exports.up = function(knex) {
     // Create matches table
     knex.schema.createTable('matches', function(table) {
       table.uuid('id').primary();
-      table.integer('paper_id').notNullable().references('id').inTable('papers').onDelete('CASCADE');
+      table.integer('paper_id').nullable().references('id').inTable('papers').onDelete('CASCADE');
+      table.integer('paper1_id').nullable().references('id').inTable('papers').onDelete('CASCADE');
+      table.integer('paper2_id').nullable().references('id').inTable('papers').onDelete('CASCADE');
       table.integer('agent1_id').notNullable().references('id').inTable('agents').onDelete('CASCADE');
       table.integer('agent2_id').notNullable().references('id').inTable('agents').onDelete('CASCADE');
+      table.integer('judge_id').notNullable().references('id').inTable('agents').onDelete('CASCADE');
       table.integer('winner_id').nullable().references('id').inTable('agents').onDelete('SET NULL');
       table.string('status').notNullable().defaultTo('pending');
       table.text('error').nullable();
@@ -37,6 +40,9 @@ exports.up = function(knex) {
       
       // Add index on status
       table.index('status');
+      
+      // Add check constraint to ensure either paper_id or both paper1_id and paper2_id are set
+      table.check('(paper_id IS NOT NULL) OR (paper1_id IS NOT NULL AND paper2_id IS NOT NULL)');
     }),
     
     // Create reviews table

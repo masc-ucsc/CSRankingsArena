@@ -14,6 +14,7 @@ const competitionService = require('./src/services/competitionService');
 const agentService = require('./src/services/agentService');
 const websocketService = require('./src/services/websocketService');
 const { db } = require('./src/config/db');
+const mockController = require('./src/controllers/mockController');
 
 // Import plugins
 const databasePlugin = require('./src/plugins/database');
@@ -362,6 +363,120 @@ const init = async () => {
                         if (error.isBoom) throw error;
                         throw Boom.badImplementation('Failed to retrieve match', error);
                     }
+                }
+            }
+        },
+
+        // Mock endpoints (only used when USE_MOCK_DATA is set)
+        {
+            method: 'GET',
+            path: '/api/mock/papers',
+            options: {
+                description: 'Get mock papers (development only)',
+                tags: ['api', 'papers', 'mock'],
+                validate: {
+                    query: Joi.object({
+                        category: Joi.string().required().description('Category slug'),
+                        subcategory: Joi.string().optional().description('Subcategory slug'),
+                        year: Joi.number().required().description('Publication year')
+                    })
+                },
+                handler: async (request, h) => {
+                    if (process.env.USE_MOCK_DATA !== 'true') {
+                        throw Boom.forbidden('Mock endpoints are only available in development mode');
+                    }
+                    const result = await mockController.getMockPapers(request);
+                    return h.response(result);
+                }
+            }
+        },
+        {
+            method: 'GET',
+            path: '/api/mock/papers/search',
+            options: {
+                description: 'Search mock papers (development only)',
+                tags: ['api', 'papers', 'search', 'mock'],
+                validate: {
+                    query: Joi.object({
+                        q: Joi.string().required().description('Search query'),
+                        category: Joi.string().required().description('Category slug'),
+                        subcategory: Joi.string().optional().description('Subcategory slug'),
+                        year: Joi.number().optional().description('Publication year'),
+                        page: Joi.number().default(1).min(1).description('Page number'),
+                        limit: Joi.number().default(20).min(1).max(100).description('Results per page')
+                    })
+                },
+                handler: async (request, h) => {
+                    if (process.env.USE_MOCK_DATA !== 'true') {
+                        throw Boom.forbidden('Mock endpoints are only available in development mode');
+                    }
+                    const result = await mockController.searchMockPapers(request);
+                    return h.response(result);
+                }
+            }
+        },
+        {
+            method: 'GET',
+            path: '/api/mock/matches',
+            options: {
+                description: 'Get mock matches (development only)',
+                tags: ['api', 'matches', 'mock'],
+                validate: {
+                    query: Joi.object({
+                        category: Joi.string().required().description('Category slug'),
+                        subcategory: Joi.string().optional().description('Subcategory slug'),
+                        limit: Joi.number().default(10).min(1).max(100).description('Results limit')
+                    })
+                },
+                handler: async (request, h) => {
+                    if (process.env.USE_MOCK_DATA !== 'true') {
+                        throw Boom.forbidden('Mock endpoints are only available in development mode');
+                    }
+                    const result = await mockController.getMockMatches(request);
+                    return h.response(result);
+                }
+            }
+        },
+        {
+            method: 'GET',
+            path: '/api/mock/leaderboard',
+            options: {
+                description: 'Get mock leaderboard (development only)',
+                tags: ['api', 'leaderboard', 'mock'],
+                validate: {
+                    query: Joi.object({
+                        category: Joi.string().required().description('Category slug'),
+                        subcategory: Joi.string().optional().description('Subcategory slug'),
+                        limit: Joi.number().default(50).min(1).max(100).description('Results limit')
+                    })
+                },
+                handler: async (request, h) => {
+                    if (process.env.USE_MOCK_DATA !== 'true') {
+                        throw Boom.forbidden('Mock endpoints are only available in development mode');
+                    }
+                    const result = await mockController.getMockLeaderboard(request);
+                    return h.response(result);
+                }
+            }
+        },
+        {
+            method: 'POST',
+            path: '/api/mock/vote',
+            options: {
+                description: 'Submit a mock vote (development only)',
+                tags: ['api', 'vote', 'mock'],
+                validate: {
+                    payload: Joi.object({
+                        matchId: Joi.string().required(),
+                        winnerId: Joi.string().required()
+                    })
+                },
+                handler: async (request, h) => {
+                    if (process.env.USE_MOCK_DATA !== 'true') {
+                        throw Boom.forbidden('Mock endpoints are only available in development mode');
+                    }
+                    const result = await mockController.postMockVote(request);
+                    return h.response(result);
                 }
             }
         }

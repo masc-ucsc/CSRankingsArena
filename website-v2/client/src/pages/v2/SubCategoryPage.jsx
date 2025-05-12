@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext';
-import { fetchPapers } from '../services/api';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import PaperCard from '../components/PaperCard';
-import MatchResults from '../components/competition/MatchResults';
+import { useAppContext } from '../../context/AppContext';
+import { 
+  fetchPapers, 
+  fetchVenues, 
+  fetchAgents, 
+  createMatch, 
+  fetchRecentMatches,
+  submitMatchFeedback 
+} from '../../services/v2/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import PaperCard from '../../components/PaperCard';
+import MatchResults from '../../components/competition/MatchResults';
 import { 
   Card, 
   Typography, 
@@ -22,7 +29,6 @@ import {
   Badge, 
   Row,
   Col,
-  Tabs,
   Input,
   DatePicker,
   Spin,
@@ -36,62 +42,40 @@ import {
   CloseOutlined, 
   EyeOutlined,
   SearchOutlined,
-  FilterOutlined
+  FilterOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
-import axios from 'axios';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
-// Mock data for testing
-const MOCK_AGENTS = [
-  {
-    id: 'agent1',
-    name: 'GPT-4',
-    provider: 'OpenAI',
-    description: 'Advanced language model with strong analytical capabilities'
-  },
-  {
-    id: 'agent2',
-    name: 'Claude',
-    provider: 'Anthropic',
-    description: 'Specialized in detailed analysis and explanation'
-  },
-  {
-    id: 'agent3',
-    name: 'GPT-3.5',
-    provider: 'OpenAI',
-    description: 'Efficient language model with good understanding'
-  }
-];
-
-const SubcategoryPage = () => {
+const SubCategoryPageV2 = () => {
   const { categorySlug, subcategorySlug } = useParams();
   const { categories } = useAppContext();
   const [form] = Form.useForm();
   
-  // Loading state for categories
+  // Loading states
   const [loadingCategories, setLoadingCategories] = useState(true);
-  
-  // Paper state
-  const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMatches, setLoadingMatches] = useState(false);
+  
+  // Data states
+  const [papers, setPapers] = useState([]);
+  const [venues, setVenues] = useState([]);
+  const [agents, setAgents] = useState([]);
+  const [recentMatches, setRecentMatches] = useState([]);
   const [error, setError] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [usingMockData, setUsingMockData] = useState(false);
-  const [searchText, setSearchText] = useState('');
   
   // Filter states
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [searchText, setSearchText] = useState('');
   const [selectedVenue, setSelectedVenue] = useState('');
   const [selectedMatchStatus, setSelectedMatchStatus] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
-  const [venues, setVenues] = useState([]);
   
-  // Match creation state
-  const [agents, setAgents] = useState([]);
+  // Match creation states
   const [selectedPapers, setSelectedPapers] = useState({ paper1: null, paper2: null });
   const [matchType, setMatchType] = useState('single');
   const [matchModalVisible, setMatchModalVisible] = useState(false);
@@ -102,15 +86,13 @@ const SubcategoryPage = () => {
     judge: null
   });
   
-  // Match results state
+  // Match results states
   const [matchResults, setMatchResults] = useState(null);
   const [showResults, setShowResults] = useState(false);
-  const [recentMatches, setRecentMatches] = useState([]);
-  const [loadingMatches, setLoadingMatches] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [viewMatchModalVisible, setViewMatchModalVisible] = useState(false);
-  
-  // Find category and subcategory with null checks
+
+  // Find category and subcategory
   const category = categories?.find((cat) => cat.slug === categorySlug);
   const subcategory = category?.subcategories?.find((sub) => sub.slug === subcategorySlug);
 
@@ -119,7 +101,6 @@ const SubcategoryPage = () => {
   const subcategoryNotFound = !loadingCategories && category && !subcategory;
 
   useEffect(() => {
-    // Set loading state for categories
     if (categories) {
       setLoadingCategories(false);
     }
@@ -127,49 +108,24 @@ const SubcategoryPage = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      // Don't load data if category or subcategory is not found
-      if (categoryNotFound || subcategoryNotFound) {
-        return;
-      }
-      
-      if (!category || !subcategory) return;
+      if (categoryNotFound || subcategoryNotFound || !category || !subcategory) return;
       
       try {
         setLoading(true);
-        const [papersData, agentsData] = await Promise.all([
+        const [papersData, venuesData, agentsData] = await Promise.all([
           fetchPapers(categorySlug, subcategorySlug, selectedYear),
-          axios.get('/api/agents')
+          fetchVenues(categorySlug, subcategorySlug, selectedYear),
+          fetchAgents()
         ]);
         
-        if (papersData.length === 0) {
-          const mockPapers = getMockPapers(categorySlug, subcategorySlug, selectedYear);
-          setPapers(mockPapers);
-          setUsingMockData(true);
-        } else {
-          setPapers(papersData);
-          setUsingMockData(false);
-          // Extract unique venues from papers
-          const uniqueVenues = [...new Set(papersData.map(paper => paper.venue))];
-          setVenues(uniqueVenues);
-        }
-        
-        if (agentsData.data && agentsData.data.agents && Array.isArray(agentsData.data.agents)) {
-          setAgents(agentsData.data.agents);
-        } else {
-          setAgents(MOCK_AGENTS);
-        }
+        setPapers(papersData);
+        setVenues(venuesData);
+        setAgents(agentsData.agents || []);
         
         await fetchRecentMatches();
       } catch (err) {
         setError(err.message);
         console.error('Error loading data:', err);
-        const mockPapers = getMockPapers(categorySlug, subcategorySlug, selectedYear);
-        setPapers(mockPapers);
-        setUsingMockData(true);
-        setAgents(MOCK_AGENTS);
-        // Set mock venues
-        setVenues(['Mock Conference 2023', 'Mock Symposium 2023']);
-        await fetchRecentMatches();
       } finally {
         setLoading(false);
       }
@@ -178,40 +134,13 @@ const SubcategoryPage = () => {
     loadData();
   }, [categorySlug, subcategorySlug, selectedYear, category, subcategory, categoryNotFound, subcategoryNotFound]);
 
-  const getMockPapers = (categorySlug, subcategorySlug, year) => {
-    return [
-      {
-        id: 'mock1',
-        title: `Recent Advances in ${subcategorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} for ${categorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`,
-        authors: ['Dr. Jane Smith', 'Prof. John Doe', 'Dr. Maria Garcia'],
-        abstract: `This paper presents a comprehensive analysis of recent developments in ${subcategorySlug} within the field of ${categorySlug}. We explore novel methodologies and their applications, demonstrating significant improvements in performance and efficiency.`,
-        category: categorySlug,
-        subcategory: subcategorySlug,
-        year: year,
-        venue: `${year} International Conference on ${categorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`,
-        url: '#',
-        pdfUrl: '#'
-      },
-      // Add more mock papers as needed
-    ];
-  };
-
   const fetchRecentMatches = async () => {
     setLoadingMatches(true);
     try {
-      const response = await axios.get('/api/matches', {
-        params: {
-          category: categorySlug,
-          subcategory: subcategorySlug,
-          limit: 5
-        }
-      });
-      setRecentMatches(response.data.matches || []);
+      const matches = await fetchRecentMatches(categorySlug, subcategorySlug);
+      setRecentMatches(matches);
     } catch (error) {
       console.error('Error fetching recent matches:', error);
-      if (usingMockData) {
-        setRecentMatches([]); // Add mock matches if needed
-      }
     } finally {
       setLoadingMatches(false);
     }
@@ -231,7 +160,8 @@ const SubcategoryPage = () => {
         judgeId: selectedAgents.judge,
         category: categorySlug,
         subcategory: subcategorySlug,
-        year: selectedYear
+        year: selectedYear,
+        matchType
       };
 
       if (matchType === 'single') {
@@ -241,10 +171,8 @@ const SubcategoryPage = () => {
         matchData.paper2Id = selectedPapers.paper2.id;
       }
 
-      const response = await axios.post('/api/matches', matchData);
-      const matchDetails = await axios.get(`/api/matches/${response.data.id}`);
-      
-      setMatchResults(matchDetails.data);
+      const match = await createMatch(matchData);
+      setMatchResults(match);
       setShowResults(true);
       message.success('Match created successfully');
       
@@ -266,10 +194,9 @@ const SubcategoryPage = () => {
 
   const handleFeedback = async (feedback) => {
     try {
-      await axios.post(`/api/matches/${matchResults.id}/feedback`, feedback);
+      const updatedMatch = await submitMatchFeedback(matchResults.id, feedback);
       message.success('Feedback submitted successfully');
-      const updatedMatch = await axios.get(`/api/matches/${matchResults.id}`);
-      setMatchResults(updatedMatch.data);
+      setMatchResults(updatedMatch);
     } catch (error) {
       console.error('Error submitting feedback:', error);
       message.error('Failed to submit feedback');
@@ -522,8 +449,8 @@ const SubcategoryPage = () => {
             <List.Item.Meta
               title={
                 <Space>
-                  <Link to={`/papers/${match.paper.id}`}>
-                    {match.paper.title}
+                  <Link to={`/papers/${match.papers[0].id}`}>
+                    {match.papers[0].title}
                   </Link>
                   <Badge 
                     status={match.status === 'completed' ? 'success' : 'processing'} 
@@ -534,7 +461,7 @@ const SubcategoryPage = () => {
               description={
                 <Space direction="vertical" size="small">
                   <Text type="secondary">
-                    {match.paper.authors.join(', ')}
+                    {match.papers[0].authors.join(', ')}
                   </Text>
                   <Space>
                     <Tag color="blue">{match.agents[0].name}</Tag>
@@ -561,7 +488,6 @@ const SubcategoryPage = () => {
     </Card>
   );
 
-  // Show loading state while categories are loading
   if (loadingCategories) {
     return (
       <div className="subcategory-page" style={{ padding: '24px' }}>
@@ -577,7 +503,6 @@ const SubcategoryPage = () => {
     );
   }
 
-  // Show error if category is not found
   if (categoryNotFound) {
     return (
       <div className="subcategory-page" style={{ padding: '24px' }}>
@@ -599,7 +524,6 @@ const SubcategoryPage = () => {
     );
   }
 
-  // Show error if subcategory is not found
   if (subcategoryNotFound) {
     return (
       <div className="subcategory-page" style={{ padding: '24px' }}>
@@ -635,16 +559,6 @@ const SubcategoryPage = () => {
           <h1>{subcategory.name} Papers</h1>
           <p className="subcategory-description">{subcategory.description}</p>
         </div>
-
-        {usingMockData && (
-          <Alert
-            message="Using Mock Data"
-            description="No papers were found from the API. Showing mock papers for testing purposes."
-            type="warning"
-            showIcon
-            style={{ marginBottom: '20px' }}
-          />
-        )}
 
         <Card style={{ marginBottom: '24px' }}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -799,4 +713,4 @@ const SubcategoryPage = () => {
   );
 };
 
-export default SubcategoryPage;
+export default SubCategoryPageV2; 

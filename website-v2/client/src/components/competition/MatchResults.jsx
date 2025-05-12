@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Typography, Button, Rate, Input, List, Divider, Tag, Modal, message, Statistic, Row, Col, Tabs, Avatar } from 'antd';
-import { LikeOutlined, DislikeOutlined, MessageOutlined, RobotOutlined, StarOutlined, LikeFilled, DislikeFilled, CommentOutlined, HistoryOutlined, BarChartOutlined } from '@ant-design/icons';
+import { Card, Space, Typography, Button, Rate, Input, List, Divider, Tag, Modal, message, Statistic, Row, Col, Tabs, Avatar, Badge } from 'antd';
+import { LikeOutlined, DislikeOutlined, MessageOutlined, RobotOutlined, StarOutlined, LikeFilled, DislikeFilled, CommentOutlined, HistoryOutlined, BarChartOutlined, TrophyOutlined, FileTextOutlined, SwapOutlined, UserOutlined } from '@ant-design/icons';
 import { competitionService } from '../../services/competitionService';
 import FeedbackHistory from './FeedbackHistory';
 import AgentPerformanceChart from './AgentPerformanceChart';
 import useWebSocket from '../../hooks/useWebSocket';
 import { addFeedback, likeFeedback } from '../../services/competitionService';
+import { formatDistanceToNow } from 'date-fns';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { TabPane } = Tabs;
 
-const MatchResults = ({ match, onClose }) => {
+const MatchResults = ({ match, onFeedback, onClose, showFeedback = true, allowComments = true, showLikes = true }) => {
   const [feedback, setFeedback] = useState([]);
   const [performance, setPerformance] = useState(null);
   const [userFeedback, setUserFeedback] = useState({});
@@ -180,82 +181,161 @@ const MatchResults = ({ match, onClose }) => {
     );
   };
 
-  const renderAgentReview = (agent, agentId) => (
-    <Card 
-      style={{ 
-        marginBottom: '16px',
-        border: feedback.find(f => f.agentId === agentId && f.liked !== null) ? 
-          `2px solid ${feedback.find(f => f.agentId === agentId && f.liked) ? '#52c41a' : '#ff4d4f'}` : undefined
-      }}
-    >
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Space>
-            <RobotOutlined style={{ fontSize: '24px' }} />
+  const renderAgentReview = (agent, agentId) => {
+    const feedback = performance?.feedback?.[agentId]?.feedback || {};
+    const likes = feedback.total_likes || 0;
+    const dislikes = feedback.total_dislikes || 0;
+    const comments = feedback.comments || [];
+    const avgRating = feedback.avg_rating || 0;
+
+    return (
+      <Card 
+        style={{ 
+          marginBottom: '16px',
+          border: feedback.find(f => f.agentId === agentId && f.liked !== null) ? 
+            `2px solid ${feedback.find(f => f.agentId === agentId && f.liked) ? '#52c41a' : '#ff4d4f'}` : undefined
+        }}
+      >
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Space>
+              <Avatar src={agent.avatar_url} icon={<RobotOutlined />} />
+              <div>
+                <Title level={4} style={{ margin: 0 }}>{agent.name}</Title>
+                <Text type="secondary">{agent.provider}</Text>
+              </div>
+            </Space>
+            <Space>
+              <Button
+                type={feedback.find(f => f.agentId === agentId && f.liked === true) ? "primary" : "default"}
+                icon={<LikeOutlined />}
+                onClick={() => handleLike(feedback.find(f => f.agentId === agentId)?.id, true)}
+              >
+                {likes}
+              </Button>
+              <Button
+                type={feedback.find(f => f.agentId === agentId && f.liked === false) ? "primary" : "default"}
+                danger
+                icon={<DislikeOutlined />}
+                onClick={() => handleLike(feedback.find(f => f.agentId === agentId)?.id, false)}
+              >
+                {dislikes}
+              </Button>
+            </Space>
+          </div>
+
+          <div>
+            <Title level={5}>Review</Title>
+            <Paragraph>{agent.review}</Paragraph>
+          </div>
+
+          <div>
+            <Title level={5}>Evaluation</Title>
+            <List
+              size="small"
+              dataSource={agent.evaluation}
+              renderItem={item => (
+                <List.Item>
+                  <Space>
+                    <Tag color={item.score >= 0.7 ? 'green' : item.score >= 0.4 ? 'orange' : 'red'}>
+                      {item.criterion}
+                    </Tag>
+                    <Text>{item.comment}</Text>
+                  </Space>
+                </List.Item>
+              )}
+            />
+          </div>
+
+          {renderAgentStats(agent.id)}
+
+          <div>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div>
+                <Text strong>Rate this review:</Text>
+                <Rate 
+                  value={avgRating} 
+                  onChange={(value) => handleFeedback({ agentId, rating: value })}
+                  style={{ marginLeft: '8px' }}
+                />
+              </div>
+            </Space>
+          </div>
+
+          {allowComments && (
             <div>
-              <Title level={4} style={{ margin: 0 }}>{agent.name}</Title>
-              <Text type="secondary">{agent.provider}</Text>
-            </div>
-          </Space>
-          <Space>
-            <Button
-              type={feedback.find(f => f.agentId === agentId && f.liked === true) ? "primary" : "default"}
-              icon={<LikeOutlined />}
-              onClick={() => handleLike(feedback.find(f => f.agentId === agentId)?.id, true)}
-            >
-              Like
-            </Button>
-            <Button
-              type={feedback.find(f => f.agentId === agentId && f.liked === false) ? "primary" : "default"}
-              danger
-              icon={<DislikeOutlined />}
-              onClick={() => handleLike(feedback.find(f => f.agentId === agentId)?.id, false)}
-            >
-              Dislike
-            </Button>
-          </Space>
-        </div>
-
-        <div>
-          <Title level={5}>Review</Title>
-          <Paragraph>{agent.review}</Paragraph>
-        </div>
-
-        <div>
-          <Title level={5}>Evaluation</Title>
-          <List
-            size="small"
-            dataSource={agent.evaluation}
-            renderItem={item => (
-              <List.Item>
-                <Space>
-                  <Tag color={item.score >= 0.7 ? 'green' : item.score >= 0.4 ? 'orange' : 'red'}>
-                    {item.criterion}
-                  </Tag>
-                  <Text>{item.comment}</Text>
+              <Title level={5}>Comments</Title>
+              {selectedAgent === agent.id ? (
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <TextArea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Write your comment..."
+                    rows={4}
+                  />
+                  <Space>
+                    <Button 
+                      type="primary" 
+                      onClick={() => handleFeedback({ agentId, rating: rating, comment: comment, liked: feedback.find(f => f.agentId === agentId)?.liked })}
+                    >
+                      Submit Comment
+                    </Button>
+                    <Button onClick={() => setSelectedAgent(null)}>
+                      Cancel
+                    </Button>
+                  </Space>
                 </Space>
-              </List.Item>
-            )}
-          />
-        </div>
-
-        {renderAgentStats(agent.id)}
-
-        <div>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <div>
-              <Text strong>Rate this review:</Text>
-              <Rate 
-                value={feedback.find(f => f.agentId === agentId)?.rating || 0} 
-                onChange={(value) => handleFeedback({ agentId, rating: value })}
-                style={{ marginLeft: '8px' }}
+              ) : (
+                <Button 
+                  icon={<CommentOutlined />} 
+                  onClick={() => setSelectedAgent(agent.id)}
+                >
+                  Add Comment
+                </Button>
+              )}
+              <List
+                dataSource={comments}
+                renderItem={item => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar icon={<UserOutlined />} />}
+                      title={
+                        <Space>
+                          <span>{item.username || 'Anonymous'}</span>
+                          {item.rating && <Rate disabled defaultValue={item.rating} />}
+                        </Space>
+                      }
+                      description={
+                        <Space direction="vertical" size="small">
+                          <Text>{item.comment}</Text>
+                          <Text type="secondary" style={{ fontSize: '12px' }}>
+                            {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                          </Text>
+                        </Space>
+                      }
+                    />
+                  </List.Item>
+                )}
               />
             </div>
-          </Space>
-        </div>
-      </Space>
-    </Card>
-  );
+          )}
+        </Space>
+      </Card>
+    );
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'completed':
+        return <Badge status="success" text="Completed" />;
+      case 'pending':
+        return <Badge status="processing" text="Pending" />;
+      case 'error':
+        return <Badge status="error" text="Error" />;
+      default:
+        return <Badge status="default" text={status} />;
+    }
+  };
 
   return (
     <div className="match-results">

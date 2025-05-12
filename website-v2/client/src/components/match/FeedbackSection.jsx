@@ -120,10 +120,72 @@ const FeedbackSection = ({ matchId }) => {
     }
   };
 
+  const renderFeedbackItem = (feedback) => (
+    <ListGroup.Item key={feedback.id} className="px-0">
+        <div className="d-flex justify-content-between align-items-start mb-2">
+            <div className="d-flex align-items-center">
+                <strong>{feedback.user?.username || 'Anonymous'}</strong>
+                {feedback.rating && (
+                    <Badge bg="info" className="ms-2">
+                        {feedback.rating} Stars
+                    </Badge>
+                )}
+                {feedback.vote && (
+                    <Badge 
+                        bg={feedback.vote === 'agree' ? 'success' : 'danger'}
+                        className="ms-2"
+                    >
+                        {feedback.vote === 'agree' ? 'Agrees' : 'Disagrees'}
+                    </Badge>
+                )}
+            </div>
+            <small className="text-muted">
+                {formatDistanceToNow(new Date(feedback.created_at), { addSuffix: true })}
+            </small>
+        </div>
+        
+        {feedback.comment && (
+            <div className="feedback-comment mb-2">
+                <p className="mb-0" style={{ 
+                    whiteSpace: 'pre-wrap',
+                    backgroundColor: '#f8f9fa',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    fontSize: '0.95rem'
+                }}>
+                    {feedback.comment}
+                </p>
+            </div>
+        )}
+        
+        <div className="d-flex align-items-center">
+            <Button 
+                variant="link" 
+                size="sm" 
+                className="p-0 text-muted me-3"
+                onClick={() => handleLike(feedback.id)}
+                disabled={!isAuthenticated}
+            >
+                <HandThumbsUp size={14} className="me-1" />
+                {feedback.likes || 0}
+            </Button>
+            {feedback.comment && (
+                <small className="text-muted">
+                    <ChatSquareText size={14} className="me-1" />
+                    Comment
+                </small>
+            )}
+        </div>
+    </ListGroup.Item>
+  );
+
   return (
     <Card>
-      <Card.Header>
+      <Card.Header className="d-flex justify-content-between align-items-center">
         <h5 className="mb-0">Community Feedback</h5>
+        <Badge bg="secondary" pill>
+          {feedbacks.length} {feedbacks.length === 1 ? 'Response' : 'Responses'}
+        </Badge>
       </Card.Header>
       <Card.Body>
         {error && (
@@ -161,14 +223,19 @@ const FeedbackSection = ({ matchId }) => {
           </div>
           
           <Form.Group className="mb-3">
+            <Form.Label>Add your comment</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
-              placeholder="Add a comment (optional)"
+              placeholder="Share your thoughts about this review..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               disabled={submitting}
+              style={{ resize: 'none' }}
             />
+            <Form.Text className="text-muted">
+              Your comment will help improve the quality of reviews
+            </Form.Text>
           </Form.Group>
           
           <div className="d-grid">
@@ -176,7 +243,7 @@ const FeedbackSection = ({ matchId }) => {
               <Button 
                 type="submit" 
                 variant="primary"
-                disabled={submitting}
+                disabled={submitting || (!userVote && !comment.trim())}
               >
                 {submitting ? 'Submitting...' : 'Submit Feedback'}
               </Button>
@@ -190,13 +257,6 @@ const FeedbackSection = ({ matchId }) => {
         
         <hr className="my-4" />
         
-        <h6 className="mb-3">
-          Recent Feedback 
-          <Badge bg="secondary" className="ms-2">
-            {feedbacks.length}
-          </Badge>
-        </h6>
-        
         {loading ? (
           <div className="text-center py-3">
             <div className="spinner-border spinner-border-sm text-primary" role="status">
@@ -204,46 +264,15 @@ const FeedbackSection = ({ matchId }) => {
             </div>
           </div>
         ) : feedbacks.length === 0 ? (
-          <p className="text-center text-muted mb-0">
-            No feedback yet. Be the first to comment!
-          </p>
+          <div className="text-center py-4">
+            <ChatSquareText size={32} className="text-muted mb-2" />
+            <p className="text-muted mb-0">
+              No feedback yet. Be the first to share your thoughts!
+            </p>
+          </div>
         ) : (
           <ListGroup variant="flush">
-            {feedbacks.map(feedback => (
-              <ListGroup.Item key={feedback.id} className="px-0">
-                <div className="d-flex justify-content-between align-items-start mb-1">
-                  <div className="d-flex align-items-center">
-                    <strong>{feedback.user?.username || 'Anonymous'}</strong>
-                    {feedback.vote && (
-                      <Badge 
-                        bg={feedback.vote === 'agree' ? 'success' : 'danger'}
-                        className="ms-2"
-                      >
-                        {feedback.vote === 'agree' ? 'Agrees' : 'Disagrees'}
-                      </Badge>
-                    )}
-                  </div>
-                  <small className="text-muted">
-                    {formatDistanceToNow(new Date(feedback.created_at), { addSuffix: true })}
-                  </small>
-                </div>
-                
-                {feedback.comment && (
-                  <p className="mb-2">{feedback.comment}</p>
-                )}
-                
-                <Button 
-                  variant="link" 
-                  size="sm" 
-                  className="p-0 text-muted"
-                  onClick={() => handleLike(feedback.id)}
-                  disabled={!isAuthenticated}
-                >
-                  <HandThumbsUp size={14} className="me-1" />
-                  {feedback.likes || 0}
-                </Button>
-              </ListGroup.Item>
-            ))}
+            {feedbacks.map(renderFeedbackItem)}
           </ListGroup>
         )}
       </Card.Body>
