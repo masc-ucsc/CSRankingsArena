@@ -1,0 +1,195 @@
+Computer Security:
+  - Software Security
+  - Web Security
+  - Network Security
+  - Formal Methods and Programming Languages
+  - Hardware, Side Channels, and Cyber Physical Systems
+  - Applied Cryptography
+  - Machine Learning and Security
+  - Security Usability and Measurement
+  - Blockchain and Distributed Systems
+  - Privacy and Anonymity
+Artificial Intelligence:
+  - Agent-based and Multi-agent Systems
+  - AI Ethics, Trust, Fairness
+  - Constraint Satisfaction and Optimization
+  - Data Mining
+  - Game Theory and Economic Paradigms
+  - Humans and AI
+  - Multidisciplinary Topics and Applications
+  - Planning and Scheduling
+  - Search
+Computer Networks:
+  - Computer networks
+  - Wired and wireless technologies
+  - Networks and networked systems
+  - Network life cycle
+  - Approaches and techniques
+Computer Vision:
+  - 3D from multi-view and sensors
+  - 3D from single images
+  - Adversarial attack and defense
+  - Autonomous driving
+  - Biometrics
+  - Computational imaging
+  - Computer vision for social good
+  - Computer vision theory
+  - Datasets and evaluation
+  - Deep learning architectures and techniques
+  - Document analysis and understanding
+  - Efficient and scalable vision
+  - Embodied vision: Active agents, simulation
+  - Event-based cameras
+  - Explainable computer vision
+  - Humans: Face, body, pose, gesture, movement
+  - Image and video synthesis and generation
+  - Low-level vision
+  - Machine learning (other than deep learning)
+  - Medical and biological vision, cell microscopy
+  - Multimodal learning
+  - Optimization methods (other than deep learning)
+  - Photogrammetry and remote sensing
+  - Physics-based vision and shape-from-X
+  - Recognition: Categorization, detection, retrieval
+  - Representation learning
+  - Computer Vision for Robotics
+  - Scene analysis and understanding
+  - Segmentation, grouping and shape analysis
+  - Self-, semi-, meta- and unsupervised learning
+  - Transfer/ low-shot/ continual/ long-tail learning
+  - Transparency, fairness, accountability, privacy and ethics in vision
+  - Video: Action and event understanding
+  - Video: Low-level analysis, motion, and tracking
+  - Vision + graphics
+  - Vision, language, and reasoning
+  - Vision applications and systems
+Databases:
+  - Benchmarking, database monitoring, performance tuning, and self-driving databases
+  - Blockchains and distributed ledgers
+  - Cloud data management and HPC
+  - Crowdsourced and collaborative data management
+  - Data exploration, visualization, query languages, and user interfaces
+  - Data integration, information extraction, and schema matching
+  - Data models and semantics
+  - Data provenance and workflows
+  - Data quality, data cleaning, and database usability
+  - Data security, privacy, and access control
+  - Data sparsity, boosting, simulated data, and digital twins
+  - Data systems for knowledge discovery, data mining, machine learning, and artificial intelligence
+  - Data warehousing, OLAP, SQL analytics
+  - Distributed, decentralized, and parallel data management
+  - Embedded databases, IoT and Sensor networks
+  - Emerging hardware for data management
+  - Graphs, social networks, web data, and semantic web
+  - Machine learning and artificial intelligence for data management and data systems
+  - Multimedia and information retrieval
+  - Natural language processing for databases
+  - Query processing and optimization
+  - Responsible data management and data fairness
+  - Semistructured, partially structured, and unstructured data
+  - Spatial and temporal data management
+  - Storage, indexing, and physical database design
+  - Streams and complex event processing
+  - Transaction processing
+  - Uncertain, probabilistic, and approximate databases
+  - User-centric and human-in-the-loop data management
+Machine Learning:
+  - General Machine Learning
+  - Deep Learning
+  - Learning Theory
+  - Optimization
+  - Probabilistic Inference
+  - Trustworthy Machine Learning
+  - Applications
+Computer Architecture:
+  - Microarchitectural, architectural, compiler, and hybrid techniques for improving system performance, power, energy-efficiency, security, cost, complexity, programmer productivity, predictability, quality of service, reliability, dependability, scalability, or sustainability
+  - Processor, memory, and storage architectures
+  - Multicore and multiprocessor systems
+  - Instruction-, thread-, and data-level parallelism
+  - Prediction and Speculation
+  - Memory Hierarchy
+  - Cloud and datacenter-scale computing
+  - IoT, mobile, and embedded architecture
+  - Interconnection network, router, and network interface architecture
+  - Accelerator-based, application-specific, and reconfigurable architectures
+  - Architectural support for programming languages, compilation, software development, security and privacy, virtualization
+  - Architectures for emerging technologies and applications
+  - Architectural support for non-volatile/persistent memory
+  - Quantum computing
+  - In-/near-memory or in-/near-storage processing
+  - Approximate computing and architectural support for approximation
+  - Effects of circuits and technology on architecture
+  - Architecture modeling and simulation methodologies
+  - Evaluation and measurement of real computing systems
+Natural Language Processing:
+  - Computational Social Science and Cultural Analytics
+  - Dialogue and Interactive Systems
+  - Discourse and Pragmatics
+  - Efficient/Low-Resource Methods for NLP
+  - Ethics, Bias, and Fairness
+  - Generation
+  - Human-Centered NLP
+  - Information Extraction
+  - Information Retrieval and Text Mining
+  - Interpretability and Analysis of Models for NLP
+  - Language Modeling
+  - Linguistic theories, Cognitive Modeling and Psycholinguistics
+  - Machine Learning for NLP
+  - Machine Translation
+  - Multilinguality and Language Diversity
+  - Multimodality and Language Grounding to Vision, Robotics and Beyond
+  - NLP Applications
+  - Phonology, Morphology and Word Segmentation
+  - Question Answering
+  - Resources and Evaluation
+  - Semantics: Lexical and Sentence-Level
+  - Sentiment Analysis, Stylistic Analysis, and Argument Mining
+  - Speech recognition, text-to-speech and spoken language understanding
+  - Summarization
+  - Syntax: Tagging, Chunking and Parsing
+The Web and Information Retrieval:
+  - Economics, Online Markets, and Human Computation
+  - Graph Algorithms and Modeling for the Web
+  - Responsible Web
+  - Search
+  - Security
+  - Semantics and Knowledge
+  - Social Networks, Social Media, and Society
+  - Systems and Infrastructure for Web, Mobile, and WoT
+  - User Modeling and Recommendation
+  - Web Mining and Content Analysis
+  - System, Efficiency and Scalability
+  - Machine Learning and Natural Language Processing for IR
+  - Conversational IR
+Design Automation:
+  - AI/ML Algorithms
+  - AI/ML Application and Infrastructure
+  - AI/ML Architecture Design
+  - AI/ML System and Platform Design
+  - SoC, Heterogeneous, and Reconfigurable Architectures
+  - In-memory and Near-memory Computing Circuits
+  - In-memory and Near-memory Computing Architectures, Applications and Systems
+  - Emerging Models of Computation
+  - Digital and Analog Circuits
+  - Emerging Device and Interconnect Technologies
+  - Quantum Computing
+  - Design Methodologies for System-on-Chip and 3D/2.5D System-in Package
+  - Design Verification and Validation
+  - Timing Analysis and Optimization
+  - Power Analysis and Optimization
+  - RTL/Logic Level and High-level Synthesis
+  - Analog CAD, Simulation, Verification and Test
+  - Physical Design and Verification
+  - Design for Manufacturability and Reliability
+  - Test, Validation and Silicon Lifecycle Management
+  - AI/ML Security and Privacy
+  - Hardware Security: Primitives, Architecture, Design, and Test
+  - Hardware Security: Attack and Defense
+  - Embedded and Cross-Layer Security
+  - Autonomous Systems (Automotive, Robotics, Drones)
+  - Design of Cyber-Physical Systems and IoT
+  - Embedded Software
+  - Embedded System Design Tools and Methodologies
+  - Embedded Memory and Storage Systems
+  - Time-Critical and Fault Tolerant System Design
+
