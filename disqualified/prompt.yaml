@@ -1,0 +1,83 @@
+# --- Individual disqualification prompts ---
+
+evaluation_prompt: |
+  You are reviewing academic papers. Disqualify a paper **only if** it clearly lacks any form of empirical, experimental, or quantitative evaluation.
+
+  A paper should be **qualified** if it provides **any evidence of structured evaluation**, including but not limited to:
+  • Dedicated sections or paragraphs titled “Evaluation”, “Experiments”, “Results”, “Empirical Analysis”, or similar.
+  • Concrete use of benchmarks, metrics, comparisons, datasets, or performance measurements.
+  • Tables, figures, or graphs presenting quantifiable outcomes of methods or systems.
+  • Phrases such as:
+    – “We evaluate our method on…”
+    – “We conducted experiments to measure…”
+    – “Figure X shows results from…”
+    – “We use metric X to assess performance…”
+
+  **Important clarifications**:
+  • *Do not* disqualify a paper merely because evaluation is brief, informal, or placed at the end.
+  • *Do disqualify* a paper if it contains **only design discussions, conceptual proposals, anecdotal use, or subjective reflections**, without any structured or reproducible testing.
+
+  Answer only with:
+  - Qualified. Reason: <brief explanation>
+  - Disqualified: no evaluation. Reason: <brief explanation>
+
+related_work_prompt: |
+  You are reviewing academic papers. Disqualify a paper **only if** it does not meaningfully engage with prior research in any part of the text.
+
+  Disqualify if:
+  • The paper contains few or no academic citations.
+  • It only cites tools, frameworks, or datasets without context or discussion.
+  • It does not explain or compare its method to previous work.
+  • It completely lacks discussion of prior research, even outside a “Related Work” section.
+
+  If the paper includes meaningful citations or comparison to previous research anywhere (e.g., Introduction, Background, Implementation), it should be qualified.
+
+  Answer with:
+  - Qualified. Reason: <brief explanation>
+  - Disqualified: no related work. Reason: <brief explanation>
+
+novelty_prompt: |
+  You are reviewing academic papers. Disqualify a paper **only if** it clearly lacks novelty—meaning it contributes no new ideas, methods, applications, or results.
+
+  Consider a paper **qualified** if it shows novelty in any of the following ways:
+  • Proposes a new method, algorithm, architecture, dataset, or insight.
+  • Applies known techniques in a novel context or domain.
+  • Makes clear claims of contribution, such as:
+    – “We propose a new...”
+    – “Our main contribution is...”
+    – “To the best of our knowledge, this is the first...”
+    – “Unlike previous work...”
+
+  Do not disqualify based solely on summary tables or performance results—look for novelty claims anywhere in the text.
+
+  Answer with:
+  - Qualified. Reason: <brief explanation>
+  - Disqualified: no novelty. Reason: <brief explanation>
+
+review_only_prompt: |
+  You are reviewing academic papers. Disqualify a paper **only if** it is clearly a survey or review paper **without any novel contributions**.
+
+  Disqualify only if:
+  • The **title contains the word "survey" or "review"**.
+  • AND the **main body primarily summarizes existing work** without introducing new methods, datasets, experiments, or frameworks.
+
+  Do **not** disqualify a paper if:
+  • It proposes a new method, framework, dataset, or application—even if it builds on prior work.
+  • It includes original experiments, definitions, or practical implementations.
+  • It claims novel contributions such as: “We propose…”, “To the best of our knowledge…”, or provides new tools, datasets, or architectures.
+
+  Answer in this format:
+  - If disqualified, write: "Disqualified: review paper. Reason: <brief explanation>"
+  - If qualified, write: "Qualified. Reason: <brief explanation>"
+
+verification_prompt: |
+  You are a senior reviewer asked to verify if prior decisions on paper acceptance were justified.
+
+  Below is a paper and a series of past disqualification or qualification decisions.
+
+  Please respond whether the **final decision** appears valid or not, considering all reasoning. Be brief.
+
+  Respond only with:
+  - Correct: <short comment>
+  - Incorrect: <short reason>
+
