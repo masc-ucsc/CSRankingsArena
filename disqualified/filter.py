@@ -17,73 +17,85 @@ PROMPT_ORDER = [
     ("review_only_prompt", "disqualify_result_review.yaml"),
 ]
 
-
-def split_by_section(markdown_text):
-    section_headers = list(re.finditer(r"^#{2,3} .*", markdown_text, flags=re.MULTILINE))
-    if not section_headers:
-        return [markdown_text]
-
-    sections = []
-    for i in range(len(section_headers)):
-        start = section_headers[i].start()
-        end = section_headers[i + 1].start() if i + 1 < len(section_headers) else len(markdown_text)
-        sections.append(markdown_text[start:end])
-    return sections
+def extract_introduction(document_text):
+    intro_match = re.search(
+        r"""
+        ^\s*                                              # Optional leading whitespace
+        (?:<[^>]+>\s*)*                                   # Optional inline HTML like <span>
+        [#]+\s*                                           # Markdown heading ##, ### etc.
+        (?:<[^>]+>\s*)*                                   # More inline HTML if needed
+        (?:[\*\_]*\s*)*                                   # Optional markdown styling
+        (?:[IVXLCDM0-9]+[\.\-\)]?\s+)?                    # Optional section number (1, I., etc.)
+        INTRODUCTION                                      # The word 'INTRODUCTION'
+        (?:\s*[\*\_]*)*                                   # Optional styling after
+        [^\n\S]*[\r\n]+                                   # Line break after heading
+        (.*?)                                             # Capture everything after intro heading
+        (?=                                               
+            ^\s*                                          # Start of line
+            (?:<[^>]+>\s*)*                               # Optional HTML span
+            [#]+                                          # Next heading
+            |
+            ^\s*\*\*?[A-Z]                                # Or something like "**A"
+            |
+            \Z                                            # Or end of file
+        )
+        """,
+        document_text,
+        flags=re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE
+    )
+    return intro_match.group(1).strip() if intro_match else ""
 
 def is_disqualified(paper, prompt_text, prompt_key=None):
-    markdown_text = paper["document"]
+    abstract_text = paper.get("abstract", "").strip()
+    document_text = paper.get("document", "")
 
-    if len(markdown_text) <= 100_000:
-        # Full context if size allows
-        content_to_use = markdown_text
-        prompt = f"""{prompt_text}
+    if not abstract_text:
+        abstract_match = re.search(
+            r"(?i)^#{1,3}\s*abstract\s*\n+(.*?)(?=^#{1,3}\s|\Z)", 
+            document_text, 
+            flags=re.DOTALL | re.MULTILINE
+        )
+        if abstract_match:
+            abstract_text = abstract_match.group(1).strip()
+        else:
+            fallback_match = re.search(
+                r"(?<=\n\n)abstract\.\s+(.*?)(?=\n\n|#{1,3}\s|\Z)", 
+                document_text, 
+                flags=re.IGNORECASE | re.DOTALL
+            )
+            if fallback_match:
+                abstract_text = fallback_match.group(1).strip()
+                
+    intro_text = extract_introduction(paper.get("document", ""))
 
-Here is the paper content (in Markdown):
+    markdown_text = ""
+    if abstract_text:
+        markdown_text += f"## Abstract\n{abstract_text}\n\n"
+    if intro_text:
+        markdown_text += f"## Introduction\n{intro_text}"
 
-\"\"\"{content_to_use}\"\"\"
+    if not markdown_text:
+        return "Disqualified: No abstract or introduction found."
+    
+    paper["llm_input_used"] = markdown_text
+    
+    prompt = f"""{prompt_text}
+
+Here is the paper content (Abstract + Introduction only):
+
+\"\"\"{markdown_text}\"\"\"
 
 Answer using one of:
 - Qualified. Reason: <brief explanation>
 - Disqualified: <reason>. Reason: <brief explanation>
 """
-        response = litellm.completion(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
-            max_tokens=200
-        )
-        return response["choices"][0]["message"]["content"].strip().strip('"').strip("'")
-
-    # Too long: split by section and evaluate ALL chunks
-    sections = split_by_section(markdown_text)
-    all_replies = []
-    disqualified_chunks = []
-
-    for idx, section in enumerate(sections):
-        section_prompt = f"""{prompt_text}
-
-Here is a section from the paper (chunk {idx + 1}):
-
-\"\"\"{section[:8000]}\"\"\"
-
-Answer using one of:
-- Qualified. Reason: <brief explanation>
-- Disqualified: <reason>. Reason: <brief explanation>
-"""
-        response = litellm.completion(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": section_prompt}],
-            temperature=0.2,
-            max_tokens=200
-        )
-        reply = response["choices"][0]["message"]["content"].strip().strip('"').strip("'")
-        all_replies.append(f"Chunk {idx + 1}: {reply}")
-        if reply.lower().startswith("disqualified"):
-            disqualified_chunks.append(f"Chunk {idx + 1}: {reply}")
-
-    if disqualified_chunks:
-        return "Disqualified: " + " | ".join(disqualified_chunks)
-    return "Qualified. Reason: All relevant sections passed."
+    response = litellm.completion(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2,
+        max_tokens=200
+    )
+    return response["choices"][0]["message"]["content"].strip().strip('"').strip("'")
 
 def run_all_checks(papers):
     for paper in papers:
