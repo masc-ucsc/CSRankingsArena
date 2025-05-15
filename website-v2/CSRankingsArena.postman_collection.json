@@ -1,0 +1,490 @@
+{
+	"info": {
+		"_postman_id": "csrankings-arena-collection",
+		"name": "CSRankings Arena API v2",
+		"description": "API collection for the CSRankings Arena v2 backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Get Health Status",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "health"]
+						},
+						"description": "Check if the server is running"
+					}
+				}
+			]
+		},
+		{
+			"name": "Papers",
+			"item": [
+				{
+					"name": "Get Papers",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/papers?category=ai&year=2023",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "papers"],
+							"query": [
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category slug"
+								},
+								{
+									"key": "year",
+									"value": "2023",
+									"description": "Publication year"
+								}
+							]
+						},
+						"description": "Get papers by category and year"
+					}
+				},
+				{
+					"name": "Search Papers",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/papers/search?q=machine%20learning&category=ai&year=2023&page=1&limit=20",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "papers", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "machine learning",
+									"description": "Search query"
+								},
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category slug"
+								},
+								{
+									"key": "year",
+									"value": "2023",
+									"description": "Publication year"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Results per page"
+								}
+							]
+						},
+						"description": "Search papers by query, category, and year"
+					}
+				},
+				{
+					"name": "Process YAML",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/papers/process-yaml",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "papers", "process-yaml"]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"yamlPath\": \"path/to/file.yaml\",\n    \"category\": \"ai\",\n    \"forceRefresh\": false\n}"
+						},
+						"description": "Process papers from a YAML file"
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "categories"]
+						},
+						"description": "Get all available categories"
+					}
+				},
+				{
+					"name": "Get Category by Slug",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/categories/ai",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "categories", "ai"]
+						},
+						"description": "Get details for a specific category"
+					}
+				}
+			]
+		},
+		{
+			"name": "Competition",
+			"item": [
+				{
+					"name": "Get All Agents",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/agents",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "agents"]
+						},
+						"description": "Get all active competition agents"
+					}
+				},
+				{
+					"name": "Get Agent by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/agents/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "agents", "1"]
+						},
+						"description": "Get details for a specific agent"
+					}
+				},
+				{
+					"name": "Get Agent Matches",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/agents/1/matches?page=1&limit=10&status=completed",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "agents", "1", "matches"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Results per page"
+								},
+								{
+									"key": "status",
+									"value": "completed",
+									"description": "Match status filter"
+								}
+							]
+						},
+						"description": "Get matches for a specific agent"
+					}
+				},
+				{
+					"name": "Get Agent Stats",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/agents/stats?agents=1,2,3",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "agents", "stats"],
+							"query": [
+								{
+									"key": "agents",
+									"value": "1,2,3",
+									"description": "Comma-separated list of agent IDs"
+								}
+							]
+						},
+						"description": "Get comparison statistics for multiple agents"
+					}
+				},
+				{
+					"name": "Get Leaderboard",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/leaderboard?limit=10&category=ai&timeRange=month",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "leaderboard"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of results"
+								},
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category filter"
+								},
+								{
+									"key": "timeRange",
+									"value": "month",
+									"description": "Time range filter (all, week, month, year)"
+								}
+							]
+						},
+						"description": "Get the competition leaderboard"
+					}
+				},
+				{
+					"name": "Get Leaderboard Stats",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/leaderboard/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "leaderboard", "stats"]
+						},
+						"description": "Get leaderboard statistics"
+					}
+				}
+			]
+		},
+		{
+			"name": "Matches",
+			"item": [
+				{
+					"name": "Get Match by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/matches/123e4567-e89b-12d3-a456-426614174000",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "matches", "123e4567-e89b-12d3-a456-426614174000"]
+						},
+						"description": "Get details for a specific match"
+					}
+				}
+			]
+		},
+		{
+			"name": "Feedback",
+			"item": [
+				{
+					"name": "Submit Feedback",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/feedback",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "feedback"]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"matchId\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"rating\": 5,\n    \"comment\": \"Great analysis!\",\n    \"feedbackType\": \"quality\",\n    \"agentId\": 1\n}"
+						},
+						"description": "Submit feedback for a match"
+					}
+				},
+				{
+					"name": "Get Match Feedback",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/feedback/match/123e4567-e89b-12d3-a456-426614174000",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "feedback", "match", "123e4567-e89b-12d3-a456-426614174000"]
+						},
+						"description": "Get feedback for a specific match"
+					}
+				},
+				{
+					"name": "Get Agent Feedback",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/feedback/agent/1?page=1&limit=10&feedbackType=quality",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "feedback", "agent", "1"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Results per page"
+								},
+								{
+									"key": "feedbackType",
+									"value": "quality",
+									"description": "Feedback type filter"
+								}
+							]
+						},
+						"description": "Get feedback for a specific agent"
+					}
+				}
+			]
+		},
+		{
+			"name": "Mock Endpoints",
+			"description": "These endpoints are only available when USE_MOCK_DATA=true",
+			"item": [
+				{
+					"name": "Get Mock Papers",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/mock/papers?category=ai&year=2023",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "mock", "papers"],
+							"query": [
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category slug"
+								},
+								{
+									"key": "year",
+									"value": "2023",
+									"description": "Publication year"
+								}
+							]
+						},
+						"description": "Get mock papers (development only)"
+					}
+				},
+				{
+					"name": "Search Mock Papers",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/mock/papers/search?q=machine%20learning&category=ai&year=2023&page=1&limit=20",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "mock", "papers", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "machine learning",
+									"description": "Search query"
+								},
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category slug"
+								},
+								{
+									"key": "year",
+									"value": "2023",
+									"description": "Publication year"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Results per page"
+								}
+							]
+						},
+						"description": "Search mock papers (development only)"
+					}
+				},
+				{
+					"name": "Get Mock Matches",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/mock/matches?category=ai&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "mock", "matches"],
+							"query": [
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category slug"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Results limit"
+								}
+							]
+						},
+						"description": "Get mock matches (development only)"
+					}
+				},
+				{
+					"name": "Get Mock Leaderboard",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/mock/leaderboard?limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "mock", "leaderboard"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Results limit"
+								}
+							]
+						},
+						"description": "Get mock leaderboard (development only)"
+					}
+				},
+				{
+					"name": "Submit Mock Vote",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/mock/vote",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v2", "mock", "vote"]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"matchId\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"winnerId\": 1,\n    \"reason\": \"Better analysis\"\n}"
+						},
+						"description": "Submit a mock vote (development only)"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+} 

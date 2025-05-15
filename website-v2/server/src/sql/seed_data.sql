@@ -1,8 +1,11 @@
--- Seed categories
-INSERT INTO categories (name, slug, description, color) VALUES
-('Artificial Intelligence', 'ai', 'Research in AI, machine learning, and computational intelligence.', '#3498db'),
-('Computer Architecture', 'architecture', 'Design and optimization of computer hardware systems.', '#e74c3c'),
-('Operating Systems', 'os', 'Research on OS design, resource management, and system software.', '#2ecc71');
+-- Seed categories with arXiv categories
+INSERT INTO categories (name, slug, description, color, arxiv_categories) VALUES
+('Artificial Intelligence', 'ai', 'Research in AI, machine learning, and computational intelligence.', '#3498db', 
+  jsonb_build_array('cs.CV', 'cs.LG', 'stat.ML', 'cs.CL', 'cs.RO')),
+('Computer Architecture', 'architecture', 'Design and optimization of computer hardware systems.', '#e74c3c', 
+  jsonb_build_array('cs.AR', 'cs.DC')),
+('Operating Systems', 'os', 'Research on OS design, resource management, and system software.', '#2ecc71', 
+  jsonb_build_array('cs.OS', 'cs.DC'));
 
 -- Seed subcategories for AI
 INSERT INTO subcategories (name, slug, description, category_id) VALUES

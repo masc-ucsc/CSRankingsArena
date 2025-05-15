@@ -1,0 +1,12 @@
+{
+  "name": "csrankings-mock-generator",
+  "version": "1.0.0",
+  "description": "Mock paper generator for CSRankings Arena",
+  "main": "generateMockPapers.js",
+  "scripts": {
+    "generate": "node generateMockPapers.js"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+} 

@@ -17,6 +17,7 @@ import Dashboard from './components/competition/Dashboard';
 import MatchComparison from './components/competition/MatchComparison';
 import PaperBrowser from './components/competition/PaperBrowser';
 import CreateMatch from './components/competition/CreateMatch';
+import MatchDetail from './components/competition/MatchDetail';
 
 // Import styles
 import './styles/main.css';
@@ -39,6 +40,7 @@ const App = () => {
           <Route path="/competition/matches/:matchId" element={<MatchComparison />} />
           <Route path="/competition/papers" element={<PaperBrowser />} />
           <Route path="/competition/create" element={<CreateMatch />} />
+          <Route path="/matches/:matchId" element={<MatchDetail />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>

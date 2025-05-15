@@ -73,28 +73,25 @@ class PaperService {
         const query = `
             WITH paper_categories AS (
                 SELECT 
-                    p.id, 
-                    array_agg(DISTINCT ac.name) as arxiv_cat_names
+                    p.id,
+                    c.arxiv_categories
                 FROM papers p
-                JOIN paper_arxiv_categories pac ON p.id = pac.paper_id
-                JOIN arxiv_categories ac ON pac.arxiv_category_id = ac.id
-                GROUP BY p.id
+                JOIN paper_subcategories ps ON p.id = ps.paper_id
+                JOIN subcategories s ON ps.subcategory_id = s.id
+                JOIN categories c ON s.category_id = c.id
+                WHERE c.slug = $1
             )
             SELECT 
                 p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
                 p.journal, p.doi, p.comments, p.published_year,
                 array_agg(DISTINCT a.name) as authors,
-                pc.arxiv_cat_names as categories
+                pc.arxiv_categories as categories
             FROM papers p
             JOIN paper_authors pa ON p.id = pa.paper_id
             JOIN authors a ON pa.author_id = a.id
             JOIN paper_categories pc ON p.id = pc.id
-            JOIN paper_subcategories ps ON p.id = ps.paper_id
-            JOIN subcategories s ON ps.subcategory_id = s.id
-            JOIN categories c ON s.category_id = c.id
-            WHERE c.slug = $1
             GROUP BY p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
-                p.journal, p.doi, p.comments, p.published_year, pc.arxiv_cat_names
+                p.journal, p.doi, p.comments, p.published_year, pc.arxiv_categories
             ORDER BY p.published DESC
             LIMIT 100
         `;
@@ -109,7 +106,7 @@ class PaperService {
                 title: row.title,
                 authors: row.authors.filter(a => a !== null),
                 abstract: row.abstract,
-                categories: row.categories.filter(c => c !== null),
+                categories: row.categories || [],
                 published: row.published,
                 updated: row.updated,
                 url: row.url,

@@ -6,14 +6,12 @@ const db = require('../config/db');
 const getAllCategories = async () => {
   const query = `
     SELECT 
-      c.id, c.name, c.slug, c.description, c.color,
+      c.id, c.name, c.slug, c.description, c.color, c.arxiv_categories,
       s.id as subcategory_id, s.name as subcategory_name, s.slug as subcategory_slug, 
-      s.description as subcategory_description,
-      array_agg(DISTINCT ac.name) as arxiv_categories
+      s.description as subcategory_description
     FROM categories c
     LEFT JOIN subcategories s ON c.id = s.category_id
-    LEFT JOIN arxiv_categories ac ON s.id = ac.subcategory_id
-    GROUP BY c.id, c.name, c.slug, c.description, c.color, s.id, s.name, s.slug, s.description
+    GROUP BY c.id, c.name, c.slug, c.description, c.color, c.arxiv_categories, s.id, s.name, s.slug, s.description
     ORDER BY c.name, s.name
   `;
   
@@ -31,6 +29,7 @@ const getAllCategories = async () => {
           slug: row.slug,
           description: row.description,
           color: row.color,
+          arxivCategories: row.arxiv_categories || [],
           subcategories: []
         });
       }
@@ -47,8 +46,7 @@ const getAllCategories = async () => {
             id: row.subcategory_id,
             name: row.subcategory_name,
             slug: row.subcategory_slug,
-            description: row.subcategory_description,
-            arxivCategories: row.arxiv_categories.filter(ac => ac !== null)
+            description: row.subcategory_description
           });
         }
       }
@@ -65,15 +63,13 @@ const getAllCategories = async () => {
 const getCategoryBySlug = async (slug) => {
   const query = `
     SELECT 
-      c.id, c.name, c.slug, c.description, c.color,
+      c.id, c.name, c.slug, c.description, c.color, c.arxiv_categories,
       s.id as subcategory_id, s.name as subcategory_name, s.slug as subcategory_slug, 
-      s.description as subcategory_description,
-      array_agg(DISTINCT ac.name) as arxiv_categories
+      s.description as subcategory_description
     FROM categories c
     LEFT JOIN subcategories s ON c.id = s.category_id
-    LEFT JOIN arxiv_categories ac ON s.id = ac.subcategory_id
     WHERE c.slug = $1
-    GROUP BY c.id, c.name, c.slug, c.description, c.color, s.id, s.name, s.slug, s.description
+    GROUP BY c.id, c.name, c.slug, c.description, c.color, c.arxiv_categories, s.id, s.name, s.slug, s.description
     ORDER BY s.name
   `;
   
@@ -91,6 +87,7 @@ const getCategoryBySlug = async (slug) => {
       slug: result.rows[0].slug,
       description: result.rows[0].description,
       color: result.rows[0].color,
+      arxivCategories: result.rows[0].arxiv_categories || [],
       subcategories: []
     };
     
@@ -105,8 +102,7 @@ const getCategoryBySlug = async (slug) => {
             id: row.subcategory_id,
             name: row.subcategory_name,
             slug: row.subcategory_slug,
-            description: row.subcategory_description,
-            arxivCategories: row.arxiv_categories.filter(ac => ac !== null)
+            description: row.subcategory_description
           });
         }
       }
@@ -119,44 +115,7 @@ const getCategoryBySlug = async (slug) => {
   }
 };
 
-// Get arXiv categories for a specific category/subcategory
-const getArxivCategories = async (categorySlug, subcategorySlug = null) => {
-  let query;
-  let params;
-  
-  if (subcategorySlug) {
-    // Get arXiv categories for a specific subcategory
-    query = `
-      SELECT ac.name
-      FROM arxiv_categories ac
-      JOIN subcategories s ON ac.subcategory_id = s.id
-      JOIN categories c ON s.category_id = c.id
-      WHERE c.slug = $1 AND s.slug = $2
-    `;
-    params = [categorySlug, subcategorySlug];
-  } else {
-    // Get all arXiv categories for a category
-    query = `
-      SELECT DISTINCT ac.name
-      FROM arxiv_categories ac
-      JOIN subcategories s ON ac.subcategory_id = s.id
-      JOIN categories c ON s.category_id = c.id
-      WHERE c.slug = $1
-    `;
-    params = [categorySlug];
-  }
-  
-  try {
-    const result = await db.query(query, params);
-    return result.rows.map(row => row.name);
-  } catch (error) {
-    console.error('Error fetching arXiv categories:', error);
-    throw error;
-  }
-};
-
 module.exports = {
   getAllCategories,
-  getCategoryBySlug,
-  getArxivCategories
+  getCategoryBySlug
 };

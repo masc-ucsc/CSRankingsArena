@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { fetchPapers } from '../services/api';
+import { fetchPapers } from '../services/v2/api';
+import { fetchVenues, fetchAgents, createMatch, fetchRecentMatches } from '../services/v2/api';
+import { fetchLeaderboard } from '../services/competitionService';
+import API_CONFIG from '../config/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PaperCard from '../components/PaperCard';
 import MatchResults from '../components/competition/MatchResults';
+import LeaderboardTable from '../components/leaderboard/LeaderboardTable';
 import { 
   Card, 
   Typography, 
@@ -26,7 +30,8 @@ import {
   Input,
   DatePicker,
   Spin,
-  Result
+  Result,
+  Divider
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -36,7 +41,8 @@ import {
   CloseOutlined, 
   EyeOutlined,
   SearchOutlined,
-  FilterOutlined
+  FilterOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -68,6 +74,9 @@ const MOCK_AGENTS = [
   }
 ];
 
+// Create axios instance with default config
+const api = axios.create(API_CONFIG);
+
 const SubcategoryPage = () => {
   const { categorySlug, subcategorySlug } = useParams();
   const { categories } = useAppContext();
@@ -90,26 +99,17 @@ const SubcategoryPage = () => {
   const [selectedAgent, setSelectedAgent] = useState('');
   const [venues, setVenues] = useState([]);
   
-  // Match creation state
-  const [agents, setAgents] = useState([]);
-  const [selectedPapers, setSelectedPapers] = useState({ paper1: null, paper2: null });
-  const [matchType, setMatchType] = useState('single');
-  const [matchModalVisible, setMatchModalVisible] = useState(false);
-  const [creatingMatch, setCreatingMatch] = useState(false);
-  const [selectedAgents, setSelectedAgents] = useState({
-    agent1: null,
-    agent2: null,
-    judge: null
-  });
-  
-  // Match results state
-  const [matchResults, setMatchResults] = useState(null);
-  const [showResults, setShowResults] = useState(false);
+  // Keep minimal state for recent matches display
   const [recentMatches, setRecentMatches] = useState([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
-  const [selectedMatch, setSelectedMatch] = useState(null);
-  const [viewMatchModalVisible, setViewMatchModalVisible] = useState(false);
+  const [agents, setAgents] = useState(MOCK_AGENTS);
   
+  // Tab and leaderboard state
+  const [activeTab, setActiveTab] = useState('papers');
+  const [leaderboardYear, setLeaderboardYear] = useState(new Date().getFullYear());
+  const [availableYears, setAvailableYears] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+
   // Find category and subcategory with null checks
   const category = categories?.find((cat) => cat.slug === categorySlug);
   const subcategory = category?.subcategories?.find((sub) => sub.slug === subcategorySlug);
@@ -117,6 +117,41 @@ const SubcategoryPage = () => {
   // Check if category and subcategory exist
   const categoryNotFound = !loadingCategories && !category;
   const subcategoryNotFound = !loadingCategories && category && !subcategory;
+
+  // Define filteredPapers before useEffect hooks
+  const filteredPapers = papers.filter(paper => {
+    const matchesSearch = paper.title.toLowerCase().includes(searchText.toLowerCase()) ||
+                        paper.abstract.toLowerCase().includes(searchText.toLowerCase());
+    const matchesYear = !selectedYear || paper.year === selectedYear;
+    console.log('Filtering paper:', { 
+      paper: paper.title, 
+      matchesSearch, 
+      matchesYear, 
+      searchText, 
+      selectedYear,
+      paperYear: paper.year,
+      paperId: paper.id
+    });
+    return matchesSearch && matchesYear;
+  });
+
+  // Add logging for tab changes
+  useEffect(() => {
+    console.log('Active tab changed:', activeTab);
+  }, [activeTab]);
+
+  // Add logging for component mount and state changes
+  useEffect(() => {
+    console.log('Component mounted/updated with state:', {
+      activeTab,
+      papers,
+      filteredPapers,
+      loading,
+      error,
+      selectedYear,
+      searchText
+    });
+  }, [activeTab, papers, filteredPapers, loading, error, selectedYear, searchText]);
 
   useEffect(() => {
     // Set loading state for categories
@@ -127,49 +162,55 @@ const SubcategoryPage = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      // Don't load data if category or subcategory is not found
       if (categoryNotFound || subcategoryNotFound) {
+        console.log('Category or subcategory not found:', { categoryNotFound, subcategoryNotFound });
         return;
       }
       
-      if (!category || !subcategory) return;
+      if (!category || !subcategory) {
+        console.log('Category or subcategory is undefined:', { category, subcategory });
+        return;
+      }
       
       try {
         setLoading(true);
-        const [papersData, agentsData] = await Promise.all([
-          fetchPapers(categorySlug, subcategorySlug, selectedYear),
-          axios.get('/api/agents')
-        ]);
+        console.log('Loading papers for:', { categorySlug, subcategorySlug, selectedYear });
         
-        if (papersData.length === 0) {
-          const mockPapers = getMockPapers(categorySlug, subcategorySlug, selectedYear);
-          setPapers(mockPapers);
-          setUsingMockData(true);
-        } else {
-          setPapers(papersData);
-          setUsingMockData(false);
-          // Extract unique venues from papers
-          const uniqueVenues = [...new Set(papersData.map(paper => paper.venue))];
-          setVenues(uniqueVenues);
-        }
+        // Fetch papers from the v2 API
+        const papersData = await fetchPapers(categorySlug, subcategorySlug, selectedYear);
+        console.log('Raw papers data from API:', papersData);
         
-        if (agentsData.data && agentsData.data.agents && Array.isArray(agentsData.data.agents)) {
-          setAgents(agentsData.data.agents);
-        } else {
-          setAgents(MOCK_AGENTS);
-        }
+        // Transform papers data to ensure all required fields are present
+        const transformedPapers = papersData.map(paper => {
+          const transformed = {
+            ...paper,
+            id: paper.id || `paper-${Math.random().toString(36).substr(2, 9)}`,
+            references: paper.references || paper.authors?.join(', ') || 'Unknown Authors',
+            url: paper.url || '#',
+            year: paper.year || paper.published_year || new Date().getFullYear(),
+            category: paper.category || categorySlug,
+            subcategory: paper.subcategory || subcategorySlug
+          };
+          console.log('Transformed paper:', transformed);
+          return transformed;
+        });
         
-        await fetchRecentMatches();
+        console.log('Final transformed papers:', transformedPapers);
+        setPapers(transformedPapers);
+        
+        // Set agents from the API response if available, otherwise use mock agents
+        // const agentsData = await fetchAgents();
+        // if (agentsData && agentsData.agents) {
+        //   setAgents(agentsData.agents);
+        // } else {
+        //   setAgents(MOCK_AGENTS);
+        // }
+        
+        setUsingMockData(false);
       } catch (err) {
-        setError(err.message);
         console.error('Error loading data:', err);
-        const mockPapers = getMockPapers(categorySlug, subcategorySlug, selectedYear);
-        setPapers(mockPapers);
-        setUsingMockData(true);
-        setAgents(MOCK_AGENTS);
-        // Set mock venues
-        setVenues(['Mock Conference 2023', 'Mock Symposium 2023']);
-        await fetchRecentMatches();
+        setError(err.message);
+        message.error('Failed to load papers. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -179,27 +220,348 @@ const SubcategoryPage = () => {
   }, [categorySlug, subcategorySlug, selectedYear, category, subcategory, categoryNotFound, subcategoryNotFound]);
 
   const getMockPapers = (categorySlug, subcategorySlug, year) => {
-    return [
-      {
-        id: 'mock1',
-        title: `Recent Advances in ${subcategorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} for ${categorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`,
+    // Define mock papers for each subcategory and year
+    const mockPapersBySubcategory = {
+      // AI subcategories
+      'vision': {
+        2024: [
+          {
+            id: 'vision-2024-1',
+            title: 'Deep Learning Approaches for Real-time Object Detection',
+            authors: ['Dr. Sarah Chen', 'Prof. Michael Zhang', 'Dr. Lisa Wang'],
+            abstract: 'This paper presents a novel deep learning architecture for real-time object detection in complex scenes. We introduce a multi-scale feature fusion network that achieves state-of-the-art performance while maintaining real-time processing speeds.',
+            categories: ['cs.CV', 'cs.AI'],
+            subcategories: ['vision'],
+            year: 2024,
+            venue: '2024 International Conference on Computer Vision',
+            url: 'https://arxiv.org/abs/2401.00001',
+            pdfUrl: 'https://arxiv.org/pdf/2401.00001.pdf'
+          },
+          {
+            id: 'vision-2024-2',
+            title: 'Self-supervised Learning for Medical Image Analysis',
+            authors: ['Dr. Jennifer Liu', 'Prof. Richard Brown', 'Dr. Emma Wilson'],
+            abstract: 'We propose a self-supervised learning framework for medical image analysis that reduces the need for labeled data. Our method achieves state-of-the-art results on various medical imaging tasks.',
+            categories: ['cs.CV', 'cs.AI'],
+            subcategories: ['vision'],
+            year: 2024,
+            venue: '2024 Medical Image Computing and Computer Assisted Intervention',
+            url: 'https://arxiv.org/abs/2403.00002',
+            pdfUrl: 'https://arxiv.org/pdf/2403.00002.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'vision-2023-1',
+            title: 'Vision Transformers for Video Understanding',
+            authors: ['Dr. Alex Thompson', 'Prof. Maria Garcia', 'Dr. James Wilson'],
+            abstract: 'This work introduces a novel vision transformer architecture specifically designed for video understanding tasks. We demonstrate significant improvements in action recognition and temporal modeling.',
+            categories: ['cs.CV', 'cs.AI'],
+            subcategories: ['vision'],
+            year: 2023,
+            venue: '2023 International Conference on Computer Vision',
+            url: 'https://arxiv.org/abs/2301.00001',
+            pdfUrl: 'https://arxiv.org/pdf/2301.00001.pdf'
+          }
+        ]
+      },
+      'ml': {
+        2024: [
+          {
+            id: 'ml-2024-1',
+            title: 'Federated Learning with Differential Privacy Guarantees',
+            authors: ['Dr. James Wilson', 'Prof. Emily Brown', 'Dr. Robert Lee'],
+            abstract: 'We propose a new framework for federated learning that incorporates differential privacy while maintaining model performance. Our approach achieves better privacy-utility trade-offs compared to existing methods.',
+            categories: ['cs.LG', 'cs.AI'],
+            subcategories: ['ml'],
+            year: 2024,
+            venue: '2024 International Conference on Machine Learning',
+            url: 'https://arxiv.org/abs/2402.00001',
+            pdfUrl: 'https://arxiv.org/pdf/2402.00001.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'ml-2023-1',
+            title: 'Reinforcement Learning for Autonomous Systems',
+            authors: ['Dr. Christopher Lee', 'Prof. Sarah Johnson', 'Dr. Michael Brown'],
+            abstract: 'This work presents a new reinforcement learning algorithm for autonomous systems. Our approach improves sample efficiency and safety in real-world applications.',
+            categories: ['cs.LG', 'cs.AI'],
+            subcategories: ['ml'],
+            year: 2023,
+            venue: '2023 International Conference on Learning Representations',
+            url: 'https://arxiv.org/abs/2303.00003',
+            pdfUrl: 'https://arxiv.org/pdf/2303.00003.pdf'
+          }
+        ]
+      },
+      'nlp': {
+        2024: [
+          {
+            id: 'nlp-2024-1',
+            title: 'Transformer-based Models for Low-resource Language Translation',
+            authors: ['Dr. Maria Garcia', 'Prof. David Kim', 'Dr. Anna Patel'],
+            abstract: 'This work introduces a novel transformer architecture specifically designed for low-resource language translation. We demonstrate significant improvements in translation quality for languages with limited training data.',
+            categories: ['cs.CL', 'cs.AI'],
+            subcategories: ['nlp'],
+            year: 2024,
+            venue: '2024 Conference on Empirical Methods in Natural Language Processing',
+            url: 'https://arxiv.org/abs/2403.00001',
+            pdfUrl: 'https://arxiv.org/pdf/2403.00001.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'nlp-2023-1',
+            title: 'Multilingual Language Models for Code Generation',
+            authors: ['Dr. Alex Thompson', 'Prof. Lisa Chen', 'Dr. Ryan Park'],
+            abstract: 'We introduce a new multilingual language model specifically designed for code generation. Our model shows improved performance across multiple programming languages.',
+            categories: ['cs.CL', 'cs.AI'],
+            subcategories: ['nlp'],
+            year: 2023,
+            venue: '2023 International Conference on Software Engineering',
+            url: 'https://arxiv.org/abs/2304.00001',
+            pdfUrl: 'https://arxiv.org/pdf/2304.00001.pdf'
+          }
+        ]
+      },
+      'ai': {
+        2024: [
+          {
+            id: 'ai-2024-1',
+            title: 'Towards General Artificial Intelligence: A Survey',
+            authors: ['Dr. Robert Chen', 'Prof. Sarah Lee', 'Dr. David Kim'],
+            abstract: 'This comprehensive survey examines recent advances in artificial general intelligence, discussing key challenges, approaches, and future directions in the field.',
+            categories: ['cs.AI'],
+            subcategories: ['ai'],
+            year: 2024,
+            venue: '2024 International Conference on Artificial Intelligence',
+            url: 'https://arxiv.org/abs/2401.00003',
+            pdfUrl: 'https://arxiv.org/pdf/2401.00003.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'ai-2023-1',
+            title: 'Ethical Considerations in AI Development',
+            authors: ['Dr. Emily Brown', 'Prof. Michael Zhang', 'Dr. Lisa Wang'],
+            abstract: 'This paper discusses critical ethical considerations in AI development, proposing a framework for responsible AI research and deployment.',
+            categories: ['cs.AI'],
+            subcategories: ['ai'],
+            year: 2023,
+            venue: '2023 Conference on AI Ethics and Society',
+            url: 'https://arxiv.org/abs/2302.00003',
+            pdfUrl: 'https://arxiv.org/pdf/2302.00003.pdf'
+          }
+        ]
+      },
+      'robotics': {
+        2024: [
+          {
+            id: 'robotics-2024-1',
+            title: 'Learning-based Control for Robotic Manipulation',
+            authors: ['Dr. Thomas Anderson', 'Prof. Rachel White', 'Dr. Kevin Park'],
+            abstract: 'We present a novel learning-based control framework for robotic manipulation tasks, demonstrating improved performance in complex environments.',
+            categories: ['cs.RO', 'cs.AI'],
+            subcategories: ['robotics'],
+            year: 2024,
+            venue: '2024 International Conference on Robotics and Automation',
+            url: 'https://arxiv.org/abs/2402.00003',
+            pdfUrl: 'https://arxiv.org/pdf/2402.00003.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'robotics-2023-1',
+            title: 'Multi-robot Coordination in Dynamic Environments',
+            authors: ['Dr. William Chen', 'Prof. Sophia Martinez', 'Dr. Daniel Lee'],
+            abstract: 'This work introduces a new approach to multi-robot coordination, enabling efficient collaboration in dynamic and uncertain environments.',
+            categories: ['cs.RO', 'cs.AI'],
+            subcategories: ['robotics'],
+            year: 2023,
+            venue: '2023 International Conference on Intelligent Robots and Systems',
+            url: 'https://arxiv.org/abs/2303.00003',
+            pdfUrl: 'https://arxiv.org/pdf/2303.00003.pdf'
+          }
+        ]
+      },
+      // Architecture subcategories
+      'processors': {
+        2024: [
+          {
+            id: 'processors-2024-1',
+            title: 'Energy-efficient RISC-V Processor Design for Edge Computing',
+            authors: ['Dr. Thomas Anderson', 'Prof. Rachel White', 'Dr. Kevin Park'],
+            abstract: 'We present a new RISC-V processor design optimized for edge computing applications. Our architecture achieves significant energy savings while maintaining competitive performance.',
+            categories: ['cs.AR'],
+            subcategories: ['processors'],
+            year: 2024,
+            venue: '2024 International Symposium on Computer Architecture',
+            url: 'https://arxiv.org/abs/2401.00002',
+            pdfUrl: 'https://arxiv.org/pdf/2401.00002.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'processors-2023-1',
+            title: 'Quantum-inspired Classical Processor Design',
+            authors: ['Dr. Elizabeth Wang', 'Prof. John Smith', 'Dr. Maria Garcia'],
+            abstract: 'This paper presents a novel processor architecture inspired by quantum computing principles. Our design shows promising results for certain classes of algorithms.',
+            categories: ['cs.AR'],
+            subcategories: ['processors'],
+            year: 2023,
+            venue: '2023 International Symposium on Microarchitecture',
+            url: 'https://arxiv.org/abs/2303.00004',
+            pdfUrl: 'https://arxiv.org/pdf/2303.00004.pdf'
+          }
+        ]
+      },
+      'memory': {
+        2024: [
+          {
+            id: 'memory-2024-1',
+            title: 'Novel Memory Hierarchy for High-performance Computing',
+            authors: ['Dr. William Chen', 'Prof. Sophia Martinez', 'Dr. Daniel Lee'],
+            abstract: 'This paper introduces a new memory hierarchy design that improves performance for high-performance computing workloads. Our approach reduces memory latency while maintaining energy efficiency.',
+            categories: ['cs.AR'],
+            subcategories: ['memory'],
+            year: 2024,
+            venue: '2024 International Symposium on High-Performance Computer Architecture',
+            url: 'https://arxiv.org/abs/2402.00002',
+            pdfUrl: 'https://arxiv.org/pdf/2402.00002.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'memory-2023-1',
+            title: 'Emerging Memory Technologies for Next-generation Computing',
+            authors: ['Dr. Robert Kim', 'Prof. Sarah Lee', 'Dr. David Chen'],
+            abstract: 'We explore the potential of emerging memory technologies for next-generation computing systems. Our analysis provides insights into the challenges and opportunities.',
+            categories: ['cs.AR'],
+            subcategories: ['memory'],
+            year: 2023,
+            venue: '2023 International Symposium on Memory Systems',
+            url: 'https://arxiv.org/abs/2304.00002',
+            pdfUrl: 'https://arxiv.org/pdf/2304.00002.pdf'
+          }
+        ]
+      },
+      'architecture': {
+        2024: [
+          {
+            id: 'architecture-2024-1',
+            title: 'Domain-Specific Architecture for Deep Learning Workloads',
+            authors: ['Dr. Jennifer Liu', 'Prof. Richard Brown', 'Dr. Emma Wilson'],
+            abstract: 'This paper presents a novel domain-specific architecture optimized for deep learning workloads, achieving significant performance improvements over general-purpose processors.',
+            categories: ['cs.AR'],
+            subcategories: ['architecture'],
+            year: 2024,
+            venue: '2024 International Symposium on Computer Architecture',
+            url: 'https://arxiv.org/abs/2401.00004',
+            pdfUrl: 'https://arxiv.org/pdf/2401.00004.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'architecture-2023-1',
+            title: 'Reconfigurable Computing Architectures for Edge AI',
+            authors: ['Dr. Christopher Lee', 'Prof. Sarah Johnson', 'Dr. Michael Brown'],
+            abstract: 'We introduce a new reconfigurable computing architecture specifically designed for edge AI applications, demonstrating improved efficiency and flexibility.',
+            categories: ['cs.AR'],
+            subcategories: ['architecture'],
+            year: 2023,
+            venue: '2023 International Symposium on Field-Programmable Gate Arrays',
+            url: 'https://arxiv.org/abs/2302.00004',
+            pdfUrl: 'https://arxiv.org/pdf/2302.00004.pdf'
+          }
+        ]
+      },
+      'networks': {
+        2024: [
+          {
+            id: 'networks-2024-1',
+            title: 'Next-Generation Network-on-Chip Architectures',
+            authors: ['Dr. Alex Thompson', 'Prof. Lisa Chen', 'Dr. Ryan Park'],
+            abstract: 'This work presents a novel network-on-chip architecture that improves scalability and performance for many-core processors.',
+            categories: ['cs.AR'],
+            subcategories: ['networks'],
+            year: 2024,
+            venue: '2024 International Symposium on Networks-on-Chip',
+            url: 'https://arxiv.org/abs/2402.00004',
+            pdfUrl: 'https://arxiv.org/pdf/2402.00004.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'networks-2023-1',
+            title: 'Energy-Efficient Interconnect Design for Data Centers',
+            authors: ['Dr. Maria Garcia', 'Prof. David Kim', 'Dr. Anna Patel'],
+            abstract: 'We propose a new interconnect design for data centers that significantly reduces energy consumption while maintaining high bandwidth and low latency.',
+            categories: ['cs.AR'],
+            subcategories: ['networks'],
+            year: 2023,
+            venue: '2023 International Symposium on Computer Architecture',
+            url: 'https://arxiv.org/abs/2303.00004',
+            pdfUrl: 'https://arxiv.org/pdf/2303.00004.pdf'
+          }
+        ]
+      },
+      'security': {
+        2024: [
+          {
+            id: 'security-2024-1',
+            title: 'Hardware Security Primitives for Trusted Computing',
+            authors: ['Dr. James Wilson', 'Prof. Emily Brown', 'Dr. Robert Lee'],
+            abstract: 'This paper introduces novel hardware security primitives that enhance the security of computing systems while maintaining performance.',
+            categories: ['cs.AR', 'cs.CR'],
+            subcategories: ['security'],
+            year: 2024,
+            venue: '2024 International Symposium on Computer Architecture',
+            url: 'https://arxiv.org/abs/2401.00005',
+            pdfUrl: 'https://arxiv.org/pdf/2401.00005.pdf'
+          }
+        ],
+        2023: [
+          {
+            id: 'security-2023-1',
+            title: 'Architectural Support for Secure Memory Operations',
+            authors: ['Dr. Thomas Anderson', 'Prof. Rachel White', 'Dr. Kevin Park'],
+            abstract: 'We present a new architectural approach to secure memory operations, providing protection against various hardware attacks.',
+            categories: ['cs.AR', 'cs.CR'],
+            subcategories: ['security'],
+            year: 2023,
+            venue: '2023 International Symposium on Microarchitecture',
+            url: 'https://arxiv.org/abs/2302.00005',
+            pdfUrl: 'https://arxiv.org/pdf/2302.00005.pdf'
+          }
+        ]
+      }
+    };
+
+    // Get papers for the specific subcategory and year, or return empty array if not found
+    const subcategoryPapers = mockPapersBySubcategory[subcategorySlug];
+    if (!subcategoryPapers) {
+      return [{
+        id: 'default-1',
+        title: `Recent Advances in ${subcategorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`,
         authors: ['Dr. Jane Smith', 'Prof. John Doe', 'Dr. Maria Garcia'],
         abstract: `This paper presents a comprehensive analysis of recent developments in ${subcategorySlug} within the field of ${categorySlug}. We explore novel methodologies and their applications, demonstrating significant improvements in performance and efficiency.`,
-        category: categorySlug,
-        subcategory: subcategorySlug,
+        categories: [categorySlug === 'ai' ? 'cs.AI' : 'cs.AR'],
+        subcategories: [subcategorySlug],
         year: year,
         venue: `${year} International Conference on ${categorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`,
         url: '#',
         pdfUrl: '#'
-      },
-      // Add more mock papers as needed
-    ];
+      }];
+    }
+
+    return subcategoryPapers[year] || [];
   };
 
   const fetchRecentMatches = async () => {
     setLoadingMatches(true);
     try {
-      const response = await axios.get('/api/matches', {
+      const response = await api.get('/matches', {
         params: {
           category: categorySlug,
           subcategory: subcategorySlug,
@@ -217,279 +579,44 @@ const SubcategoryPage = () => {
     }
   };
 
-  const handleCreateMatch = async () => {
-    if (!selectedPapers.paper1 || !selectedAgents.agent1 || !selectedAgents.agent2 || !selectedAgents.judge) {
-      message.error('Please select all required papers and agents');
-      return;
-    }
-
-    setCreatingMatch(true);
-    try {
-      const matchData = {
-        agent1Id: selectedAgents.agent1,
-        agent2Id: selectedAgents.agent2,
-        judgeId: selectedAgents.judge,
-        category: categorySlug,
-        subcategory: subcategorySlug,
-        year: selectedYear
-      };
-
-      if (matchType === 'single') {
-        matchData.paperId = selectedPapers.paper1.id;
-      } else {
-        matchData.paper1Id = selectedPapers.paper1.id;
-        matchData.paper2Id = selectedPapers.paper2.id;
-      }
-
-      const response = await axios.post('/api/matches', matchData);
-      const matchDetails = await axios.get(`/api/matches/${response.data.id}`);
-      
-      setMatchResults(matchDetails.data);
-      setShowResults(true);
-      message.success('Match created successfully');
-      
-      // Reset form and close modal
-      form.resetFields();
-      setSelectedPapers({ paper1: null, paper2: null });
-      setSelectedAgents({ agent1: null, agent2: null, judge: null });
-      setMatchModalVisible(false);
-      
-      // Refresh recent matches
-      await fetchRecentMatches();
-    } catch (error) {
-      console.error('Error creating match:', error);
-      message.error('Failed to create match');
-    } finally {
-      setCreatingMatch(false);
-    }
-  };
-
-  const handleFeedback = async (feedback) => {
-    try {
-      await axios.post(`/api/matches/${matchResults.id}/feedback`, feedback);
-      message.success('Feedback submitted successfully');
-      const updatedMatch = await axios.get(`/api/matches/${matchResults.id}`);
-      setMatchResults(updatedMatch.data);
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-      message.error('Failed to submit feedback');
-    }
-  };
-
-  const handlePaperSelection = (paper, paperNumber) => {
-    setSelectedPapers(prev => ({
-      ...prev,
-      [paperNumber]: paper
-    }));
-    
-    if (matchType === 'single' || (selectedPapers.paper1 && selectedPapers.paper2)) {
-      setMatchModalVisible(true);
-    }
-  };
-
-  const handleMatchTypeChange = (e) => {
-    setMatchType(e.target.value);
-    setSelectedPapers({ paper1: null, paper2: null });
-  };
-
-  const handleAgentSelection = (agentId, agentType) => {
-    setSelectedAgents(prev => ({
-      ...prev,
-      [agentType]: agentId
-    }));
-  };
-
-  const filteredPapers = papers.filter(paper => {
-    const matchesSearch = paper.title.toLowerCase().includes(searchText.toLowerCase()) ||
-                        paper.abstract.toLowerCase().includes(searchText.toLowerCase());
-    const matchesYear = !selectedYear || paper.year === selectedYear;
-    const matchesVenue = !selectedVenue || paper.venue === selectedVenue;
-    return matchesSearch && matchesYear && matchesVenue;
-  });
-
-  const filteredMatches = recentMatches.filter(match => {
-    const matchesStatus = !selectedMatchStatus || match.status === selectedMatchStatus;
-    const matchesAgent = !selectedAgent || 
-      match.agents.some(agent => agent.id === selectedAgent);
-    return matchesStatus && matchesAgent;
-  });
-
   const handleResetFilters = () => {
     setSearchText('');
-    setSelectedYear(new Date().getFullYear());
-    setSelectedVenue('');
-    setSelectedMatchStatus('');
-    setSelectedAgent('');
   };
 
-  const renderPaperList = () => (
-    <div className="papers-grid">
-      {filteredPapers.map((paper) => (
-        <PaperCard 
-          key={paper.id} 
-          paper={paper}
-          showMatchButton={true}
-          onSelectForMatch={(paperNumber) => handlePaperSelection(paper, paperNumber)}
-          selectedForMatch={
-            paper.id === selectedPapers.paper1?.id || 
-            paper.id === selectedPapers.paper2?.id
-          }
-        />
-      ))}
-    </div>
-  );
+  const renderPaperList = () => {
+    console.log('renderPaperList called with filteredPapers:', filteredPapers);
+    console.log('First paper in filteredPapers:', filteredPapers[0]);
+    console.log('Number of papers:', filteredPapers.length);
+    
+    if (!filteredPapers || filteredPapers.length === 0) {
+        console.log('No papers to render');
+        return null;
+    }
 
-  const renderMatchCreationModal = () => (
-    <Modal
-      title="Create Match"
-      open={matchModalVisible}
-      onCancel={() => setMatchModalVisible(false)}
-      footer={null}
-      width={800}
-    >
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <div>
-          <Title level={4}>Selected Papers</Title>
-          {selectedPapers.paper1 && (
-            <Card style={{ marginBottom: '16px' }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Title level={5}>Paper 1</Title>
-                  <Button 
-                    type="text" 
-                    icon={<CloseOutlined />} 
-                    onClick={() => setSelectedPapers(prev => ({ ...prev, paper1: null }))}
-                  />
-                </div>
-                <Text strong>{selectedPapers.paper1.title}</Text>
-                <Text type="secondary">Authors: {selectedPapers.paper1.authors.join(', ')}</Text>
-              </Space>
-            </Card>
-          )}
-          
-          {matchType === 'comparison' && selectedPapers.paper2 && (
-            <Card style={{ marginBottom: '16px' }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Title level={5}>Paper 2</Title>
-                  <Button 
-                    type="text" 
-                    icon={<CloseOutlined />} 
-                    onClick={() => setSelectedPapers(prev => ({ ...prev, paper2: null }))}
-                  />
-                </div>
-                <Text strong>{selectedPapers.paper2.title}</Text>
-                <Text type="secondary">Authors: {selectedPapers.paper2.authors.join(', ')}</Text>
-              </Space>
-            </Card>
-          )}
-        </div>
-
-        <Form layout="vertical">
-          <Row gutter={[16, 16]}>
-            <Col span={8}>
-              <Form.Item
-                label="First Agent"
-                required
-                validateStatus={selectedAgents.agent1 ? '' : 'warning'}
-                help={selectedAgents.agent1 ? '' : 'Please select an agent'}
-              >
-                <Select
-                  placeholder="Select first agent"
-                  value={selectedAgents.agent1}
-                  onChange={(value) => handleAgentSelection(value, 'agent1')}
-                  style={{ width: '100%' }}
-                >
-                  {agents.map(agent => (
-                    <Option key={agent.id} value={agent.id}>
-                      <Space>
-                        <RobotOutlined />
-                        <div>
-                          <div>{agent.name}</div>
-                          <Text type="secondary" style={{ fontSize: '12px' }}>
-                            {agent.provider}
-                          </Text>
-                        </div>
-                      </Space>
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label="Second Agent"
-                required
-                validateStatus={selectedAgents.agent2 ? '' : 'warning'}
-                help={selectedAgents.agent2 ? '' : 'Please select an agent'}
-              >
-                <Select
-                  placeholder="Select second agent"
-                  value={selectedAgents.agent2}
-                  onChange={(value) => handleAgentSelection(value, 'agent2')}
-                  style={{ width: '100%' }}
-                >
-                  {agents.map(agent => (
-                    <Option key={agent.id} value={agent.id}>
-                      <Space>
-                        <RobotOutlined />
-                        <div>
-                          <div>{agent.name}</div>
-                          <Text type="secondary" style={{ fontSize: '12px' }}>
-                            {agent.provider}
-                          </Text>
-                        </div>
-                      </Space>
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label="Judge Agent"
-                required
-                validateStatus={selectedAgents.judge ? '' : 'warning'}
-                help={selectedAgents.judge ? '' : 'Please select a judge'}
-              >
-                <Select
-                  placeholder="Select judge agent"
-                  value={selectedAgents.judge}
-                  onChange={(value) => handleAgentSelection(value, 'judge')}
-                  style={{ width: '100%' }}
-                >
-                  {agents.map(agent => (
-                    <Option key={agent.id} value={agent.id}>
-                      <Space>
-                        <TrophyOutlined />
-                        <div>
-                          <div>{agent.name}</div>
-                          <Text type="secondary" style={{ fontSize: '12px' }}>
-                            {agent.provider}
-                          </Text>
-                        </div>
-                      </Space>
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <div style={{ textAlign: 'right', marginTop: '16px' }}>
-            <Button
-              type="primary"
-              onClick={handleCreateMatch}
-              loading={creatingMatch}
-              disabled={!selectedPapers.paper1 || !selectedAgents.agent1 || !selectedAgents.agent2 || !selectedAgents.judge}
-            >
-              Create Match
-            </Button>
-          </div>
-        </Form>
-      </Space>
-    </Modal>
-  );
+    return (
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: '24px',
+        width: '100%',
+        padding: '16px 0'
+      }}>
+        {filteredPapers.map((paper, index) => {
+            console.log(`Rendering paper ${index}:`, paper);
+            return (
+                <PaperCard 
+                    key={paper.id} 
+                    paper={paper}
+                    showMatchButton={false}
+                    onSelectForMatch={null}
+                    selectedForMatch={false}
+                    style={{ height: '100%' }}
+                />
+            );
+        })}
+      </div>
+    );
+  };
 
   const renderRecentMatches = () => (
     <Card 
@@ -503,22 +630,9 @@ const SubcategoryPage = () => {
       loading={loadingMatches}
     >
       <List
-        dataSource={filteredMatches}
+        dataSource={recentMatches}
         renderItem={match => (
-          <List.Item
-            actions={[
-              <Button 
-                type="link" 
-                icon={<EyeOutlined />}
-                onClick={() => {
-                  setSelectedMatch(match);
-                  setViewMatchModalVisible(true);
-                }}
-              >
-                View Details
-              </Button>
-            ]}
-          >
+          <List.Item>
             <List.Item.Meta
               title={
                 <Space>
@@ -560,6 +674,41 @@ const SubcategoryPage = () => {
       />
     </Card>
   );
+
+  // Add function to fetch available years for leaderboard
+  const fetchLeaderboardYears = async () => {
+    try {
+      const response = await api.get(`/leaderboard/${categorySlug}/${subcategorySlug}/years`);
+      const years = response.data.years;
+      // Filter out future years
+      const currentYear = new Date().getFullYear();
+      const validYears = years.filter(year => year <= currentYear);
+      setAvailableYears(validYears);
+      // If the current selected year is invalid, set to the most recent valid year
+      if (validYears.length > 0) {
+        if (!validYears.includes(selectedYear) || selectedYear > currentYear) {
+          setSelectedYear(validYears[0]);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching years:', err);
+      // Use mock years if API fails, but only up to current year
+      const currentYear = new Date().getFullYear();
+      const mockYears = [2024, 2023].filter(year => year <= currentYear);
+      setAvailableYears(mockYears);
+      if (mockYears.length > 0) {
+        if (!mockYears.includes(selectedYear) || selectedYear > currentYear) {
+          setSelectedYear(mockYears[0]);
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (category && subcategory) {
+      fetchLeaderboardYears();
+    }
+  }, [category, subcategory]);
 
   // Show loading state while categories are loading
   if (loadingCategories) {
@@ -624,175 +773,187 @@ const SubcategoryPage = () => {
   return (
     <div className="subcategory-page" style={{ padding: '24px' }}>
       <Header />
-      <main className="container">
+      <main className="container" style={{ maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
         <nav className="breadcrumb">
           <Link to="/">Home</Link> / 
           <Link to={`/category/${category.slug}`}>{category.name}</Link> / 
           <span>{subcategory.name}</span>
         </nav>
         
-        <div className="subcategory-header">
-          <h1>{subcategory.name} Papers</h1>
-          <p className="subcategory-description">{subcategory.description}</p>
+        <div className="subcategory-header" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start',
+          marginBottom: '24px'
+        }}>
+          <div>
+            <h1 style={{ 
+              fontSize: '32px',
+              fontWeight: '600',
+              marginBottom: '16px',
+              color: '#262626'
+            }}>{subcategory.name} Papers</h1>
+            <p className="subcategory-description" style={{ 
+              fontSize: '16px',
+              color: '#595959',
+              lineHeight: '1.6',
+              maxWidth: '800px'
+            }}>{subcategory.description}</p>
+          </div>
         </div>
 
         {usingMockData && (
           <Alert
             message="Using Mock Data"
-            description="No papers were found from the API. Showing mock papers for testing purposes."
-            type="warning"
+            description="Showing mock papers for testing purposes. Click on a paper to view it on arXiv."
+            type="info"
             showIcon
-            style={{ marginBottom: '20px' }}
+            style={{ 
+              marginBottom: '24px',
+              borderRadius: '8px'
+            }}
           />
         )}
 
         <Card style={{ marginBottom: '24px' }}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Title level={4}>Filters</Title>
-              <Button 
-                type="link" 
-                onClick={handleResetFilters}
-                icon={<FilterOutlined />}
-              >
-                Reset Filters
-              </Button>
-            </div>
-            
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12} md={6}>
-                <Input
-                  placeholder="Search papers..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  prefix={<SearchOutlined />}
-                  allowClear
-                />
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="Select Year"
-                  value={selectedYear}
-                  onChange={setSelectedYear}
-                  allowClear
-                >
-                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                    <Option key={year} value={year}>{year}</Option>
-                  ))}
-                </Select>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="Select Venue"
-                  value={selectedVenue}
-                  onChange={setSelectedVenue}
-                  allowClear
-                >
-                  {venues.map(venue => (
-                    <Option key={venue} value={venue}>{venue}</Option>
-                  ))}
-                </Select>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="Match Status"
-                  value={selectedMatchStatus}
-                  onChange={setSelectedMatchStatus}
-                  allowClear
-                >
-                  <Option value="completed">Completed</Option>
-                  <Option value="in_progress">In Progress</Option>
-                  <Option value="pending">Pending</Option>
-                </Select>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="Filter by Agent"
-                  value={selectedAgent}
-                  onChange={setSelectedAgent}
-                  allowClear
-                >
-                  {agents.map(agent => (
-                    <Option key={agent.id} value={agent.id}>
-                      <Space>
-                        <RobotOutlined />
-                        <span>{agent.name}</span>
-                      </Space>
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-            </Row>
-          </Space>
-        </Card>
-
-        <Card style={{ marginBottom: '24px' }}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <div>
-              <Title level={3}>Create AI Review Match</Title>
-              <Text type="secondary">
-                Select papers and choose AI agents to compete in reviewing them.
-                A judge agent will evaluate their reviews and determine the winner.
-              </Text>
-            </div>
-
-            <Radio.Group 
-              value={matchType} 
-              onChange={handleMatchTypeChange}
-              buttonStyle="solid"
+          <Tabs 
+            activeKey={activeTab} 
+            onChange={(key) => {
+              console.log('Tab changed from', activeTab, 'to', key);
+              setActiveTab(key);
+            }}
+          >
+            <TabPane 
+              tab={
+                <Space>
+                  <FileTextOutlined />
+                  Papers
+                </Space>
+              } 
+              key="papers"
             >
-              <Radio.Button value="single">Single Paper Match</Radio.Button>
-              <Radio.Button value="comparison">Paper Comparison Match</Radio.Button>
-            </Radio.Group>
-          </Space>
+              {console.log('Rendering papers tab content')}
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginBottom: '16px',
+                  flexWrap: 'wrap',
+                  gap: '16px'
+                }}>
+                  <Title level={4} style={{ margin: 0 }}>Search Papers</Title>
+                  <Button 
+                    type="link" 
+                    onClick={handleResetFilters}
+                    icon={<FilterOutlined />}
+                  >
+                    Reset Search
+                  </Button>
+                </div>
+                
+                <Row gutter={[16, 16]} style={{ width: '100%' }}>
+                  <Col xs={24} sm={12} md={8} lg={6}>
+                    <Input
+                      placeholder="Search papers by title or abstract..."
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      prefix={<SearchOutlined />}
+                      allowClear
+                      style={{ width: '100%', borderRadius: '6px' }}
+                    />
+                  </Col>
+                  <Col xs={24} sm={12} md={8} lg={6}>
+                    <Select
+                      style={{ width: '100%' }}
+                      placeholder="Select Year"
+                      value={selectedYear}
+                      onChange={setSelectedYear}
+                      allowClear
+                      dropdownStyle={{ borderRadius: '6px' }}
+                    >
+                      {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                        <Option key={year} value={year}>{year}</Option>
+                      ))}
+                    </Select>
+                  </Col>
+                </Row>
+
+                {loading ? (
+                  console.log('Rendering loading state') || (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                      <Spin size="large" />
+                      <div style={{ marginTop: '16px' }}>Loading papers...</div>
+                    </div>
+                  )
+                ) : error ? (
+                  console.log('Rendering error state:', error) || (
+                    <Alert
+                      message="Error Loading Papers"
+                      description={error}
+                      type="error"
+                      showIcon
+                    />
+                  )
+                ) : filteredPapers.length === 0 ? (
+                  console.log('Rendering no papers state') || (
+                    <Alert
+                      message="No Papers Found"
+                      description={`No papers found for ${subcategory.name} in ${selectedYear}.`}
+                      type="info"
+                      showIcon
+                    />
+                  )
+                ) : (
+                  console.log('About to render paper list') || renderPaperList()
+                )}
+              </Space>
+            </TabPane>
+
+            <TabPane 
+              tab={
+                <Space>
+                  <TrophyOutlined />
+                  Leaderboard
+                </Space>
+              } 
+              key="leaderboard"
+            >
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Title level={4}>Paper Rankings</Title>
+                  <Select
+                    value={leaderboardYear}
+                    onChange={setLeaderboardYear}
+                    style={{ width: 120 }}
+                    loading={!availableYears.length}
+                  >
+                    {availableYears.map(year => (
+                      <Option key={year} value={year}>{year}</Option>
+                    ))}
+                  </Select>
+                </div>
+                <LeaderboardTable 
+                  category={categorySlug} 
+                  subcategory={subcategorySlug} 
+                  year={leaderboardYear}
+                />
+              </Space>
+            </TabPane>
+
+            <TabPane 
+              tab={
+                <Space>
+                  <RobotOutlined />
+                  Recent Matches
+                </Space>
+              } 
+              key="matches"
+            >
+              {renderRecentMatches()}
+            </TabPane>
+          </Tabs>
         </Card>
-
-        <Card style={{ marginBottom: '24px' }}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            {loading ? (
-              <div>Loading papers...</div>
-            ) : error ? (
-              <div>Error: {error}</div>
-            ) : papers.length === 0 ? (
-              <div>No papers found for this subcategory and year.</div>
-            ) : (
-              renderPaperList()
-            )}
-          </Space>
-        </Card>
-
-        {renderRecentMatches()}
-
-        {renderMatchCreationModal()}
-
-        <Modal
-          title="Match Details"
-          open={viewMatchModalVisible}
-          onCancel={() => {
-            setViewMatchModalVisible(false);
-            setSelectedMatch(null);
-          }}
-          footer={null}
-          width={800}
-        >
-          {selectedMatch && (
-            <MatchResults 
-              match={selectedMatch}
-              onFeedback={handleFeedback}
-            />
-          )}
-        </Modal>
-
-        {showResults && matchResults && (
-          <MatchResults 
-            match={matchResults}
-            onFeedback={handleFeedback}
-          />
-        )}
       </main>
       <Footer />
     </div>

@@ -1,7 +1,7 @@
 // src/routes/agents.js
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const { db } = require('../../../server/src/config/db');
 //const logger = require('../utils/logger');
 
@@ -10,7 +10,7 @@ module.exports = [
     method: 'GET',
     path: '/api/agents',
     options: {
-      auth: { mode: 'try' },
+      // auth: { mode: 'try' },
       tags: ['api', 'agents'],
       description: 'Get all agents',
       handler: async (request, h) => {
@@ -32,7 +32,7 @@ module.exports = [
     method: 'GET',
     path: '/api/agents/{id}',
     options: {
-      auth: { mode: 'try' },
+      // auth: { mode: 'try' },
       tags: ['api', 'agents'],
       description: 'Get agent by ID',
       validate: {
@@ -62,7 +62,7 @@ module.exports = [
     method: 'GET',
     path: '/api/agents/{id}/matches',
     options: {
-      auth: { mode: 'try' },
+      // auth: { mode: 'try' },
       tags: ['api', 'agents'],
       description: 'Get matches for an agent',
       validate: {
@@ -179,7 +179,7 @@ module.exports = [
     method: 'GET',
     path: '/api/agents/stats',
     options: {
-      auth: { mode: 'try' },
+      // auth: { mode: 'try' },
       tags: ['api', 'agents'],
       description: 'Get agent comparison statistics',
       validate: {
@@ -360,7 +360,7 @@ module.exports = [
     method: 'GET',
     path: '/api/agents/{id}/performance',
     options: {
-      auth: { mode: 'try' },
+      // auth: { mode: 'try' },
       tags: ['api', 'agents'],
       description: 'Get detailed performance metrics for an agent',
       validate: {

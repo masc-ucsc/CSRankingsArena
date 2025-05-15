@@ -17,7 +17,6 @@
     "axios": "^1.6.7",
     "dotenv": "^16.0.3",
     "hapi-rate-limit": "^5.0.0",
-    "js-yaml": "^4.1.0",
     "knex": "^3.1.0",
     "node-cache": "^5.1.2",
     "objection": "^3.1.5",
@@ -28,6 +27,7 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "js-yaml": "^4.1.0",
     "nodemon": "^2.0.22"
   }
 }
