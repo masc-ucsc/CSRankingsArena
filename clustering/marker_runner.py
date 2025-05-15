@@ -138,6 +138,14 @@ def extract_title_abstract(markdown_text, sections, paper_id):
 
     return title, abstract
 
+def extract_references(sections):
+    references = []
+    for key in sections:
+        if "references" in key.lower():
+            references = sections[key].strip().split('\n')
+            break
+    return references
+
 def main(input_path, output_yaml):
     papers = []
 
@@ -188,6 +196,7 @@ def main(input_path, output_yaml):
                     continue
 
                 keywords = extract_metadata({}, markdown_text)
+                sections = split_sections(markdown_text)
                 document = trim_document(markdown_text)
 
                 metadata = id_to_metadata.get(paper_id_base, {})
@@ -200,7 +209,7 @@ def main(input_path, output_yaml):
                     "abstract": abstract,
                     "url": arxiv_url,
                     "keywords": keywords,
-                    "document": document
+                    "document": document,
                 })
 
                 print(f"[✓] Added: {paper_id}")
@@ -235,7 +244,7 @@ def main(input_path, output_yaml):
                     "title": title,
                     "abstract": abstract,
                     "keywords": keywords,
-                    "document": document
+                    "document": document,
                 })
 
                 print(f"[✓] Added: {paper_id}")
