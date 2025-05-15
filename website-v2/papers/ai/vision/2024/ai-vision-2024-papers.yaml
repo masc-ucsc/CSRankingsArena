@@ -1,0 +1,405 @@
+papers:
+  - id: 2501.00584v2
+    title: 'Online Video Understanding: OVBench and VideoChat-Online'
+    abstract: >-
+      Multimodal Large Language Models (MLLMs) have significantly progressed in
+      offline video understanding. However, applying these models to real-world
+      scenarios, such as autonomous driving and human-computer interaction,
+      presents unique challenges due to the need for real-time processing of
+      continuous online video streams. To this end, this paper presents
+      systematic efforts from three perspectives: evaluation benchmark, model
+      architecture, and training strategy. First, we introduce OVBench, a
+      comprehensive question-answering benchmark designed to evaluate models'
+      ability to perceive, memorize, and reason within online video contexts. It
+      features 6 core task types across three temporal contexts-past, current,
+      and future-forming 16 subtasks from diverse datasets. Second, we propose a
+      new Pyramid Memory Bank (PMB) that effectively retains key spatiotemporal
+      information in video streams. Third, we proposed an offline-to-online
+      learning paradigm, designing an interleaved dialogue format for online
+      video data and constructing an instruction-tuning dataset tailored for
+      online video training. This framework led to the development of
+      VideoChat-Online, a robust and efficient model for online video
+      understanding. Despite the lower computational cost and higher efficiency,
+      VideoChat-Online outperforms existing state-of-the-art offline and online
+      models across popular offline video benchmarks and OVBench, demonstrating
+      the effectiveness of our model architecture and training strategy. % Our
+      approach surpasses existing state-of-the-art offline models Qwen2-VL 7B
+      and online models Flash-VStream, by 4.19% and 23.7% on OVBench,
+      respectively.
+    authors:
+      - Zhenpeng Huang
+      - Xinhao Li
+      - Jiaqi Li
+      - Jing Wang
+      - Xiangyu Zeng
+      - Cheng Liang
+      - Tao Wu
+      - Xi Chen
+      - Liang Li
+      - Limin Wang
+    year: 2024
+    url: https://arxiv.org/abs/2501.00584v2
+    pdfUrl: https://arxiv.org/pdf/2501.00584v2.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '201511.1391'
+        title: Distributed Transformer Systems for Mobile Computing
+        url: https://arxiv.org/abs/201511.1391
+        score: 41
+        similarity: '0.58'
+      - id: '201502.8452'
+        title: Efficient Edge Computing for Resource Allocation in Cybersecurity
+        url: https://arxiv.org/abs/201502.8452
+        score: 39
+        similarity: '0.53'
+  - id: 2501.00142v1
+    title: Minimalist Vision with Freeform Pixels
+    abstract: >-
+      A minimalist vision system uses the smallest number of pixels needed to
+      solve a vision task. While traditional cameras use a large grid of square
+      pixels, a minimalist camera uses freeform pixels that can take on
+      arbitrary shapes to increase their information content. We show that the
+      hardware of a minimalist camera can be modeled as the first layer of a
+      neural network, where the subsequent layers are used for inference.
+      Training the network for any given task yields the shapes of the camera's
+      freeform pixels, each of which is implemented using a photodetector and an
+      optical mask. We have designed minimalist cameras for monitoring indoor
+      spaces (with 8 pixels), measuring room lighting (with 8 pixels), and
+      estimating traffic flow (with 8 pixels). The performance demonstrated by
+      these systems is on par with a traditional camera with orders of magnitude
+      more pixels. Minimalist vision has two major advantages. First, it
+      naturally tends to preserve the privacy of individuals in the scene since
+      the captured information is inadequate for extracting visual details.
+      Second, since the number of measurements made by a minimalist camera is
+      very small, we show that it can be fully self-powered, i.e., function
+      without an external power supply or a battery.
+    authors:
+      - Jeremy Klotz
+      - Shree K. Nayar
+    year: 2024
+    url: https://arxiv.org/abs/2501.00142v1
+    pdfUrl: https://arxiv.org/pdf/2501.00142v1.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '202212.6680'
+        title: Privacy-Preserving Reinforcement Learning in Smart Cities
+        url: https://arxiv.org/abs/202212.6680
+        score: 40
+        similarity: '0.96'
+      - id: '202202.2943'
+        title: Scalable Attention Mechanism Framework for System Performance
+        url: https://arxiv.org/abs/202202.2943
+        score: 94
+        similarity: '0.80'
+  - id: 2412.20895v1
+    title: Towards Compatible Fine-tuning for Vision-Language Model Updates
+    abstract: >-
+      So far, efficient fine-tuning has become a popular strategy for enhancing
+      the capabilities of foundation models on downstream tasks by learning
+      plug-and-play modules. However, existing methods overlook a crucial issue:
+      if the underlying foundation model is updated, are these plug-and-play
+      modules still effective? In this paper, we first conduct a detailed
+      analysis of various fine-tuning methods on the CLIP in terms of their
+      compatibility with model updates. The study reveals that many
+      high-performing fine-tuning methods fail to be compatible with the
+      upgraded models. To address this, we propose a novel approach,
+      Class-conditioned Context Optimization (ContCoOp), which integrates
+      learnable prompts with class embeddings using an attention layer before
+      inputting them into the text encoder. Consequently, the prompts can
+      dynamically adapt to the changes in embedding space (due to model
+      updates), ensuring continued effectiveness. Extensive experiments over 15
+      datasets show that our ContCoOp achieves the highest compatibility over
+      the baseline methods, and exhibits robust out-of-distribution
+      generalization.
+    authors:
+      - Zhengbo Wang
+      - Jian Liang
+      - Lijun Sheng
+      - Ran He
+      - Zilei Wang
+      - Tieniu Tan
+    year: 2024
+    url: https://arxiv.org/abs/2412.20895v1
+    pdfUrl: https://arxiv.org/pdf/2412.20895v1.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '201104.5626'
+        title: Scalable Reinforcement Learning Framework for System Performance
+        url: https://arxiv.org/abs/201104.5626
+        score: 50
+        similarity: '0.82'
+      - id: '200810.8199'
+        title: Distributed Computer Vision Systems for Parallel Processing
+        url: https://arxiv.org/abs/200810.8199
+        score: 27
+        similarity: '1.00'
+      - id: '200512.9527'
+        title: Deep Learning Based Edge Computing for Software Engineering
+        url: https://arxiv.org/abs/200512.9527
+        score: 75
+        similarity: '0.81'
+      - id: '201608.7909'
+        title: Distributed Distributed Systems Systems for Algorithm Design
+        url: https://arxiv.org/abs/201608.7909
+        score: 19
+        similarity: '0.96'
+  - id: 2412.20911v1
+    title: >-
+      TiGDistill-BEV: Multi-view BEV 3D Object Detection via Target  
+      Inner-Geometry Learning Distillation
+    abstract: >-
+      Accurate multi-view 3D object detection is essential for applications such
+      as autonomous driving. Researchers have consistently aimed to leverage
+      LiDAR's precise spatial information to enhance camera-based detectors
+      through methods like depth supervision and bird-eye-view (BEV) feature
+      distillation. However, existing approaches often face challenges due to
+      the inherent differences between LiDAR and camera data representations. In
+      this paper, we introduce the TiGDistill-BEV, a novel approach that
+      effectively bridges this gap by leveraging the strengths of both sensors.
+      Our method distills knowledge from diverse modalities(e.g., LiDAR) as the
+      teacher model to a camera-based student detector, utilizing the Target
+      Inner-Geometry learning scheme to enhance camera-based BEV detectors
+      through both depth and BEV features by leveraging diverse modalities.
+      Specially, we propose two key modules: an inner-depth supervision module
+      to learn the low-level relative depth relations within objects which
+      equips detectors with a deeper understanding of object-level spatial
+      structures, and an inner-feature BEV distillation module to transfer
+      high-level semantics of different key points within foreground targets. To
+      further alleviate the domain gap, we incorporate both inter-channel and
+      inter-keypoint distillation to model feature similarity. Extensive
+      experiments on the nuScenes benchmark demonstrate that TiGDistill-BEV
+      significantly boosts camera-based only detectors achieving a
+      state-of-the-art with 62.8% NDS and surpassing previous methods by a
+      significant margin. The codes is available at:
+      https://github.com/Public-BOTs/TiGDistill-BEV.git.
+    authors:
+      - Shaoqing Xu
+      - Fang Li
+      - Peixiang Huang
+      - Ziying Song
+      - Zhi-Xin Yang
+    year: 2024
+    url: https://arxiv.org/abs/2412.20911v1
+    pdfUrl: https://arxiv.org/pdf/2412.20911v1.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '201112.4401'
+        title: A Survey of Machine Learning in Finance
+        url: https://arxiv.org/abs/201112.4401
+        score: 56
+        similarity: '0.96'
+      - id: '200003.6287'
+        title: Adaptive Distributed Systems for Dynamic Software Engineering
+        url: https://arxiv.org/abs/200003.6287
+        score: 91
+        similarity: '0.98'
+      - id: '201804.8019'
+        title: Deep Learning Based Machine Learning for Software Engineering
+        url: https://arxiv.org/abs/201804.8019
+        score: 21
+        similarity: '0.75'
+      - id: '200405.5447'
+        title: Deep Learning Based Distributed Systems for Mobile Computing
+        url: https://arxiv.org/abs/200405.5447
+        score: 25
+        similarity: '0.52'
+  - id: 2501.00432v1
+    title: >-
+      OV-HHIR: Open Vocabulary Human Interaction Recognition Using Cross-modal  
+      Integration of Large Language Models
+    abstract: >-
+      Understanding human-to-human interactions, especially in contexts like
+      public security surveillance, is critical for monitoring and maintaining
+      safety. Traditional activity recognition systems are limited by fixed
+      vocabularies, predefined labels, and rigid interaction categories that
+      often rely on choreographed videos and overlook concurrent interactive
+      groups. These limitations make such systems less adaptable to real-world
+      scenarios, where interactions are diverse and unpredictable. In this
+      paper, we propose an open vocabulary human-to-human interaction
+      recognition (OV-HHIR) framework that leverages large language models to
+      generate open-ended textual descriptions of both seen and unseen human
+      interactions in open-world settings without being confined to a fixed
+      vocabulary. Additionally, we create a comprehensive, large-scale
+      human-to-human interaction dataset by standardizing and combining existing
+      public human interaction datasets into a unified benchmark. Extensive
+      experiments demonstrate that our method outperforms traditional
+      fixed-vocabulary classification systems and existing cross-modal language
+      models for video understanding, setting the stage for more intelligent and
+      adaptable visual understanding systems in surveillance and beyond.
+    authors:
+      - Lala Shakti Swarup Ray
+      - Bo Zhou
+      - Sungho Suh
+      - Paul Lukowicz
+    year: 2024
+    url: https://arxiv.org/abs/2501.00432v1
+    pdfUrl: https://arxiv.org/pdf/2501.00432v1.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '201205.6679'
+        title: Scalable Edge Computing Framework for Database Management
+        url: https://arxiv.org/abs/201205.6679
+        score: 28
+        similarity: '0.81'
+      - id: '201606.4547'
+        title: A Novel Approach to Image Recognition Using Computer Vision
+        url: https://arxiv.org/abs/201606.4547
+        score: 72
+        similarity: '0.72'
+      - id: '200508.0432'
+        title: Adaptive Neural Network for Dynamic Database Management
+        url: https://arxiv.org/abs/200508.0432
+        score: 42
+        similarity: '0.94'
+  - id: 2501.00300v1
+    title: Research on vehicle detection based on improved YOLOv8 network
+    abstract: >-
+      The key to ensuring the safe obstacle avoidance function of autonomous
+      driving systems lies in the use of extremely accurate vehicle recognition
+      techniques. However, the variability of the actual road environment and
+      the diverse characteristics of vehicles and pedestrians together
+      constitute a huge obstacle to improving detection accuracy, posing a
+      serious challenge to the realization of this goal. To address the above
+      issues, this paper proposes an improved YOLOv8 vehicle detection method.
+      Specifically, taking the YOLOv8n-seg model as the base model, firstly, the
+      FasterNet network is used to replace the backbone network to achieve the
+      purpose of reducing the computational complexity and memory while
+      improving the detection accuracy and speed; secondly, the feature
+      enhancement is achieved by adding the attention mechanism CBAM to the
+      Neck; and lastly, the loss function CIoU is modified to WIoU, which
+      optimizes the detection box localization while improving the segmentation
+      accuracy. The results show that the improved model achieves 98.3%, 89.1%
+      and 88.4% detection accuracy for car, Person and Motorcycle. Compared with
+      the pre-improvement and YOLOv9 models in six metrics such as Precision.
+    authors:
+      - Haocheng Guo
+      - Yaqiong Zhang
+      - Lieyang Chen
+      - Arfat Ahmad Khan
+    year: 2024
+    url: https://arxiv.org/abs/2501.00300v1
+    pdfUrl: https://arxiv.org/pdf/2501.00300v1.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '200107.0161'
+        title: Deep Learning Based Attention Mechanism for Image Recognition
+        url: https://arxiv.org/abs/200107.0161
+        score: 0
+        similarity: '0.97'
+      - id: '202009.3351'
+        title: Optimizing Resource Allocation Through Distributed Systems
+        url: https://arxiv.org/abs/202009.3351
+        score: 21
+        similarity: '0.93'
+  - id: 2501.00315v1
+    title: >-
+      Temporal Dynamics Decoupling with Inverse Processing for Enhancing Human  
+      Motion Prediction
+    abstract: >-
+      Exploring the bridge between historical and future motion behaviors
+      remains a central challenge in human motion prediction. While most
+      existing methods incorporate a reconstruction task as an auxiliary task
+      into the decoder, thereby improving the modeling of spatio-temporal
+      dependencies, they overlook the potential conflicts between reconstruction
+      and prediction tasks. In this paper, we propose a novel approach: Temporal
+      Decoupling Decoding with Inverse Processing (\textbf{$TD^2IP$}). Our
+      method strategically separates reconstruction and prediction decoding
+      processes, employing distinct decoders to decode the shared motion
+      features into historical or future sequences. Additionally, inverse
+      processing reverses motion information in the temporal dimension and
+      reintroduces it into the model, leveraging the bidirectional temporal
+      correlation of human motion behaviors. By alleviating the conflicts
+      between reconstruction and prediction tasks and enhancing the association
+      of historical and future information, \textbf{$TD^2IP$} fosters a deeper
+      understanding of motion patterns. Extensive experiments demonstrate the
+      adaptability of our method within existing methods.
+    authors:
+      - Jiexin Wang
+      - Yiju Guo
+      - Bing Su
+    year: 2024
+    url: https://arxiv.org/abs/2501.00315v1
+    pdfUrl: https://arxiv.org/pdf/2501.00315v1.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '201312.0970'
+        title: Distributed Federated Learning Systems for Database Management
+        url: https://arxiv.org/abs/201312.0970
+        score: 8
+        similarity: '0.60'
+      - id: '200301.5053'
+        title: >-
+          Real-time Natural Language Processing for System Performance
+          Applications
+        url: https://arxiv.org/abs/200301.5053
+        score: 38
+        similarity: '0.95'
+      - id: '201807.7398'
+        title: A Survey of Machine Learning in Education
+        url: https://arxiv.org/abs/201807.7398
+        score: 17
+        similarity: '0.74'
+  - id: 2501.00585v1
+    title: >-
+      Sidewalk Hazard Detection Using Variational Autoencoder and One-Class  
+      SVM
+    abstract: >-
+      The unpredictable nature of outdoor settings introduces numerous safety
+      concerns, making hazard detection crucial for safe navigation. This paper
+      introduces a novel system for sidewalk safety navigation utilizing a
+      hybrid approach that combines a Variational Autoencoder (VAE) with a
+      One-Class Support Vector Machine (OCSVM). The system is designed to detect
+      anomalies on sidewalks that could potentially pose walking hazards. A
+      dataset comprising over 15,000 training frames and 5,000 testing frames
+      was collected using video recordings, capturing various sidewalk
+      scenarios, including normal and hazardous conditions. During deployment,
+      the VAE utilizes its reconstruction mechanism to detect anomalies within a
+      frame. Poor reconstruction by the VAE implies the presence of an anomaly,
+      after which the OCSVM is used to confirm whether the anomaly is hazardous
+      or non-hazardous. The proposed VAE model demonstrated strong performance,
+      with a high Area Under the Curve (AUC) of 0.94, effectively distinguishing
+      anomalies that could be potential hazards. The OCSVM is employed to reduce
+      the detection of false hazard anomalies, such as manhole or water valve
+      covers. This approach achieves an accuracy of 91.4%, providing a highly
+      reliable system for distinguishing between hazardous and non-hazardous
+      scenarios. These results suggest that the proposed system offers a robust
+      solution for hazard detection in uncertain environments.
+    authors:
+      - Edgar Guzman
+      - Robert D. Howe
+    year: 2024
+    url: https://arxiv.org/abs/2501.00585v1
+    pdfUrl: https://arxiv.org/pdf/2501.00585v1.pdf
+    category: ai
+    subcategory: vision
+    venue: arXiv
+    match_opponents:
+      - id: '201311.2334'
+        title: Scalable Graph Neural Network Framework for Algorithm Design
+        url: https://arxiv.org/abs/201311.2334
+        score: 85
+        similarity: '0.85'
+      - id: '200108.0242'
+        title: Deep Learning Based Neural Network for Robotics
+        url: https://arxiv.org/abs/200108.0242
+        score: 49
+        similarity: '0.73'
+      - id: '202010.8185'
+        title: Optimizing Network Security Through Federated Learning
+        url: https://arxiv.org/abs/202010.8185
+        score: 65
+        similarity: '0.91'
