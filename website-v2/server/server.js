@@ -27,6 +27,7 @@ const matchesRoutes = require('./src/routes/v2/matches');
 const agentsRoutes = require('./src/routes/v2/agents');
 const leaderboardRoutes = require('./src/routes/v2/leaderboard');
 const feedbackRoutes = require('./src/routes/v2/feedback');
+const categoriesRoutes = require('./src/routes/v2/categories');
 
 // Server configuration
 const config = {
@@ -131,6 +132,7 @@ const init = async () => {
     server.route(agentsRoutes);
     server.route(leaderboardRoutes);
     server.route(feedbackRoutes);
+    server.route(categoriesRoutes);
 
     // Error handling
     server.ext('onPreResponse', (request, h) => {

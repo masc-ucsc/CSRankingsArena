@@ -43,6 +43,8 @@ debugLog('Initializing API service with config:', {
   useMockData: config.useMockData
 });
 
+
+
 // Create axios instance with configuration
 const api = axios.create({
   baseURL: config.apiUrl,
@@ -51,6 +53,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+console.log('api', api);
 
 // Request interceptor for logging and debugging
 api.interceptors.request.use(
@@ -106,13 +110,10 @@ export const fetchCategories = async () => {
       return mockApi.fetchCategories();
     }
     
-    debugger; // Breakpoint for debugging
     debugLog('Fetching categories');
-    const response = await api.get('/categories');
-    debugger; // Breakpoint for debugging
+    const response = await api.get('/v2/categories');
     return response.data;
   } catch (error) {
-    debugger; // Breakpoint for debugging on error
     errorLog('Error fetching categories:', error);
     throw error;
   }
@@ -276,37 +277,64 @@ export const testApiConnection = async () => {
       };
     }
     
-    debugger; // Breakpoint for debugging
     debugLog('Testing API connection');
     const startTime = new Date();
-    const response = await api.get('/health');
+    // Use the v2 health endpoint since we're using the Hapi server
+    const response = await api.get('/v2/health');
     const endTime = new Date();
     const duration = endTime - startTime;
     
-    debugger; // Breakpoint for debugging
     return {
       success: true,
       status: response.status,
       data: response.data,
       latency: `${duration}ms`,
-      url: `${config.apiUrl}/health`
-    };
-  } catch (error) {
-    debugger; // Breakpoint for debugging on error
-    errorLog('API connection test failed:', error);
-    return {
-      success: false,
-      error: error.message,
-      url: `${config.apiUrl}/health`,
-      details: error.response ? {
-        status: error.response.status,
-        data: error.response.data
-      } : null,
+      url: `${config.apiUrl}/v2/health`,
       config: {
         apiUrl: config.apiUrl,
-        timeout: config.apiTimeout
+        timeout: config.apiTimeout,
+        useMockData: config.useMockData
       }
     };
+  } catch (error) {
+    errorLog('API connection test failed:', error);
+    
+    // Enhanced error details
+    const errorDetails = {
+      success: false,
+      error: error.message,
+      url: `${config.apiUrl}/v2/health`,
+      config: {
+        apiUrl: config.apiUrl,
+        timeout: config.apiTimeout,
+        useMockData: config.useMockData
+      }
+    };
+
+    if (error.response) {
+      errorDetails.details = {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      };
+    } else if (error.request) {
+      errorDetails.details = {
+        type: 'no_response',
+        message: 'No response received from server',
+        request: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        }
+      };
+    } else {
+      errorDetails.details = {
+        type: 'request_error',
+        message: error.message
+      };
+    }
+
+    return errorDetails;
   }
 };
 
