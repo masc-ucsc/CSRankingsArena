@@ -424,6 +424,14 @@ const SubCategoryPageV2 = () => {
         <Space>
           <TrophyOutlined />
           Recent Matches
+          <Button 
+            type="link" 
+            icon={<ReloadOutlined />} 
+            onClick={fetchRecentMatches}
+            loading={loadingMatches}
+          >
+            Refresh
+          </Button>
         </Space>
       }
       style={{ marginTop: '24px' }}
@@ -434,24 +442,17 @@ const SubCategoryPageV2 = () => {
         renderItem={match => (
           <List.Item
             actions={[
-              <Button 
-                type="link" 
-                icon={<EyeOutlined />}
-                onClick={() => {
-                  setSelectedMatch(match);
-                  setViewMatchModalVisible(true);
-                }}
-              >
-                View Details
-              </Button>
+              <Link to={`/matches/${match.id}`}>
+                <Button type="primary" icon={<EyeOutlined />}>
+                  View Details
+                </Button>
+              </Link>
             ]}
           >
             <List.Item.Meta
               title={
                 <Space>
-                  <Link to={`/papers/${match.papers[0].id}`}>
-                    {match.papers[0].title}
-                  </Link>
+                  <Text strong>Match #{match.id.split('-').pop()}</Text>
                   <Badge 
                     status={match.status === 'completed' ? 'success' : 'processing'} 
                     text={match.status === 'completed' ? 'Completed' : 'In Progress'} 
@@ -460,30 +461,47 @@ const SubCategoryPageV2 = () => {
               }
               description={
                 <Space direction="vertical" size="small">
-                  <Text type="secondary">
-                    {match.papers[0].authors.join(', ')}
-                  </Text>
                   <Space>
-                    <Tag color="blue">{match.agents[0].name}</Tag>
+                    <Tag color="blue">{match.category}</Tag>
+                    <Tag color="green">{match.subcategory}</Tag>
+                    <Tag color="purple">{match.year}</Tag>
+                  </Space>
+                  <Space>
+                    <Text strong>Paper 1:</Text>
+                    <Link to={`/papers/${match.paperIds[0]}`}>
+                      {match.reviews[0].paperId}
+                    </Link>
                     <Text type="secondary">vs</Text>
-                    <Tag color="green">{match.agents[1].name}</Tag>
-                    {match.status === 'completed' && match.winner && (
-                      <>
-                        <Text type="secondary">Winner:</Text>
-                        <Tag color="gold">
-                          <TrophyOutlined /> {match.winner.name}
-                        </Tag>
-                      </>
-                    )}
+                    <Text strong>Paper 2:</Text>
+                    <Link to={`/papers/${match.paperIds[1]}`}>
+                      {match.reviews[1].paperId}
+                    </Link>
+                  </Space>
+                  {match.status === 'completed' && match.comparison.winner && (
+                    <Space>
+                      <Text type="secondary">Winner:</Text>
+                      <Tag color="gold">
+                        <TrophyOutlined /> Paper {match.comparison.winner === match.paperIds[0] ? '1' : '2'}
+                      </Tag>
+                    </Space>
+                  )}
+                  <Space>
+                    <Text type="secondary">Reviewers:</Text>
+                    <Tag color="blue">{match.reviews[0].reviewer.name}</Tag>
+                    <Text type="secondary">vs</Text>
+                    <Tag color="green">{match.reviews[1].reviewer.name}</Tag>
                   </Space>
                   <Text type="secondary">
-                    Created {new Date(match.created_at).toLocaleDateString()}
+                    Created {new Date(match.createdAt).toLocaleDateString()}
                   </Text>
                 </Space>
               }
             />
           </List.Item>
         )}
+        locale={{
+          emptyText: 'No matches found for this subcategory'
+        }}
       />
     </Card>
   );

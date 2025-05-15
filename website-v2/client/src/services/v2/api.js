@@ -1,10 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v2';
+const API_BASE_URL = 'http://localhost:5000/api/v2' || process.env.REACT_APP_API_URL;
+console.log('API_BASE_URL:', API_BASE_URL);
 
 // Papers API
 export const fetchPapers = async (category, subcategory, year) => {
   try {
+    console.log('Fetching papers for:', { category, subcategory, year });
+    console.log('Search path:', `${API_BASE_URL}/papers/${category}/${subcategory}`);
     const response = await axios.get(`${API_BASE_URL}/papers/${category}/${subcategory}`, {
       params: { year }
     });

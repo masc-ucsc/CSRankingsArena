@@ -7,30 +7,26 @@ const getPapersByFilters = async (categorySlug, subcategorySlug, year) => {
   const query = `
     WITH paper_categories AS (
       SELECT 
-        p.id, 
-        array_agg(DISTINCT ac.name) as arxiv_cat_names
+        p.id,
+        c.arxiv_categories
       FROM papers p
-      JOIN paper_arxiv_categories pac ON p.id = pac.paper_id
-      JOIN arxiv_categories ac ON pac.arxiv_category_id = ac.id
-      GROUP BY p.id
+      JOIN paper_subcategories ps ON p.id = ps.paper_id
+      JOIN subcategories s ON ps.subcategory_id = s.id
+      JOIN categories c ON s.category_id = c.id
+      WHERE c.slug = $1 AND s.slug = $2
     )
     SELECT 
       p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
       p.journal, p.doi, p.comments, p.published_year,
       array_agg(DISTINCT a.name) as authors,
-      pc.arxiv_cat_names as categories
+      pc.arxiv_categories as categories
     FROM papers p
     JOIN paper_authors pa ON p.id = pa.paper_id
     JOIN authors a ON pa.author_id = a.id
     JOIN paper_categories pc ON p.id = pc.id
-    JOIN paper_subcategories ps ON p.id = ps.paper_id
-    JOIN subcategories s ON ps.subcategory_id = s.id
-    JOIN categories c ON s.category_id = c.id
-    WHERE c.slug = $1
-      AND s.slug = $2
-      AND p.published_year = $3
+    WHERE p.published_year = $3
     GROUP BY p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
-      p.journal, p.doi, p.comments, p.published_year, pc.arxiv_cat_names
+      p.journal, p.doi, p.comments, p.published_year, pc.arxiv_categories
     ORDER BY p.published DESC
     LIMIT 100
   `;
@@ -45,7 +41,7 @@ const getPapersByFilters = async (categorySlug, subcategorySlug, year) => {
       title: row.title,
       authors: row.authors.filter(a => a !== null),
       abstract: row.abstract,
-      categories: row.categories.filter(c => c !== null),
+      categories: row.categories || [],
       published: row.published,
       updated: row.updated,
       url: row.url,
@@ -71,18 +67,20 @@ const searchPapers = async (query, filters = {}) => {
     select: `
       WITH paper_categories AS (
         SELECT 
-          p.id, 
-          array_agg(DISTINCT ac.name) as arxiv_cat_names
+          p.id,
+          c.arxiv_categories
         FROM papers p
-        JOIN paper_arxiv_categories pac ON p.id = pac.paper_id
-        JOIN arxiv_categories ac ON pac.arxiv_category_id = ac.id
-        GROUP BY p.id
+        JOIN paper_subcategories ps ON p.id = ps.paper_id
+        JOIN subcategories s ON ps.subcategory_id = s.id
+        JOIN categories c ON s.category_id = c.id
+        ${category ? 'WHERE c.slug = $' + (filters.category ? 3 : 1) : ''}
+        ${subcategory ? 'AND s.slug = $' + (filters.category ? 4 : 2) : ''}
       )
       SELECT 
         p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
         p.journal, p.doi, p.comments, p.published_year,
         array_agg(DISTINCT a.name) as authors,
-        pc.arxiv_cat_names as categories
+        pc.arxiv_categories as categories
     `,
     from: `
       FROM papers p
@@ -94,7 +92,7 @@ const searchPapers = async (query, filters = {}) => {
     where: [],
     groupBy: `
       GROUP BY p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
-        p.journal, p.doi, p.comments, p.published_year, pc.arxiv_cat_names
+        p.journal, p.doi, p.comments, p.published_year, pc.arxiv_categories
     `,
     orderBy: `ORDER BY p.published DESC`,
     limit: `LIMIT $${1} OFFSET $${2}`
@@ -175,10 +173,9 @@ const searchPapers = async (query, filters = {}) => {
     SELECT COUNT(DISTINCT p.id)
     FROM papers p
     JOIN paper_authors pa ON p.id = pa.paper_id
-    JOIN authors a ON pa.author_id = a.id
-    JOIN paper_arxiv_categories pac ON p.id = pac.paper_id
-    JOIN arxiv_categories ac ON pac.arxiv_category_id = ac.id
-    ${sqlParts.joins}
+    JOIN paper_subcategories ps ON p.id = ps.paper_id
+    JOIN subcategories s ON ps.subcategory_id = s.id
+    JOIN categories c ON s.category_id = c.id
     ${whereForCount}
   `;
   
@@ -197,7 +194,7 @@ const searchPapers = async (query, filters = {}) => {
       title: row.title,
       authors: row.authors.filter(a => a !== null),
       abstract: row.abstract,
-      categories: row.categories.filter(c => c !== null),
+      categories: row.categories || [],
       published: row.published,
       updated: row.updated,
       url: row.url,
@@ -289,25 +286,6 @@ const savePaper = async (paperData) => {
         'INSERT INTO paper_authors (paper_id, author_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
         [paperId, authorId]
       );
-    }
-    
-    // Link paper to arXiv categories
-    for (const categoryName of paperData.categories) {
-      // Get arXiv category ID
-      const arxivCategoryResult = await client.query(
-        'SELECT id FROM arxiv_categories WHERE name = $1 LIMIT 1',
-        [categoryName]
-      );
-      
-      if (arxivCategoryResult.rows.length > 0) {
-        const arxivCategoryId = arxivCategoryResult.rows[0].id;
-        
-        // Link paper to arXiv category
-        await client.query(
-          'INSERT INTO paper_arxiv_categories (paper_id, arxiv_category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-          [paperId, arxivCategoryId]
-        );
-      }
     }
     
     // Link paper to subcategories if provided

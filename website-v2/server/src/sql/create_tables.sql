@@ -23,6 +23,8 @@ CREATE TABLE categories (
     slug VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     color VARCHAR(50),
+    parent_slug VARCHAR(255) REFERENCES categories(slug),
+    arxiv_categories JSONB NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

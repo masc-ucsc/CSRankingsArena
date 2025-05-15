@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Typography, Button, Rate, Input, List, Divider, Tag, Modal, message, Statistic, Row, Col, Tabs, Avatar, Badge } from 'antd';
-import { LikeOutlined, DislikeOutlined, MessageOutlined, RobotOutlined, StarOutlined, LikeFilled, DislikeFilled, CommentOutlined, HistoryOutlined, BarChartOutlined, TrophyOutlined, FileTextOutlined, SwapOutlined, UserOutlined } from '@ant-design/icons';
+import { Card, Space, Typography, Button, Rate, Input, List, Divider, Tag, Modal, message, Statistic, Row, Col, Tabs, Avatar, Badge, Tooltip } from 'antd';
+import { LikeOutlined, DislikeOutlined, MessageOutlined, RobotOutlined, StarOutlined, LikeFilled, DislikeFilled, CommentOutlined, HistoryOutlined, BarChartOutlined, TrophyOutlined, FileTextOutlined, SwapOutlined, UserOutlined, EyeOutlined } from '@ant-design/icons';
 import { competitionService } from '../../services/competitionService';
 import FeedbackHistory from './FeedbackHistory';
 import AgentPerformanceChart from './AgentPerformanceChart';
 import useWebSocket from '../../hooks/useWebSocket';
 import { addFeedback, likeFeedback } from '../../services/competitionService';
 import { formatDistanceToNow } from 'date-fns';
+import { Link } from 'react-router-dom';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;

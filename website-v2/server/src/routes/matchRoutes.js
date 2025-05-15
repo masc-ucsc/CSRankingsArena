@@ -1,7 +1,7 @@
 const matchController = require('../controllers/matchController');
 const Joi = require('@hapi/joi');
 const Boom = require('@hapi/boom');
-const db = require('../db');
+const db = require('../config/db');
 
 module.exports = [
     {
