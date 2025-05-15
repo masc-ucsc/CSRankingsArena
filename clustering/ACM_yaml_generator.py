@@ -36,16 +36,17 @@ def update_yaml(url, output_file):
     for ref in page.find_all("div", attrs={"class":"citation-content"}):
         references.append(ref.text)
 
-    references = " ".join(references)
+    # references = " ".join(references)
 
     title = page.find("div", attrs={"class": "core-publication-title"}).text
 
     abstract_section = page.find("section", attrs={"property":"abstract"})
-    abstract = abstract_section.find("div", attrs={"role":"paragraph"}).text
+    abstract_paragraphs = abstract_section.find_all("div", attrs={"role":"paragraph"})
+    abstract = "\n".join([a.text for a in abstract_paragraphs])
 
     keywords_section = page.find("section", attrs={"id":"sec-terms"})
     keywords_elements = keywords_section.find_all("a")
-    keywords = " ".join([k.text for k in keywords_elements])
+    keywords = ",".join([k.text for k in keywords_elements])
 
     new_paper = {'abstract': abstract,
                     'keywords': keywords,
