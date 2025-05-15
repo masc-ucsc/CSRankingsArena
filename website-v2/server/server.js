@@ -36,7 +36,8 @@ const config = {
         port: process.env.PORT || 5000,
         routes: {
             cors: {
-                origin: ['http://localhost:3000'],
+                origin: ['http://localhost:3000', 'http://localhost:3001'],
+                additionalHeaders: ['Access-Control-Allow-Origin'],
                 credentials: true
             },
             validate: {

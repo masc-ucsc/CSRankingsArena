@@ -70,8 +70,11 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
       if (!category || !subcategory || !year) return;
 
       setLoading(true);
+      setError(null);
       setUsingMockData(false);
+
       try {
+        // First try to get real data
         const response = await api.get('/api/v2/leaderboard', {
           params: {
             category,
@@ -81,19 +84,27 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
           }
         });
 
-        if (response.data.rankings && response.data.rankings.length > 0) {
+        if (response.data?.rankings?.length > 0) {
           setData(response.data.rankings);
-        } else {
-          console.warn('No real rankings data available, using mock data');
-          setData(getMockLeaderboardData());
-          setUsingMockData(true);
+          setLoading(false);
+          return;
         }
-      } catch (err) {
-        console.error('Error fetching leaderboard data:', err);
-        console.warn('Error fetching rankings, using mock data as fallback');
+
+        // If no real data or empty rankings, use mock data
+        console.log('No real rankings data available, using mock data');
         setData(getMockLeaderboardData());
         setUsingMockData(true);
-        setError(null);
+      } catch (err) {
+        // Handle 404 and other errors by using mock data
+        console.warn('Error fetching rankings, using mock data as fallback:', err);
+        if (err.response?.status === 404) {
+          console.log('Leaderboard endpoint not found, using mock data');
+        } else {
+          console.error('Error details:', err);
+        }
+        setData(getMockLeaderboardData());
+        setUsingMockData(true);
+        setError(null); // Clear any previous errors since we're using mock data
       } finally {
         setLoading(false);
       }

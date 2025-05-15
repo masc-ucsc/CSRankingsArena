@@ -45,6 +45,7 @@ import {
   BarChartOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
+import { getMockLeaderboardData } from '../mock/paperData';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -89,7 +90,7 @@ const SubcategoryPage = () => {
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(undefined);
   const [usingMockData, setUsingMockData] = useState(false);
   const [searchText, setSearchText] = useState('');
   
@@ -109,6 +110,8 @@ const SubcategoryPage = () => {
   const [leaderboardYear, setLeaderboardYear] = useState(new Date().getFullYear());
   const [availableYears, setAvailableYears] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [usingMockLeaderboard, setUsingMockLeaderboard] = useState(false);
 
   // Find category and subcategory with null checks
   const category = categories?.find((cat) => cat.slug === categorySlug);
@@ -172,6 +175,12 @@ const SubcategoryPage = () => {
         return;
       }
       
+      // Add validation for selectedYear
+      if (!selectedYear || selectedYear > new Date().getFullYear()) {
+        console.log('Invalid year selected:', selectedYear);
+        return;
+      }
+      
       try {
         setLoading(true);
         console.log('Loading papers for:', { categorySlug, subcategorySlug, selectedYear });
@@ -180,8 +189,18 @@ const SubcategoryPage = () => {
         const papersData = await fetchPapers(categorySlug, subcategorySlug, selectedYear);
         console.log('Raw papers data from API:', papersData);
         
+        if (!papersData || !Array.isArray(papersData)) {
+          console.error('Invalid papers data received:', papersData);
+          throw new Error('Invalid papers data received from API');
+        }
+        
         // Transform papers data to ensure all required fields are present
         const transformedPapers = papersData.map(paper => {
+          if (!paper) {
+            console.error('Invalid paper object in array:', paper);
+            return null;
+          }
+          
           const transformed = {
             ...paper,
             id: paper.id || `paper-${Math.random().toString(36).substr(2, 9)}`,
@@ -583,15 +602,63 @@ const SubcategoryPage = () => {
     setSearchText('');
   };
 
+  const fetchLeaderboardData = async () => {
+    setLoadingLeaderboard(true);
+    try {
+      const response = await api.get('/api/v2/leaderboard', {
+        params: {
+          category: categorySlug,
+          subcategory: subcategorySlug,
+          year: selectedYear
+        }
+      });
+      
+      if (response.data && response.data.rankings) {
+        setLeaderboardData(response.data.rankings);
+        setUsingMockLeaderboard(false);
+      } else {
+        throw new Error('Invalid leaderboard data format');
+      }
+    } catch (error) {
+      console.error('Error fetching leaderboard data:', error);
+      // Use mock data as fallback
+      const mockData = getMockLeaderboardData();
+      setLeaderboardData(mockData);
+      setUsingMockLeaderboard(true);
+    } finally {
+      setLoadingLeaderboard(false);
+    }
+  };
+
   const renderPaperList = () => {
-    console.log('renderPaperList called with filteredPapers:', filteredPapers);
-    console.log('First paper in filteredPapers:', filteredPapers[0]);
-    console.log('Number of papers:', filteredPapers.length);
+    console.log('renderPaperList called with state:', {
+      papers,
+      filteredPapers,
+      loading,
+      error,
+      selectedYear,
+      searchText,
+      categorySlug,
+      subcategorySlug,
+      leaderboardData
+    });
     
     if (!filteredPapers || filteredPapers.length === 0) {
-        console.log('No papers to render');
-        return null;
+      console.log('No papers to render. Papers array:', papers);
+      return (
+        <Alert
+          message="No Papers Found"
+          description={`No papers found for ${subcategory?.name || subcategorySlug} in ${selectedYear}.`}
+          type="info"
+          showIcon
+        />
+      );
     }
+
+    // Create a map of paper rankings for quick lookup
+    const paperRankings = new Map(
+      leaderboardData.map(paper => [paper.paperId, paper])
+    );
 
     return (
       <div style={{ 
@@ -602,17 +669,27 @@ const SubcategoryPage = () => {
         padding: '16px 0'
       }}>
         {filteredPapers.map((paper, index) => {
-            console.log(`Rendering paper ${index}:`, paper);
-            return (
-                <PaperCard 
-                    key={paper.id} 
-                    paper={paper}
-                    showMatchButton={false}
-                    onSelectForMatch={null}
-                    selectedForMatch={false}
-                    style={{ height: '100%' }}
-                />
-            );
+          console.log(`Rendering paper ${index}:`, paper);
+          const ranking = paperRankings.get(paper.id);
+          return (
+            <PaperCard 
+              key={paper.id} 
+              paper={{
+                ...paper,
+                ranking: ranking ? {
+                  rank: ranking.rank,
+                  score: ranking.score,
+                  matches: ranking.matches?.length || 0,
+                  wins: ranking.wins || 0,
+                  winRate: ranking.winRate || 0
+                } : null
+              }}
+              showMatchButton={false}
+              onSelectForMatch={null}
+              selectedForMatch={false}
+              style={{ height: '100%' }}
+            />
+          );
         })}
       </div>
     );
@@ -675,40 +752,50 @@ const SubcategoryPage = () => {
     </Card>
   );
 
-  // Add function to fetch available years for leaderboard
+  // Update the fetchLeaderboardYears function to handle missing endpoint gracefully
   const fetchLeaderboardYears = async () => {
     try {
-      const response = await api.get(`/leaderboard/${categorySlug}/${subcategorySlug}/years`);
-      const years = response.data.years;
-      // Filter out future years
+      // For now, just use the current year and previous 4 years
       const currentYear = new Date().getFullYear();
-      const validYears = years.filter(year => year <= currentYear);
-      setAvailableYears(validYears);
+      const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+      setAvailableYears(years);
+      
       // If the current selected year is invalid, set to the most recent valid year
-      if (validYears.length > 0) {
-        if (!validYears.includes(selectedYear) || selectedYear > currentYear) {
-          setSelectedYear(validYears[0]);
-        }
+      if (!years.includes(leaderboardYear) || leaderboardYear > currentYear) {
+        setLeaderboardYear(currentYear);
       }
     } catch (err) {
       console.error('Error fetching years:', err);
-      // Use mock years if API fails, but only up to current year
+      // Use current year and previous 4 years as fallback
       const currentYear = new Date().getFullYear();
-      const mockYears = [2024, 2023].filter(year => year <= currentYear);
-      setAvailableYears(mockYears);
-      if (mockYears.length > 0) {
-        if (!mockYears.includes(selectedYear) || selectedYear > currentYear) {
-          setSelectedYear(mockYears[0]);
-        }
+      const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+      setAvailableYears(years);
+      if (!years.includes(leaderboardYear) || leaderboardYear > currentYear) {
+        setLeaderboardYear(currentYear);
       }
     }
   };
 
+  // Add effect to set leaderboard year when availableYears changes
+  useEffect(() => {
+    if (availableYears.length > 0 && (!leaderboardYear || !availableYears.includes(leaderboardYear))) {
+      setLeaderboardYear(availableYears[0]);
+    }
+  }, [availableYears, leaderboardYear]);
+
+  // Add effect to fetch leaderboard years when category/subcategory changes
   useEffect(() => {
     if (category && subcategory) {
       fetchLeaderboardYears();
     }
   }, [category, subcategory]);
+
+  // Add effect to fetch leaderboard data when year changes
+  useEffect(() => {
+    if (selectedYear && categorySlug && subcategorySlug) {
+      fetchLeaderboardData();
+    }
+  }, [selectedYear, categorySlug, subcategorySlug]);
 
   // Show loading state while categories are loading
   if (loadingCategories) {
@@ -832,7 +919,14 @@ const SubcategoryPage = () => {
               } 
               key="papers"
             >
-              {console.log('Rendering papers tab content')}
+              {console.log('Rendering papers tab with state:', {
+                loading,
+                error,
+                papers,
+                filteredPapers,
+                selectedYear,
+                searchText
+              })}
               <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 <div style={{ 
                   display: 'flex', 
@@ -872,7 +966,7 @@ const SubcategoryPage = () => {
                       allowClear
                       dropdownStyle={{ borderRadius: '6px' }}
                     >
-                      {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                      {availableYears.map(year => (
                         <Option key={year} value={year}>{year}</Option>
                       ))}
                     </Select>
@@ -880,32 +974,19 @@ const SubcategoryPage = () => {
                 </Row>
 
                 {loading ? (
-                  console.log('Rendering loading state') || (
-                    <div style={{ textAlign: 'center', padding: '40px' }}>
-                      <Spin size="large" />
-                      <div style={{ marginTop: '16px' }}>Loading papers...</div>
-                    </div>
-                  )
+                  <div style={{ textAlign: 'center', padding: '40px' }}>
+                    <Spin size="large" />
+                    <div style={{ marginTop: '16px' }}>Loading papers...</div>
+                  </div>
                 ) : error ? (
-                  console.log('Rendering error state:', error) || (
-                    <Alert
-                      message="Error Loading Papers"
-                      description={error}
-                      type="error"
-                      showIcon
-                    />
-                  )
-                ) : filteredPapers.length === 0 ? (
-                  console.log('Rendering no papers state') || (
-                    <Alert
-                      message="No Papers Found"
-                      description={`No papers found for ${subcategory.name} in ${selectedYear}.`}
-                      type="info"
-                      showIcon
-                    />
-                  )
+                  <Alert
+                    message="Error Loading Papers"
+                    description={error}
+                    type="error"
+                    showIcon
+                  />
                 ) : (
-                  console.log('About to render paper list') || renderPaperList()
+                  renderPaperList()
                 )}
               </Space>
             </TabPane>
@@ -924,9 +1005,15 @@ const SubcategoryPage = () => {
                   <Title level={4}>Paper Rankings</Title>
                   <Select
                     value={leaderboardYear}
-                    onChange={setLeaderboardYear}
+                    onChange={(year) => {
+                      const currentYear = new Date().getFullYear();
+                      if (year > currentYear) {
+                        message.warning('Cannot select future years');
+                        return;
+                      }
+                      setLeaderboardYear(year);
+                    }}
                     style={{ width: 120 }}
-                    loading={!availableYears.length}
                   >
                     {availableYears.map(year => (
                       <Option key={year} value={year}>{year}</Option>

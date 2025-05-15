@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, Button, Space, Typography, Tag, Tooltip } from 'antd';
-import { RobotOutlined, LinkOutlined, UserOutlined } from '@ant-design/icons';
+import { Card, Button, Space, Typography, Tag, Tooltip, Badge } from 'antd';
+import { RobotOutlined, LinkOutlined, UserOutlined, TrophyOutlined, StarOutlined } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -35,6 +35,21 @@ const PaperCard = ({ paper, onSelectForMatch, showMatchButton, selectedForMatch 
     if (url.includes('ieee.org')) return 'IEEE';
     return 'Other';
   };
+
+  // Get color for rank badge
+  const getRankColor = (rank) => {
+    if (!rank) return 'default';
+    if (rank === 1) return 'gold';
+    if (rank === 2) return 'silver';
+    if (rank === 3) return 'bronze';
+    return 'blue';
+  };
+
+  // Format win rate as percentage
+  const formatWinRate = (rate) => {
+    if (!rate) return '0%';
+    return `${Math.round(rate * 100)}%`;
+  };
   
   return (
     <Card 
@@ -61,21 +76,35 @@ const PaperCard = ({ paper, onSelectForMatch, showMatchButton, selectedForMatch 
       }}
     >
       <Space direction="vertical" size="small" style={{ width: '100%', flex: 1 }}>
-        <Title level={5} style={{ 
-          marginBottom: '12px',
-          fontSize: '16px',
-          lineHeight: '1.4',
-          '& a': {
-            color: '#262626',
-            '&:hover': {
-              color: '#1890ff'
+        <Space align="start" style={{ width: '100%' }}>
+          <Title level={5} style={{ 
+            marginBottom: '12px',
+            fontSize: '16px',
+            lineHeight: '1.4',
+            flex: 1,
+            '& a': {
+              color: '#262626',
+              '&:hover': {
+                color: '#1890ff'
+              }
             }
-          }
-        }}>
-          <a href={paper.url} target="_blank" rel="noopener noreferrer">
-            {paper.title}
-          </a>
-        </Title>
+          }}>
+            <a href={paper.url} target="_blank" rel="noopener noreferrer">
+              {paper.title}
+            </a>
+          </Title>
+          {paper.ranking && (
+            <Tooltip title={`Rank ${paper.ranking.rank} with ${paper.ranking.score} points`}>
+              <Badge 
+                count={paper.ranking.rank} 
+                style={{ 
+                  backgroundColor: getRankColor(paper.ranking.rank),
+                  boxShadow: '0 2px 0 rgba(0,0,0,.15)'
+                }}
+              />
+            </Tooltip>
+          )}
+        </Space>
         
         <Space direction="vertical" size={8} style={{ width: '100%' }}>
           <Space align="center">
@@ -107,6 +136,20 @@ const PaperCard = ({ paper, onSelectForMatch, showMatchButton, selectedForMatch 
             <Tag color="green" style={{ margin: 0 }}>{paper.category}</Tag>
             <Tag color="purple" style={{ margin: 0 }}>{paper.subcategory}</Tag>
             <Tag color="orange" style={{ margin: 0 }}>{getVenue(paper.url)}</Tag>
+            {paper.ranking && (
+              <>
+                <Tooltip title="Win Rate">
+                  <Tag color="cyan" style={{ margin: 0 }}>
+                    <TrophyOutlined /> {formatWinRate(paper.ranking.winRate)}
+                  </Tag>
+                </Tooltip>
+                <Tooltip title="Total Matches">
+                  <Tag color="magenta" style={{ margin: 0 }}>
+                    <StarOutlined /> {paper.ranking.matches}
+                  </Tag>
+                </Tooltip>
+              </>
+            )}
           </Space>
         </div>
 

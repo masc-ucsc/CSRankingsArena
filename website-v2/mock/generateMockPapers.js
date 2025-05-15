@@ -1,16 +1,38 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const axios = require('axios');
+const xml2js = require('xml2js');
 
-// Categories and subcategories based on CSRankings structure
-const categories = {
-    'ai': ['vision', 'nlp', 'ml', 'ai'],
-    'systems': ['architecture', 'os', 'networks', 'security'],
-    'theory': ['algorithms', 'logic', 'cryptography', 'databases']
+// arXiv API base URL
+const ARXIV_API_BASE = 'http://export.arxiv.org/api/query';
+const ARXIV_BASE_URL = 'https://arxiv.org/abs/';
+
+// arXiv category mapping
+const arxivCategories = {
+    'ai': {
+        'vision': 'cs.CV',
+        'nlp': 'cs.CL',
+        'ml': 'cs.LG',
+        'ai': 'cs.AI'
+    },
+    'systems': {
+        'architecture': 'cs.AR',
+        'os': 'cs.OS',
+        'networks': 'cs.NI',
+        'security': 'cs.CR'
+    },
+    'theory': {
+        'algorithms': 'cs.DS',
+        'logic': 'cs.LO',
+        'cryptography': 'cs.CR',
+        'databases': 'cs.DB'
+    }
 };
 
-// Years to generate papers for
-const years = [2020, 2021, 2022, 2023, 2024];
+// Years to generate papers for (current year and previous 4 years)
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 // Common academic paper patterns
 const paperPatterns = {
@@ -84,37 +106,94 @@ function generateURL(title) {
     return `${baseURL}${randomId}`;
 }
 
-// Generate a paper with match-opponent data
-function generatePaper(category, subcategory, year) {
-    const title = generateTitle(category, subcategory);
-    const paper = {
-        title,
-        abstract: generateAbstract(category, subcategory),
-        keywords: '',
-        references: generateReferences(),
-        url: generateURL(title),
-        year,
-        category,
-        subcategory,
-        match_opponents: generateMatchOpponents()
-    };
-    return paper;
+// Generate a realistic arXiv paper ID
+function generateArxivId() {
+    const year = Math.floor(Math.random() * 24) + 2000; // Papers from 2000-2024
+    const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+    const number = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+    return `${year}${month}.${number}`;
 }
 
-// Generate realistic references
-function generateReferences() {
-    const numRefs = 20 + Math.floor(Math.random() * 10);
-    const refs = [];
-    
-    for (let i = 0; i < numRefs; i++) {
-        const authors = generateAuthors();
-        const year = 2015 + Math.floor(Math.random() * 10);
-        const title = generateTitle('ai', 'ml'); // Using any category for references
-        const venue = generateVenue();
-        refs.push(`${authors}. ${title}. ${venue}, ${year}.`);
+// Fetch real paper data from arXiv API
+async function fetchArxivPaper(category, subcategory) {
+    const arxivCategory = arxivCategories[category]?.[subcategory];
+    if (!arxivCategory) {
+        throw new Error(`Invalid category/subcategory: ${category}/${subcategory}`);
     }
-    
-    return refs.join(' ');
+
+    try {
+        // Search for papers in the last 5 years
+        const query = `cat:${arxivCategory} AND submittedDate:[${currentYear - 5} TO ${currentYear}]`;
+        const response = await axios.get(ARXIV_API_BASE, {
+            params: {
+                search_query: query,
+                max_results: 100,
+                sortBy: 'submittedDate',
+                sortOrder: 'descending'
+            }
+        });
+
+        // Parse the XML response using xml2js
+        const parser = new xml2js.Parser();
+        const result = await parser.parseStringPromise(response.data);
+        
+        if (!result.feed || !result.feed.entry || !Array.isArray(result.feed.entry)) {
+            throw new Error('Invalid response format from arXiv API');
+        }
+
+        const entries = result.feed.entry;
+        if (entries.length === 0) {
+            throw new Error('No papers found');
+        }
+
+        // Select a random paper from the results
+        const randomIndex = Math.floor(Math.random() * entries.length);
+        const entry = entries[randomIndex];
+
+        // Extract paper details
+        const id = entry.id[0].split('/').pop();
+        const title = entry.title[0].replace(/\n/g, ' ').trim();
+        const abstract = entry.summary[0].replace(/\n/g, ' ').trim();
+        const authors = entry.author.map(author => author.name[0]);
+        const published = new Date(entry.published[0]);
+        const year = published.getFullYear();
+
+        return {
+            id,
+            title,
+            abstract,
+            authors,
+            year,
+            url: `${ARXIV_BASE_URL}${id}`,
+            pdfUrl: `${ARXIV_BASE_URL.replace('/abs/', '/pdf/')}${id}.pdf`,
+            category,
+            subcategory,
+            venue: 'arXiv',
+            match_opponents: generateMatchOpponents()
+        };
+    } catch (error) {
+        console.error(`Error fetching arXiv paper: ${error.message}`);
+        // Fallback to generating a paper with arXiv-style ID
+        return generateFallbackPaper(category, subcategory);
+    }
+}
+
+// Generate a fallback paper when arXiv API fails
+function generateFallbackPaper(category, subcategory) {
+    const id = generateArxivId();
+    return {
+        id,
+        title: generateTitle(category, subcategory),
+        abstract: generateAbstract(category, subcategory),
+        authors: generateAuthors(),
+        year: years[Math.floor(Math.random() * years.length)],
+        url: `${ARXIV_BASE_URL}${id}`,
+        pdfUrl: `${ARXIV_BASE_URL.replace('/abs/', '/pdf/')}${id}.pdf`,
+        category,
+        subcategory,
+        venue: 'arXiv',
+        match_opponents: generateMatchOpponents()
+    };
 }
 
 // Generate match opponents data
@@ -123,8 +202,11 @@ function generateMatchOpponents() {
     const opponents = [];
     
     for (let i = 0; i < numOpponents; i++) {
+        const id = generateArxivId();
         opponents.push({
+            id,
             title: generateTitle('ai', 'ml'),
+            url: `${ARXIV_BASE_URL}${id}`,
             score: Math.floor(Math.random() * 100),
             similarity: (0.5 + Math.random() * 0.5).toFixed(2)
         });
@@ -150,49 +232,47 @@ function generateAuthors() {
     return authors.join(', ');
 }
 
-function generateVenue() {
-    const venues = [
-        'Proceedings of the International Conference on Machine Learning',
-        'Advances in Neural Information Processing Systems',
-        'IEEE Transactions on Pattern Analysis and Machine Intelligence',
-        'ACM SIGKDD International Conference on Knowledge Discovery and Data Mining',
-        'International Conference on Learning Representations',
-        'Conference on Computer Vision and Pattern Recognition',
-        'International Conference on Computer Vision',
-        'European Conference on Computer Vision'
-    ];
-    return venues[Math.floor(Math.random() * venues.length)];
-}
-
 // Main function to generate all papers
-function generateAllPapers() {
-    for (const [category, subcategories] of Object.entries(categories)) {
-        for (const subcategory of subcategories) {
+async function generateAllPapers() {
+    for (const [category, subcategories] of Object.entries(arxivCategories)) {
+        for (const subcategory of Object.keys(subcategories)) {
             for (const year of years) {
                 const papers = [];
                 const numPapers = 5 + Math.floor(Math.random() * 5); // 5-10 papers per category-subcategory-year
                 
                 for (let i = 0; i < numPapers; i++) {
-                    papers.push(generatePaper(category, subcategory, year));
+                    try {
+                        const paper = await fetchArxivPaper(category, subcategory);
+                        if (paper.year === year) {
+                            papers.push(paper);
+                        }
+                    } catch (error) {
+                        console.error(`Error generating paper: ${error.message}`);
+                        const paper = generateFallbackPaper(category, subcategory);
+                        if (paper.year === year) {
+                            papers.push(paper);
+                        }
+                    }
                 }
                 
-                const yamlContent = yaml.dump({ papers });
-                const fileName = `${category}-${subcategory}-${year}-papers.yaml`;
-                // Create nested directory structure: category/subcategory/year/
-                const filePath = path.join(__dirname, '..', 'papers', category, subcategory, year.toString(), fileName);
-                
-                // Ensure directory exists
-                const dir = path.dirname(filePath);
-                if (!fs.existsSync(dir)) {
-                    fs.mkdirSync(dir, { recursive: true });
+                if (papers.length > 0) {
+                    const yamlContent = yaml.dump({ papers });
+                    const fileName = `${category}-${subcategory}-${year}-papers.yaml`;
+                    const filePath = path.join(__dirname, '..', 'papers', category, subcategory, year.toString(), fileName);
+                    
+                    // Ensure directory exists
+                    const dir = path.dirname(filePath);
+                    if (!fs.existsSync(dir)) {
+                        fs.mkdirSync(dir, { recursive: true });
+                    }
+                    
+                    fs.writeFileSync(filePath, yamlContent);
+                    console.log(`Generated ${fileName} in ${path.relative(path.join(__dirname, '..'), dir)}`);
                 }
-                
-                fs.writeFileSync(filePath, yamlContent);
-                console.log(`Generated ${fileName} in ${path.relative(path.join(__dirname, '..'), dir)}`);
             }
         }
     }
 }
 
 // Run the generator
-generateAllPapers(); 
+generateAllPapers().catch(console.error); 
