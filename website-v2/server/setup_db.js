@@ -17,7 +17,7 @@ const pool = new Pool({
 // Run an SQL file
 const runSQLFile = async (filename) => {
   try {
-    const filePath = path.join(__dirname, 'sql', filename);
+    const filePath = path.join(__dirname, 'src', 'sql', filename);
     const sql = fs.readFileSync(filePath, 'utf8');
     
     console.log(`Running SQL file: ${filename}`);

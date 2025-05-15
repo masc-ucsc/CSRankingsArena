@@ -43,6 +43,8 @@ debugLog('Initializing API service with config:', {
   useMockData: config.useMockData
 });
 
+
+
 // Create axios instance with configuration
 const api = axios.create({
   baseURL: config.apiUrl,
@@ -51,6 +53,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+console.log('api', api);
 
 // Request interceptor for logging and debugging
 api.interceptors.request.use(
@@ -106,13 +110,10 @@ export const fetchCategories = async () => {
       return mockApi.fetchCategories();
     }
     
-    debugger; // Breakpoint for debugging
     debugLog('Fetching categories');
-    const response = await api.get('/categories');
-    debugger; // Breakpoint for debugging
+    const response = await api.get('/v2/categories');
     return response.data;
   } catch (error) {
-    debugger; // Breakpoint for debugging on error
     errorLog('Error fetching categories:', error);
     throw error;
   }
@@ -182,6 +183,85 @@ export const searchPapers = async (query, filters = {}) => {
   }
 };
 
+// Agentic APIs
+
+export const getAgents = async () => {
+  return await api.get('/agents');
+};
+
+export const getAgent = async (id) => {
+  return await api.get(`/agents/${id}`);
+};
+
+export const getAgentMatches = async (id, params = {}) => {
+  return await api.get(`/agents/${id}/matches`, { params });
+};
+
+export const getAgentPerformance = async (id) => {
+  return await api.get(`/agents/${id}/performance`);
+};
+
+export const getAgentComparison = async (agentIds) => {
+  if (!Array.isArray(agentIds)) {
+    throw new Error('agentIds must be an array');
+  }
+  
+  return await api.get(`/agents/stats`, { 
+    params: { agents: agentIds.join(',') } 
+  });
+};
+
+export const getMatches = async (params = {}) => {
+  return await api.get('/matches', { params });
+};
+
+export const getMatch = async (id) => {
+  return await api.get(`/matches/${id}`);
+};
+
+export const getMatchReviews = async (id) => {
+  return await api.get(`/matches/${id}/reviews`);
+};
+
+export const getMatchEvaluation = async (id) => {
+  return await api.get(`/matches/${id}/evaluation`);
+};
+
+export const runMatch = async (id) => {
+  return await api.post(`/matches/run/${id}`);
+};
+
+export const generateMatches = async (data) => {
+  return await api.post('/matches/generate', data);
+};
+
+export const runPendingMatches = async (data) => {
+  return await api.post('/matches/run-pending', data);
+};
+
+// Leaderboard endpoint
+export const getLeaderboard = async () => {
+  return await api.get('/leaderboard');
+};
+
+// Papers endpoints
+export const getPapers = async (params = {}) => {
+  return await api.get('/papers', { params });
+};
+
+export const getPaper = async (id) => {
+  return await api.get(`/papers/${id}`);
+};
+
+export const getPapersByTopic = async (topic, params = {}) => {
+  return await api.get(`/papers/topic/${topic}`, { params });
+};
+
+export const getPaperMatches = async (id, params = {}) => {
+  return await api.get(`/papers/${id}/matches`, { params });
+};
+
+
 /**
  * Test API connectivity
  * @returns {Promise<Object>} Connection test results
@@ -197,37 +277,64 @@ export const testApiConnection = async () => {
       };
     }
     
-    debugger; // Breakpoint for debugging
     debugLog('Testing API connection');
     const startTime = new Date();
-    const response = await api.get('/health');
+    // Use the v2 health endpoint since we're using the Hapi server
+    const response = await api.get('/v2/health');
     const endTime = new Date();
     const duration = endTime - startTime;
     
-    debugger; // Breakpoint for debugging
     return {
       success: true,
       status: response.status,
       data: response.data,
       latency: `${duration}ms`,
-      url: `${config.apiUrl}/health`
-    };
-  } catch (error) {
-    debugger; // Breakpoint for debugging on error
-    errorLog('API connection test failed:', error);
-    return {
-      success: false,
-      error: error.message,
-      url: `${config.apiUrl}/health`,
-      details: error.response ? {
-        status: error.response.status,
-        data: error.response.data
-      } : null,
+      url: `${config.apiUrl}/v2/health`,
       config: {
         apiUrl: config.apiUrl,
-        timeout: config.apiTimeout
+        timeout: config.apiTimeout,
+        useMockData: config.useMockData
       }
     };
+  } catch (error) {
+    errorLog('API connection test failed:', error);
+    
+    // Enhanced error details
+    const errorDetails = {
+      success: false,
+      error: error.message,
+      url: `${config.apiUrl}/v2/health`,
+      config: {
+        apiUrl: config.apiUrl,
+        timeout: config.apiTimeout,
+        useMockData: config.useMockData
+      }
+    };
+
+    if (error.response) {
+      errorDetails.details = {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      };
+    } else if (error.request) {
+      errorDetails.details = {
+        type: 'no_response',
+        message: 'No response received from server',
+        request: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        }
+      };
+    } else {
+      errorDetails.details = {
+        type: 'request_error',
+        message: error.message
+      };
+    }
+
+    return errorDetails;
   }
 };
 

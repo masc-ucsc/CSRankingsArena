@@ -11,6 +11,8 @@ require('dotenv').config();
 // Import routes
 const paperRoutes = require('./routes/papers');
 const categoryRoutes = require('./routes/categories');
+const v2PaperRoutes = require('./src/routes/v2/papers');
+const v2MatchRoutes = require('./src/routes/v2/matches');
 
 // Initialize Express app
 const app = express();
@@ -50,6 +52,10 @@ app.use('/api', apiLimiter);
 app.use('/api/papers', paperRoutes);
 app.use('/api/categories', categoryRoutes);
 
+// V2 Routes
+app.use('/api/v2/papers', v2PaperRoutes);
+app.use('/api/v2/matches', v2MatchRoutes);
+
 // Health check route
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
@@ -67,3 +73,4 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+	
