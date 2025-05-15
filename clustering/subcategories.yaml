@@ -26,43 +26,43 @@ Computer Networks:
   - Network life cycle
   - Approaches and techniques
 Computer Vision:
-  - 3D from multi-view and sensors
-  - 3D from single images
-  - Adversarial attack and defense
-  - Autonomous driving
-  - Biometrics
-  - Computational imaging
-  - Computer vision for social good
-  - Computer vision theory
-  - Datasets and evaluation
-  - Deep learning architectures and techniques
-  - Document analysis and understanding
-  - Efficient and scalable vision
-  - Embodied vision: Active agents, simulation
-  - Event-based cameras
-  - Explainable computer vision
-  - Humans: Face, body, pose, gesture, movement
-  - Image and video synthesis and generation
-  - Low-level vision
-  - Machine learning (other than deep learning)
-  - Medical and biological vision, cell microscopy
-  - Multimodal learning
-  - Optimization methods (other than deep learning)
-  - Photogrammetry and remote sensing
-  - Physics-based vision and shape-from-X
-  - Recognition: Categorization, detection, retrieval
-  - Representation learning
-  - Computer Vision for Robotics
-  - Scene analysis and understanding
-  - Segmentation, grouping and shape analysis
-  - Self-, semi-, meta- and unsupervised learning
-  - Transfer/ low-shot/ continual/ long-tail learning
-  - Transparency, fairness, accountability, privacy and ethics in vision
-  - Video: Action and event understanding
-  - Video: Low-level analysis, motion, and tracking
-  - Vision + graphics
-  - Vision, language, and reasoning
-  - Vision applications and systems
+  - Image Classification
+  - Object Detection
+  - Semantic Segmentation
+  - Instance Segmentation
+  - Panoptic Segmentation
+  - Object Tracking
+  - Pose Estimation
+  - Action Recognition
+  - Video Understanding
+  - 3D Vision
+  - Scene Understanding
+  - Image Generation
+  - Image-to-Image Translation
+  - Image Super-Resolution
+  - Image Inpainting
+  - Depth Estimation
+  - Optical Flow Estimation
+  - Multi-View Geometry
+  - SLAM (Simultaneous Localization and Mapping)
+  - Visual Odometry
+  - Face Detection and Recognition
+  - Gaze Estimation
+  - Gesture Recognition
+  - Medical Image Analysis
+  - Remote Sensing and Aerial Image Analysis
+  - Document Image Analysis
+  - Vision-and-Language (e.g., VQA, Image Captioning)
+  - Adversarial Attacks and Robustness in Vision
+  - Self-Supervised Learning for Vision
+  - Few-shot and Zero-shot Learning in Vision
+  - Foundation Models for Vision (e.g., CLIP, DINO)
+  - Computational Photography
+  - Neural Rendering
+  - Human-Object Interaction
+  - Egocentric Vision
+  - Vision for Robotics
+  - Vision Transformers
 Databases:
   - Benchmarking, database monitoring, performance tuning, and self-driving databases
   - Blockchains and distributed ledgers
@@ -114,9 +114,8 @@ Computer Architecture:
   - Accelerator-based, application-specific, and reconfigurable architectures
   - Architectural support for programming languages, compilation, software development, security and privacy, virtualization
   - Architectures for emerging technologies and applications
-  - Architectural support for non-volatile/persistent memory
   - Quantum computing
-  - In-/near-memory or in-/near-storage processing
+  - In-memory or near-storage processing
   - Approximate computing and architectural support for approximation
   - Effects of circuits and technology on architecture
   - Architecture modeling and simulation methodologies
@@ -125,7 +124,7 @@ Natural Language Processing:
   - Computational Social Science and Cultural Analytics
   - Dialogue and Interactive Systems
   - Discourse and Pragmatics
-  - Efficient/Low-Resource Methods for NLP
+  - Low-Resource Methods for NLP
   - Ethics, Bias, and Fairness
   - Generation
   - Human-Centered NLP
@@ -162,10 +161,10 @@ The Web and Information Retrieval:
   - Machine Learning and Natural Language Processing for IR
   - Conversational IR
 Design Automation:
-  - AI/ML Algorithms
-  - AI/ML Application and Infrastructure
-  - AI/ML Architecture Design
-  - AI/ML System and Platform Design
+  - AI Algorithms
+  - AI Application and Infrastructure
+  - AI Architecture Design
+  - AI System and Platform Design
   - SoC, Heterogeneous, and Reconfigurable Architectures
   - In-memory and Near-memory Computing Circuits
   - In-memory and Near-memory Computing Architectures, Applications and Systems
@@ -173,16 +172,16 @@ Design Automation:
   - Digital and Analog Circuits
   - Emerging Device and Interconnect Technologies
   - Quantum Computing
-  - Design Methodologies for System-on-Chip and 3D/2.5D System-in Package
+  - Design Methodologies for System-on-Chip and 3D System-in Package
   - Design Verification and Validation
   - Timing Analysis and Optimization
   - Power Analysis and Optimization
-  - RTL/Logic Level and High-level Synthesis
+  - Logic Level and High-level Synthesis
   - Analog CAD, Simulation, Verification and Test
   - Physical Design and Verification
   - Design for Manufacturability and Reliability
   - Test, Validation and Silicon Lifecycle Management
-  - AI/ML Security and Privacy
+  - AI Security and Privacy
   - Hardware Security: Primitives, Architecture, Design, and Test
   - Hardware Security: Attack and Defense
   - Embedded and Cross-Layer Security
