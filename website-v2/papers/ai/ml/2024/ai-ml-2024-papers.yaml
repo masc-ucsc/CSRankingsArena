@@ -1,0 +1,418 @@
+papers:
+  - id: 2501.00602v1
+    title: >-
+      STORM: Spatio-Temporal Reconstruction Model for Large-Scale Outdoor  
+      Scenes
+    abstract: >-
+      We present STORM, a spatio-temporal reconstruction model designed for
+      reconstructing dynamic outdoor scenes from sparse observations. Existing
+      dynamic reconstruction methods often rely on per-scene optimization, dense
+      observations across space and time, and strong motion supervision,
+      resulting in lengthy optimization times, limited generalization to novel
+      views or scenes, and degenerated quality caused by noisy pseudo-labels for
+      dynamics. To address these challenges, STORM leverages a data-driven
+      Transformer architecture that directly infers dynamic 3D scene
+      representations--parameterized by 3D Gaussians and their velocities--in a
+      single forward pass. Our key design is to aggregate 3D Gaussians from all
+      frames using self-supervised scene flows, transforming them to the target
+      timestep to enable complete (i.e., "amodal") reconstructions from
+      arbitrary viewpoints at any moment in time. As an emergent property, STORM
+      automatically captures dynamic instances and generates high-quality masks
+      using only reconstruction losses. Extensive experiments on public datasets
+      show that STORM achieves precise dynamic scene reconstruction, surpassing
+      state-of-the-art per-scene optimization methods (+4.3 to 6.6 PSNR) and
+      existing feed-forward approaches (+2.1 to 4.7 PSNR) in dynamic regions.
+      STORM reconstructs large-scale outdoor scenes in 200ms, supports real-time
+      rendering, and outperforms competitors in scene flow estimation, improving
+      3D EPE by 0.422m and Acc5 by 28.02%. Beyond reconstruction, we showcase
+      four additional applications of our model, illustrating the potential of
+      self-supervised learning for broader dynamic scene understanding.
+    authors:
+      - Jiawei Yang
+      - Jiahui Huang
+      - Yuxiao Chen
+      - Yan Wang
+      - Boyi Li
+      - Yurong You
+      - Apoorva Sharma
+      - Maximilian Igl
+      - Peter Karkus
+      - Danfei Xu
+      - Boris Ivanovic
+      - Yue Wang
+      - Marco Pavone
+    year: 2024
+    url: https://arxiv.org/abs/2501.00602v1
+    pdfUrl: https://arxiv.org/pdf/2501.00602v1.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '200209.5487'
+        title: Optimizing Image Recognition Through Quantum Computing
+        url: https://arxiv.org/abs/200209.5487
+        score: 24
+        similarity: '0.92'
+      - id: '202105.7716'
+        title: Scalable Computer Vision Framework for Data Privacy
+        url: https://arxiv.org/abs/202105.7716
+        score: 52
+        similarity: '0.71'
+  - id: 2501.00632v1
+    title: Different thresholding methods on Nearest Shrunken Centroid algorithm
+    abstract: >-
+      This article considers the impact of different thresholding methods to the
+      Nearest Shrunken Centroid algorithm, which is popularly referred as the
+      Prediction Analysis of Microarrays (PAM) for high-dimensional
+      classification. PAM uses soft thresholding to achieve high computational
+      efficiency and high classification accuracy but in the price of retaining
+      too many features. When applied to microarray human cancers, PAM selected
+      2611 features on average from 10 multi-class datasets. Such a large number
+      of features make it difficult to perform follow up study. One reason
+      behind this problem is the soft thresholding, which is known to produce
+      biased parameter estimate in regression analysis. In this article, we
+      extend the PAM algorithm with two other thresholding methods, hard and
+      order thresholding, and a deep search algorithm to achieve better
+      thresholding parameter estimate. The modified algorithms are extensively
+      tested and compared to the original one based on real data and Monte Carlo
+      studies. In general, the modification not only gave better cancer status
+      prediction accuracy, but also resulted in more parsimonious models with
+      significantly smaller number of features.
+    authors:
+      - Mohammad Omar Sahtout
+      - Haiyan Wang
+      - Santosh Ghimire
+    year: 2024
+    url: https://arxiv.org/abs/2501.00632v1
+    pdfUrl: https://arxiv.org/pdf/2501.00632v1.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '201311.3248'
+        title: Optimizing Resource Allocation Through Federated Learning
+        url: https://arxiv.org/abs/201311.3248
+        score: 72
+        similarity: '0.54'
+      - id: '202306.8109'
+        title: Privacy-Preserving Federated Learning in Healthcare
+        url: https://arxiv.org/abs/202306.8109
+        score: 41
+        similarity: '0.69'
+  - id: 2501.00305v1
+    title: >-
+      diffIRM: A Diffusion-Augmented Invariant Risk Minimization Framework for  
+      Spatiotemporal Prediction over Graphs
+    abstract: >-
+      Spatiotemporal prediction over graphs (STPG) is challenging, because
+      real-world data suffers from the Out-of-Distribution (OOD) generalization
+      problem, where test data follow different distributions from training
+      ones. To address this issue, Invariant Risk Minimization (IRM) has emerged
+      as a promising approach for learning invariant representations across
+      different environments. However, IRM and its variants are originally
+      designed for Euclidean data like images, and may not generalize well to
+      graph-structure data such as spatiotemporal graphs due to spatial
+      correlations in graphs. To overcome the challenge posed by graph-structure
+      data, the existing graph OOD methods adhere to the principles of
+      invariance existence, or environment diversity. However, there is little
+      research that combines both principles in the STPG problem. A combination
+      of the two is crucial for efficiently distinguishing between invariant
+      features and spurious ones. In this study, we fill in this research gap
+      and propose a diffusion-augmented invariant risk minimization (diffIRM)
+      framework that combines these two principles for the STPG problem. Our
+      diffIRM contains two processes: i) data augmentation and ii) invariant
+      learning. In the data augmentation process, a causal mask generator
+      identifies causal features and a graph-based diffusion model acts as an
+      environment augmentor to generate augmented spatiotemporal graph data. In
+      the invariant learning process, an invariance penalty is designed using
+      the augmented data, and then serves as a regularizer for training the
+      spatiotemporal prediction model. The real-world experiment uses three
+      human mobility datasets, i.e. SafeGraph, PeMS04, and PeMS08. Our proposed
+      diffIRM outperforms baselines.
+    authors:
+      - Zhaobin Mo
+      - Haotian Xiang
+      - Xuan Di
+    year: 2024
+    url: https://arxiv.org/abs/2501.00305v1
+    pdfUrl: https://arxiv.org/pdf/2501.00305v1.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '201511.7846'
+        title: Optimizing IoT Applications Through Reinforcement Learning
+        url: https://arxiv.org/abs/201511.7846
+        score: 60
+        similarity: '0.59'
+      - id: '202311.7667'
+        title: Distributed Blockchain Systems for Text Classification
+        url: https://arxiv.org/abs/202311.7667
+        score: 6
+        similarity: '0.92'
+      - id: '201108.9889'
+        title: Deep Learning Based Reinforcement Learning for Cloud Computing
+        url: https://arxiv.org/abs/201108.9889
+        score: 99
+        similarity: '0.60'
+      - id: '201802.3231'
+        title: Real-time Quantum Computing for Resource Allocation Applications
+        url: https://arxiv.org/abs/201802.3231
+        score: 79
+        similarity: '0.65'
+  - id: 2501.00539v2
+    title: >-
+      MCP-Solver: Integrating Language Models with Constraint Programming  
+      Systems
+    abstract: >-
+      The MCP Solver bridges Large Language Models (LLMs) with symbolic solvers
+      through the Model Context Protocol (MCP), an open-source standard for AI
+      system integration. Providing LLMs access to formal solving and reasoning
+      capabilities addresses their key deficiency while leveraging their
+      strengths. Our implementation offers interfaces for constraint programming
+      (Minizinc), propositional satisfiability (PySAT), and SAT modulo Theories
+      (Python Z3). The system employs an editing approach with iterated
+      validation to ensure model consistency during modifications and enable
+      structured refinement.
+    authors:
+      - Stefan Szeider
+    year: 2024
+    url: https://arxiv.org/abs/2501.00539v2
+    pdfUrl: https://arxiv.org/pdf/2501.00539v2.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '201611.7931'
+        title: A Survey of Federated Learning in Transportation
+        url: https://arxiv.org/abs/201611.7931
+        score: 63
+        similarity: '0.94'
+      - id: '200708.5924'
+        title: Optimizing Text Classification Through Natural Language Processing
+        url: https://arxiv.org/abs/200708.5924
+        score: 92
+        similarity: '0.86'
+      - id: '201811.1048'
+        title: Efficient Optimization for Mobile Computing in Transportation
+        url: https://arxiv.org/abs/201811.1048
+        score: 79
+        similarity: '0.76'
+      - id: '201912.5676'
+        title: A Novel Approach to Network Security Using Distributed Systems
+        url: https://arxiv.org/abs/201912.5676
+        score: 0
+        similarity: '0.54'
+  - id: 2501.00514v1
+    title: >-
+      H-Net: A Multitask Architecture for Simultaneous 3D Force Estimation and  
+      Stereo Semantic Segmentation in Intracardiac Catheters
+    abstract: >-
+      The success rate of catheterization procedures is closely linked to the
+      sensory data provided to the surgeon. Vision-based deep learning models
+      can deliver both tactile and visual information in a sensor-free manner,
+      while also being cost-effective to produce. Given the complexity of these
+      models for devices with limited computational resources, research has
+      focused on force estimation and catheter segmentation separately. However,
+      there is a lack of a comprehensive architecture capable of simultaneously
+      segmenting the catheter from two different angles and estimating the
+      applied forces in 3D. To bridge this gap, this work proposes a novel,
+      lightweight, multi-input, multi-output encoder-decoder-based architecture.
+      It is designed to segment the catheter from two points of view and
+      concurrently measure the applied forces in the x, y, and z directions.
+      This network processes two simultaneous X-Ray images, intended to be fed
+      by a biplane fluoroscopy system, showing a catheter's deflection from
+      different angles. It uses two parallel sub-networks with shared parameters
+      to output two segmentation maps corresponding to the inputs. Additionally,
+      it leverages stereo vision to estimate the applied forces at the
+      catheter's tip in 3D. The architecture features two input channels, two
+      classification heads for segmentation, and a regression head for force
+      estimation through a single end-to-end architecture. The output of all
+      heads was assessed and compared with the literature, demonstrating
+      state-of-the-art performance in both segmentation and force estimation. To
+      the best of the authors' knowledge, this is the first time such a model
+      has been proposed
+    authors:
+      - Pedram Fekri
+      - Mehrdad Zadeh
+      - Javad Dargahi
+    year: 2024
+    url: https://arxiv.org/abs/2501.00514v1
+    pdfUrl: https://arxiv.org/pdf/2501.00514v1.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '201703.7035'
+        title: Optimizing Image Recognition Through Machine Learning
+        url: https://arxiv.org/abs/201703.7035
+        score: 50
+        similarity: '0.63'
+      - id: '201408.0818'
+        title: Deep Learning Based Quantum Computing for Database Management
+        url: https://arxiv.org/abs/201408.0818
+        score: 41
+        similarity: '0.97'
+      - id: '201203.3861'
+        title: Adaptive Cryptography for Dynamic Robotics
+        url: https://arxiv.org/abs/201203.3861
+        score: 26
+        similarity: '0.61'
+      - id: '200608.9959'
+        title: A Survey of Machine Learning in Education
+        url: https://arxiv.org/abs/200608.9959
+        score: 28
+        similarity: '0.72'
+  - id: 2501.00556v1
+    title: >-
+      Finding the Underlying Viscoelastic Constitutive Equation via Universal  
+      Differential Equations and Differentiable Physics
+    abstract: >-
+      This research employs Universal Differential Equations (UDEs) alongside
+      differentiable physics to model viscoelastic fluids, merging conventional
+      differential equations, neural networks and numerical methods to
+      reconstruct missing terms in constitutive models. This study focuses on
+      analyzing four viscoelastic models: Upper Convected Maxwell (UCM),
+      Johnson-Segalman, Giesekus, and Exponential Phan-Thien-Tanner (ePTT),
+      through the use of synthetic datasets. The methodology was tested across
+      different experimental conditions, including oscillatory and startup
+      flows. While the UDE framework effectively predicts shear and normal
+      stresses for most models, it demonstrates some limitations when applied to
+      the ePTT model. The findings underscore the potential of UDEs in fluid
+      mechanics while identifying critical areas for methodological improvement.
+      Also, a model distillation approach was employed to extract simplified
+      models from complex ones, emphasizing the versatility and robustness of
+      UDEs in rheological modeling.
+    authors:
+      - Elias C. Rodrigues
+      - Roney L. Thompson
+      - Dário A. B. Oliveira
+      - Roberto F. Ausas
+    year: 2024
+    url: https://arxiv.org/abs/2501.00556v1
+    pdfUrl: https://arxiv.org/pdf/2501.00556v1.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '201811.1835'
+        title: Scalable Transformer Framework for Resource Allocation
+        url: https://arxiv.org/abs/201811.1835
+        score: 54
+        similarity: '0.69'
+      - id: '201606.8066'
+        title: A Survey of Edge Computing in Healthcare
+        url: https://arxiv.org/abs/201606.8066
+        score: 32
+        similarity: '0.53'
+      - id: '201507.6450'
+        title: Real-time Computer Vision for IoT Applications Applications
+        url: https://arxiv.org/abs/201507.6450
+        score: 59
+        similarity: '0.71'
+      - id: '200904.9549'
+        title: Scalable Transformer Framework for Human-Computer Interaction
+        url: https://arxiv.org/abs/200904.9549
+        score: 72
+        similarity: '0.60'
+  - id: 2501.00511v1
+    title: >-
+      Stochastic Extragradient with Flip-Flop Shuffling & Anchoring: Provable  
+      Improvements
+    abstract: >-
+      In minimax optimization, the extragradient (EG) method has been
+      extensively studied because it outperforms the gradient descent-ascent
+      method in convex-concave (C-C) problems. Yet, stochastic EG (SEG) has seen
+      limited success in C-C problems, especially for unconstrained cases.
+      Motivated by the recent progress of shuffling-based stochastic methods, we
+      investigate the convergence of shuffling-based SEG in unconstrained
+      finite-sum minimax problems, in search of convergent shuffling-based SEG.
+      Our analysis reveals that both random reshuffling and the recently
+      proposed flip-flop shuffling alone can suffer divergence in C-C problems.
+      However, with an additional simple trick called anchoring, we develop the
+      SEG with flip-flop anchoring (SEG-FFA) method which successfully converges
+      in C-C problems. We also show upper and lower bounds in the
+      strongly-convex-strongly-concave setting, demonstrating that SEG-FFA has a
+      provably faster convergence rate compared to other shuffling-based
+      methods.
+    authors:
+      - Jiseok Chae
+      - Chulhee Yun
+      - Donghwan Kim
+    year: 2024
+    url: https://arxiv.org/abs/2501.00511v1
+    pdfUrl: https://arxiv.org/pdf/2501.00511v1.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '200112.4579'
+        title: Real-time Transformer for Mobile Computing Applications
+        url: https://arxiv.org/abs/200112.4579
+        score: 75
+        similarity: '0.64'
+      - id: '200507.7260'
+        title: Optimizing Network Security Through Attention Mechanism
+        url: https://arxiv.org/abs/200507.7260
+        score: 97
+        similarity: '0.72'
+      - id: '201111.3957'
+        title: Distributed Machine Learning Systems for Network Security
+        url: https://arxiv.org/abs/201111.3957
+        score: 88
+        similarity: '0.52'
+      - id: '201203.4318'
+        title: Distributed Distributed Systems Systems for Data Privacy
+        url: https://arxiv.org/abs/201203.4318
+        score: 38
+        similarity: '0.76'
+  - id: 2501.00514v1
+    title: >-
+      H-Net: A Multitask Architecture for Simultaneous 3D Force Estimation and  
+      Stereo Semantic Segmentation in Intracardiac Catheters
+    abstract: >-
+      The success rate of catheterization procedures is closely linked to the
+      sensory data provided to the surgeon. Vision-based deep learning models
+      can deliver both tactile and visual information in a sensor-free manner,
+      while also being cost-effective to produce. Given the complexity of these
+      models for devices with limited computational resources, research has
+      focused on force estimation and catheter segmentation separately. However,
+      there is a lack of a comprehensive architecture capable of simultaneously
+      segmenting the catheter from two different angles and estimating the
+      applied forces in 3D. To bridge this gap, this work proposes a novel,
+      lightweight, multi-input, multi-output encoder-decoder-based architecture.
+      It is designed to segment the catheter from two points of view and
+      concurrently measure the applied forces in the x, y, and z directions.
+      This network processes two simultaneous X-Ray images, intended to be fed
+      by a biplane fluoroscopy system, showing a catheter's deflection from
+      different angles. It uses two parallel sub-networks with shared parameters
+      to output two segmentation maps corresponding to the inputs. Additionally,
+      it leverages stereo vision to estimate the applied forces at the
+      catheter's tip in 3D. The architecture features two input channels, two
+      classification heads for segmentation, and a regression head for force
+      estimation through a single end-to-end architecture. The output of all
+      heads was assessed and compared with the literature, demonstrating
+      state-of-the-art performance in both segmentation and force estimation. To
+      the best of the authors' knowledge, this is the first time such a model
+      has been proposed
+    authors:
+      - Pedram Fekri
+      - Mehrdad Zadeh
+      - Javad Dargahi
+    year: 2024
+    url: https://arxiv.org/abs/2501.00514v1
+    pdfUrl: https://arxiv.org/pdf/2501.00514v1.pdf
+    category: ai
+    subcategory: ml
+    venue: arXiv
+    match_opponents:
+      - id: '201208.2908'
+        title: A Novel Approach to Resource Allocation Using Quantum Computing
+        url: https://arxiv.org/abs/201208.2908
+        score: 63
+        similarity: '0.53'
+      - id: '201803.6101'
+        title: Deep Learning Based Cryptography for Mobile Computing
+        url: https://arxiv.org/abs/201803.6101
+        score: 58
+        similarity: '0.99'
