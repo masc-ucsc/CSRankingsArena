@@ -7,7 +7,7 @@ const BASE_DIR = path.join(__dirname, '../papers');
 const CATEGORIES = ['ai', 'architecture'];
 const AI_SUBCATEGORIES = ['vision', 'llm', 'ml'];
 const ARCHITECTURE_SUBCATEGORIES = ['systems', 'security', 'networks'];
-const YEARS = [2024]; // Adjust as needed
+const YEARS = [2020, 2021, 2022, 2023, 2024, 2025]; // Adjust as needed
 
 // Helper function to read YAML files
 function readYamlFile(filePath) {

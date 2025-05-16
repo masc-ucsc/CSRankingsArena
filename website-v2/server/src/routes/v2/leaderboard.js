@@ -10,13 +10,37 @@ const path = require('path');
 
 // Helper function to read matches from YAML file
 async function getMatchesFromYaml(category, subcategory, year) {
-    const yamlFile = path.join(__dirname, "../../../mock/matches", category, subcategory, `${category}-${subcategory}-${year}-matches.yaml`);
+    // Convert year to string for path.join
+    const yearStr = String(year);
+    
+    // Try to read from actual data directory first
+    const dataPath = path.join(__dirname, "../../../../papers", category, subcategory, yearStr, `${category}-${subcategory}-${yearStr}-matches.yaml`);
+    const mockPath = path.join(__dirname, "../../../mock/papers", category, subcategory, yearStr, `${category}-${subcategory}-${yearStr}-matches.yaml`);
+    
     try {
-        const yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
-        return yamlData.matches || [];
+        // Try to read from actual data directory first
+        console.log(`dataPathExists : ${dataPath}`, fs.existsSync(dataPath)); 
+        if (fs.existsSync(dataPath)) {
+            const yamlData = yaml.load(fs.readFileSync(dataPath, "utf8"));
+            return yamlData.matches || [];
+        }
+
+
+        
+        // If actual data doesn't exist, try mock data
+        if (fs.existsSync(mockPath)) {
+            console.log(`Using mock data for ${category}/${subcategory}/${yearStr} matches`);
+            const yamlData = yaml.load(fs.readFileSync(mockPath, "utf8"));
+            return yamlData.matches || [];
+        }
+        
+        throw Boom.notFound(`No match data found for ${category}/${subcategory}/${yearStr}`);
     } catch (err) {
+        if (err.isBoom) {
+            throw err;
+        }
         console.error("Error reading matches YAML file:", err);
-        throw Boom.notFound("Matches YAML file not found or invalid");
+        throw Boom.badImplementation("Error processing match data");
     }
 }
 
@@ -72,15 +96,15 @@ function calculatePaperRankings(matches) {
         }
 
         // Store detailed match data for both papers
-        const matchDetails = {
+        const createMatchDetails = (currentPaperId, opponentPaperId, currentScore, opponentScore) => ({
             matchId: match.id,
             opponent: {
-                paperId: paper1Id === paperId ? paper2Id : paper1Id,
-                title: match.reviews.find(r => r.paperId === (paper1Id === paperId ? paper2Id : paper1Id))?.paperTitle,
-                score: paper1Id === paperId ? paper2Score : paper1Score
+                paperId: opponentPaperId,
+                title: match.reviews.find(r => r.paperId === opponentPaperId)?.paperTitle,
+                score: opponentScore
             },
-            score: paper1Id === paperId ? paper1Score : paper2Score,
-            result: winner === paperId ? 'win' : winner === (paper1Id === paperId ? paper2Id : paper1Id) ? 'loss' : 'draw',
+            score: currentScore,
+            result: winner === currentPaperId ? 'win' : winner === opponentPaperId ? 'loss' : 'draw',
             date: match.createdAt,
             reviews: match.reviews.map(review => ({
                 reviewer: review.reviewer,
@@ -88,10 +112,11 @@ function calculatePaperRankings(matches) {
                 analysis: review.analysis
             })),
             comparison: match.comparison
-        };
+        });
 
-        paperMatches.get(paper1Id).push({ ...matchDetails, opponent: { ...matchDetails.opponent, paperId: paper2Id } });
-        paperMatches.get(paper2Id).push({ ...matchDetails, opponent: { ...matchDetails.opponent, paperId: paper1Id } });
+        // Add match details for both papers
+        paperMatches.get(paper1Id).push(createMatchDetails(paper1Id, paper2Id, paper1Score, paper2Score));
+        paperMatches.get(paper2Id).push(createMatchDetails(paper2Id, paper1Id, paper2Score, paper1Score));
     });
 
     // Calculate final scores and convert to array
@@ -147,16 +172,24 @@ module.exports = [
               ? limitedRankings 
               : limitedRankings.map(({ matches, ...rest }) => rest);
           
+          // Check if we're using mock data
+          const yearStr = String(year);
+          const isMockData = !fs.existsSync(path.join(__dirname, "../../../papers", category, subcategory, yearStr, `${category}-${subcategory}-${yearStr}-matches.yaml`));
+          
           return {
             rankings: processedRankings,
             total: rankings.length,
             category,
             subcategory,
-            year
+            year,
+            isMockData // Add flag to indicate if mock data is being used
           };
         } catch (error) {
-          //logger.error('Error fetching leaderboard:', error);
-          throw error;
+          if (error.isBoom) {
+            throw error;
+          }
+          console.error('Error fetching leaderboard:', error);
+          throw Boom.badImplementation('Error processing leaderboard data');
         }
       }
     }

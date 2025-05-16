@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   Card, 
   Typography, 
@@ -18,7 +18,8 @@ import {
   Avatar,
   Tooltip,
   Modal,
-  Result
+  Result,
+  Spin
 } from 'antd';
 import { 
   LikeOutlined, 
@@ -28,10 +29,12 @@ import {
   UserOutlined,
   RobotOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  LinkOutlined
 } from '@ant-design/icons';
-import { fetchMatchDetails } from '../../services/v2/api';
+import { fetchMatchDetails, fetchPaperById } from '../../services/v2/api';
 import axios from 'axios';
+import MatchFeedback from '../match/MatchFeedback';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -41,6 +44,7 @@ const MatchDetail = () => {
   const navigate = useNavigate();
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [papers, setPapers] = useState({});
   const [feedback, setFeedback] = useState({
     rating: 0,
     comment: '',
@@ -49,19 +53,39 @@ const MatchDetail = () => {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
-  useEffect(() => {
-    const loadMatchDetails = async () => {
-      try {
-        const data = await fetchMatchDetails(matchId);
-        setMatch(data);
-      } catch (error) {
-        console.error('Error loading match details:', error);
-        message.error('Failed to load match details');
-      } finally {
-        setLoading(false);
+  const loadMatchDetails = async () => {
+    try {
+      const data = await fetchMatchDetails(matchId);
+      setMatch(data);
+      
+      // Fetch paper details for both papers
+      if (data?.papers) {
+        const paperDetails = {};
+        for (const paperId of Object.keys(data.papers)) {
+          try {
+            const paperData = await fetchPaperById(paperId);
+            paperDetails[paperId] = paperData;
+          } catch (error) {
+            console.error(`Error fetching paper ${paperId}:`, error);
+            // Set a placeholder if paper fetch fails
+            paperDetails[paperId] = {
+              id: paperId,
+              title: `Paper ${paperId}`,
+              url: '#'
+            };
+          }
+        }
+        setPapers(paperDetails);
       }
-    };
+    } catch (error) {
+      console.error('Error loading match details:', error);
+      message.error('Failed to load match details');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadMatchDetails();
   }, [matchId]);
 
@@ -137,47 +161,66 @@ const MatchDetail = () => {
   const renderPaperComparison = () => (
     <Card title="Paper Comparison" style={{ marginTop: 16 }}>
       <Row gutter={[16, 16]}>
-        {match?.reviews.map((review, index) => (
-          <Col span={12} key={review.paperId}>
-            <Card>
-              <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                <Title level={4}>
-                  Paper {index + 1}
-                  {match.comparison.winner === review.paperId && (
-                    <Tooltip title="Winner">
-                      <TrophyOutlined style={{ color: 'gold', marginLeft: 8 }} />
-                    </Tooltip>
+        {match?.reviews.map((review, index) => {
+          const paperId = review.paperId;
+          const paper = papers[paperId];
+          
+          return (
+            <Col span={12} key={paperId}>
+              <Card>
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                  <Title level={4}>
+                    {paper ? (
+                      <Space>
+                        <a 
+                          href={paper.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: '#1890ff' }}
+                        >
+                          {paper.title}
+                          <LinkOutlined style={{ marginLeft: 8 }} />
+                        </a>
+                        {match.comparison.winner === paperId && (
+                          <Tooltip title="Winner">
+                            <TrophyOutlined style={{ color: 'gold' }} />
+                          </Tooltip>
+                        )}
+                      </Space>
+                    ) : (
+                      <Spin size="small" />
+                    )}
+                  </Title>
+                  
+                  {paper && (
+                    <>
+                      <Space direction="vertical" size="small">
+                        <Text type="secondary">Category: {paper.category}</Text>
+                        <Text type="secondary">Subcategory: {paper.subcategory}</Text>
+                        <Text type="secondary">Year: {paper.year}</Text>
+                      </Space>
+                      
+                      <Divider />
+                    </>
                   )}
-                </Title>
-                <Space direction="vertical" size="small">
-                  {review.scores.map((score, i) => (
-                    <div key={i}>
-                      <Text strong>{score.aspect}</Text>
-                      <Progress 
-                        percent={score.score * 10} 
-                        status={score.score >= 8 ? "success" : score.score >= 5 ? "normal" : "exception"}
-                        format={percent => `${(percent / 10).toFixed(1)}/10`}
-                      />
-                    </div>
-                  ))}
-                </Space>
-                <Divider />
-                <Paragraph>
-                  <Text strong>Reviewer: </Text>
-                  <Space>
-                    <Avatar icon={<UserOutlined />} />
-                    <Text>{review.reviewer.name}</Text>
-                    <Tag color="blue">{review.reviewer.provider}</Tag>
+                  
+                  <Space direction="vertical" size="small">
+                    {review.scores.map((score, i) => (
+                      <div key={i}>
+                        <Text strong>{score.aspect}</Text>
+                        <Progress 
+                          percent={score.score * 10} 
+                          status={score.score >= 8 ? "success" : score.score >= 5 ? "normal" : "exception"}
+                          format={percent => `${(percent / 10).toFixed(1)}/10`}
+                        />
+                      </div>
+                    ))}
                   </Space>
-                </Paragraph>
-                <Paragraph>
-                  <Text strong>Analysis: </Text>
-                  {review.analysis}
-                </Paragraph>
-              </Space>
-            </Card>
-          </Col>
-        ))}
+                </Space>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
     </Card>
   );
@@ -269,6 +312,15 @@ const MatchDetail = () => {
       {renderMatchHeader()}
       {renderPaperComparison()}
       {renderComparisonMetrics()}
+      <div style={{ marginTop: '24px' }}>
+        <MatchFeedback 
+          matchId={matchId}
+          onFeedbackUpdate={() => {
+            // Refresh match details when feedback is updated
+            loadMatchDetails();
+          }}
+        />
+      </div>
       {renderFeedbackModal()}
     </div>
   );

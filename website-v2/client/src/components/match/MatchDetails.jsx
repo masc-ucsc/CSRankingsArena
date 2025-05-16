@@ -57,6 +57,9 @@ const MatchDetail = () => {
         
         // Fetch match details
         const matchData = await getMatch(id);
+        console.log('Match data received:', matchData); // Debug log
+        console.log('Match object:', matchData.match); // Debug log
+        console.log('Paper data:', matchData.match?.paper); // Debug log
         setMatch(matchData.match);
         
         // If match is completed, fetch reviews and evaluation
@@ -162,25 +165,75 @@ const MatchDetail = () => {
         <Card.Body>
           <Row>
             <Col md={7}>
-              <h4 className="mb-3">
-                <Link to={`/papers/${match.paper.id}`}>
-                  {match.paper.title}
-                </Link>
-              </h4>
-              <p className="text-muted mb-2">{match.paper.authors}</p>
-              <Badge bg="info" className="mb-3">{match.paper.main_topic}</Badge>
-              <p className="mb-0">{match.paper.abstract}</p>
-              {match.paper.pdf_url && (
-                <div className="mt-3">
-                  <Button 
-                    variant="outline-primary" 
-                    size="sm" 
-                    href={match.paper.pdf_url} 
-                    target="_blank"
-                  >
-                    View PDF
-                  </Button>
-                </div>
+              {match.paper2 ? (
+                // Comparison match
+                <>
+                  <h4 className="mb-3">
+                    <Link to={`/papers/${match.paper1.id}`}>
+                      {match.paper1.title}
+                    </Link>
+                  </h4>
+                  <p className="text-muted mb-2">{match.paper1.authors.join(', ')}</p>
+                  <Badge bg="info" className="mb-3">{match.paper1.main_topic}</Badge>
+                  <p className="mb-0">{match.paper1.abstract}</p>
+                  {match.paper1.pdf_url && (
+                    <div className="mt-3">
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm" 
+                        href={match.paper1.pdf_url} 
+                        target="_blank"
+                      >
+                        View PDF
+                      </Button>
+                    </div>
+                  )}
+                  <hr className="my-4" />
+                  <h4 className="mb-3">
+                    <Link to={`/papers/${match.paper2.id}`}>
+                      {match.paper2.title}
+                    </Link>
+                  </h4>
+                  <p className="text-muted mb-2">{match.paper2.authors.join(', ')}</p>
+                  <Badge bg="info" className="mb-3">{match.paper2.main_topic}</Badge>
+                  <p className="mb-0">{match.paper2.abstract}</p>
+                  {match.paper2.pdf_url && (
+                    <div className="mt-3">
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm" 
+                        href={match.paper2.pdf_url} 
+                        target="_blank"
+                      >
+                        View PDF
+                      </Button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                // Single paper match
+                <>
+                  <h4 className="mb-3">
+                    <Link to={`/papers/${match.paper.id}`}>
+                      {match.paper.title}
+                    </Link>
+                  </h4>
+                  <p className="text-muted mb-2">{match.paper.authors.join(', ')}</p>
+                  <Badge bg="info" className="mb-3">{match.paper.main_topic}</Badge>
+                  <p className="mb-0">{match.paper.abstract}</p>
+                  {match.paper.pdf_url && (
+                    <div className="mt-3">
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm" 
+                        href={match.paper.pdf_url} 
+                        target="_blank"
+                      >
+                        View PDF
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </Col>
             <Col md={5}>

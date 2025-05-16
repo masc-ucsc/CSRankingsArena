@@ -1,17 +1,88 @@
 // src/components/Header.jsx - Site Header
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Button, Avatar, Dropdown, Space } from 'antd';
+import { 
+  MenuOutlined, 
+  SearchOutlined, 
+  GithubOutlined, 
+  UserOutlined,
+  LogoutOutlined,
+  HomeOutlined,
+  RobotOutlined
+} from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext';
 import SearchBar from './SearchBar';
-import { List, X } from 'react-bootstrap-icons';
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, login, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isCompetitionRoute = location.pathname.startsWith('/competition');
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const handleLogin = () => {
+    // Store current location for redirect after login
+    const currentPath = location.pathname + location.search;
+    const redirectUrl = encodeURIComponent(currentPath);
+    
+    // Redirect to GitHub OAuth
+    window.location.href = `/api/v2/auth/github?redirect=${redirectUrl}`;
+  };
+
+  const userMenuItems = [
+    {
+      key: 'profile',
+      label: (
+        <Link to="/profile">
+          <Space>
+            <UserOutlined />
+            Profile
+          </Space>
+        </Link>
+      )
+    },
+    {
+      key: 'logout',
+      label: (
+        <a onClick={logout}>
+          <Space>
+            <LogoutOutlined />
+            Logout
+          </Space>
+        </a>
+      )
+    }
+  ];
+
+  const navItems = [
+    {
+      key: 'home',
+      label: (
+        <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
+          <Space>
+            <HomeOutlined />
+            Home
+          </Space>
+        </Link>
+      )
+    },
+    {
+      key: 'competition',
+      label: (
+        <Link to="/competition" className={isCompetitionRoute ? 'active' : ''}>
+          <Space>
+            <RobotOutlined />
+            Competition
+          </Space>
+        </Link>
+      )
+    }
+  ];
 
   return (
     <header className="site-header">
@@ -22,63 +93,55 @@ const Header = () => {
               <Link to="/">
                 <h1>CS RankingsArena</h1>
               </Link>
-              <p className="subtitle">Discover Top Computer Science Research Papers</p>
+              <p className="subtitle">AI-Powered Research Paper Analysis</p>
             </div>
             
             <button className="mobile-menu-toggle" onClick={toggleMenu}>
-              {isMenuOpen ? <X size={24} /> : <List size={24} />}
+              <MenuOutlined />
             </button>
           </div>
 
           <nav className={`main-nav ${isMenuOpen ? 'active' : ''}`}>
             <ul className="nav-links">
-              <li>
-                <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
-                  Home
-                </Link>
-              </li>
-              <li className="nav-item-dropdown">
-                <Link 
-                  to="/competition" 
-                  className={isCompetitionRoute ? 'active' : ''}
-                >
-                  Competition
-                </Link>
-                {isCompetitionRoute && (
-                  <ul className="sub-nav">
-                    <li>
-                      <Link to="/competition" className={location.pathname === '/competition' ? 'active' : ''}>
-                        Dashboard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/competition/create" className={location.pathname === '/competition/create' ? 'active' : ''}>
-                        Create Match
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/competition/papers" className={location.pathname === '/competition/papers' ? 'active' : ''}>
-                        Browse Papers
-                      </Link>
-                    </li>
-                  </ul>
-                )}
-              </li>
-              <li>
-                <Link to="/categories" className={location.pathname === '/categories' ? 'active' : ''}>
-                  Categories
-                </Link>
-              </li>
-              <li>
-                <Link to="/leaderboard" className={location.pathname === '/leaderboard' ? 'active' : ''}>
-                  Leaderboard
-                </Link>
-              </li>
+              {navItems.map(item => (
+                <li key={item.key}>
+                  {item.label}
+                </li>
+              ))}
             </ul>
           </nav>
 
-          <div className="header-search">
-            <SearchBar />
+          <div className="header-actions">
+            <div className="header-search">
+              <SearchBar />
+            </div>
+            
+            <div className="auth-section">
+              {isAuthenticated ? (
+                <Dropdown
+                  menu={{ items: userMenuItems }}
+                  placement="bottomRight"
+                  trigger={['click']}
+                >
+                  <Space className="user-avatar">
+                    <Avatar 
+                      src={user?.avatar_url} 
+                      icon={<UserOutlined />}
+                    />
+                    <span className="username">{user?.username || user?.login}</span>
+                  </Space>
+                </Dropdown>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<GithubOutlined />}
+                  onClick={handleLogin}
+                  className="login-button"
+                >
+                  Login with GitHub
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
