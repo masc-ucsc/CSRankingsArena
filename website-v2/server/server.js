@@ -7,6 +7,7 @@ const Boom = require('@hapi/boom');
 const Joi = require('@hapi/joi');
 const path = require('path');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 // Import services and controllers
@@ -52,6 +53,11 @@ const config = {
                 }
             }
         }
+    },
+    auth: {
+        jwt: {
+            secret: process.env.JWT_SECRET || 'your-secret-key'
+        }
     }
 };
 
@@ -73,11 +79,52 @@ const init = async () => {
                     expiresIn: 15 * 60 * 1000 // 15 minutes
                 }
             }
-        }
+        },
+        require('@hapi/jwt')
     ]);
 
     // Initialize WebSocket service
     websocketService.initialize(server.listener);
+
+    // Register JWT authentication strategy
+    server.auth.strategy('jwt', 'jwt', {
+        keys: config.auth.jwt.secret,
+        verify: {
+            aud: false,
+            iss: false,
+            sub: false,
+            maxAgeSec: 14400 // 4 hours
+        },
+        validate: async (artifacts, request, h) => {
+            try {
+                // Verify the token
+                const decoded = jwt.verify(artifacts.token, config.auth.jwt.secret);
+                
+                // Get user from database to ensure they still exist
+                const user = await db('users')
+                    .where('id', decoded.id)
+                    .first();
+                
+                if (!user) {
+                    return { credentials: null, isValid: false };
+                }
+
+                return {
+                    isValid: true,
+                    credentials: {
+                        id: user.id,
+                        username: user.username,
+                        github_id: user.github_id
+                    }
+                };
+            } catch (err) {
+                return { credentials: null, isValid: false };
+            }
+        }
+    });
+
+    // Set default auth strategy
+    // server.auth.default('jwt'); // Temporarily disabled default auth
 
     // Register routes
     server.route([
@@ -134,6 +181,7 @@ const init = async () => {
     server.route(leaderboardRoutes);
     server.route(feedbackRoutes);
     server.route(categoriesRoutes);
+    server.route(require('./src/routes/v2/auth'));
 
     // Error handling
     server.ext('onPreResponse', (request, h) => {

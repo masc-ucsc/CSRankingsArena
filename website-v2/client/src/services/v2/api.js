@@ -18,7 +18,7 @@ export const fetchPapers = async (category, subcategory, year) => {
   }
 };
 
-export const fetchPaperDetails = async (paperId) => {
+export const fetchPaperById = async (paperId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/papers/${paperId}`);
     return response.data;

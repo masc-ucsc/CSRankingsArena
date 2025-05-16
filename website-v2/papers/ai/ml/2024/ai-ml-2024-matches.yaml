@@ -6,7 +6,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00602v1
@@ -16,21 +16,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 1.7
-            comment: The paper demonstrates limited technical depth.
+            score: 6.1
+            comment: The paper demonstrates adequate technical depth.
           - aspect: novelty
-            score: 4.9
+            score: 0.7
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 0.4
+            score: 4.4
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 0.4
+            score: 0.7
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 2.4
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 2
+            score: 9.1
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 4.2
         summary: This paper has some limitations in the field.
       - paperId: 2501.00632v1
         reviewer:
@@ -39,54 +39,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 3.5
+            score: 4.7
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 0.1
-            comment: The paper demonstrates limited novelty.
+            score: 6.8
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 7.6
-            comment: The paper demonstrates strong experimental validation.
+            score: 1.2
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 3.6
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 5.2
+            comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 2.3
+            score: 3.4
             comment: The paper demonstrates limited potential impact.
-        overallScore: 3.4
+        overallScore: 4.3
         summary: This paper has some limitations in the field.
     comparison:
       winner: 2501.00632v1
       reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00602v1: 2
-        2501.00632v1: 3.4
+        2501.00602v1: 4.2
+        2501.00632v1: 4.3
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00602v1: 1.7
-            2501.00632v1: 3.5
-          difference: -1.8
+            2501.00602v1: 6.1
+            2501.00632v1: 4.7
+          difference: 1.4
         - metric: novelty
           scores:
-            2501.00602v1: 4.9
-            2501.00632v1: 0.1
-          difference: 4.8
+            2501.00602v1: 0.7
+            2501.00632v1: 6.8
+          difference: -6.1
         - metric: experimental validation
           scores:
-            2501.00602v1: 0.4
-            2501.00632v1: 7.6
-          difference: -7.2
+            2501.00602v1: 4.4
+            2501.00632v1: 1.2
+          difference: 3.2
         - metric: clarity of presentation
           scores:
-            2501.00602v1: 0.4
-            2501.00632v1: 3.6
-          difference: -3.2
+            2501.00602v1: 0.7
+            2501.00632v1: 5.2
+          difference: -4.5
         - metric: potential impact
           scores:
-            2501.00602v1: 2.4
-            2501.00632v1: 2.3
-          difference: 0.1
+            2501.00602v1: 9.1
+            2501.00632v1: 3.4
+          difference: 5.7
   - id: match-ai-ml-2024-2501.00602v1-2501.00305v1
     paperIds:
       - 2501.00602v1
@@ -94,626 +94,10 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00602v1
-        reviewer:
-          id: reviewer-1
-          name: Dr. Sarah Chen
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 2.3
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 9.8
-            comment: The paper demonstrates strong novelty.
-          - aspect: experimental validation
-            score: 2.6
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 5.5
-            comment: The paper demonstrates adequate clarity of presentation.
-          - aspect: potential impact
-            score: 3.5
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 4.7
-        summary: This paper has some limitations in the field.
-      - paperId: 2501.00305v1
-        reviewer:
-          id: reviewer-2
-          name: Prof. Michael Rodriguez
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 4.1
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 1.9
-            comment: The paper demonstrates limited novelty.
-          - aspect: experimental validation
-            score: 3.1
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 7.2
-            comment: The paper demonstrates strong clarity of presentation.
-          - aspect: potential impact
-            score: 4.1
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 4.1
-        summary: This paper has some limitations in the field.
-    comparison:
-      winner: 2501.00602v1
-      reasoning: The winning paper shows stronger performance across all evaluation metrics.
-      overallScores:
-        2501.00602v1: 4.7
-        2501.00305v1: 4.1
-      metricComparison:
-        - metric: technical depth
-          scores:
-            2501.00602v1: 2.3
-            2501.00305v1: 4.1
-          difference: -1.8
-        - metric: novelty
-          scores:
-            2501.00602v1: 9.8
-            2501.00305v1: 1.9
-          difference: 7.9
-        - metric: experimental validation
-          scores:
-            2501.00602v1: 2.6
-            2501.00305v1: 3.1
-          difference: -0.5
-        - metric: clarity of presentation
-          scores:
-            2501.00602v1: 5.5
-            2501.00305v1: 7.2
-          difference: -1.7
-        - metric: potential impact
-          scores:
-            2501.00602v1: 3.5
-            2501.00305v1: 4.1
-          difference: -0.6
-  - id: match-ai-ml-2024-2501.00602v1-2501.00539v2
-    paperIds:
-      - 2501.00602v1
-      - 2501.00539v2
-    category: ai
-    subcategory: ml
-    year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
-    status: completed
-    reviews:
-      - paperId: 2501.00602v1
-        reviewer:
-          id: reviewer-1
-          name: Dr. Sarah Chen
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 0.2
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 0.3
-            comment: The paper demonstrates limited novelty.
-          - aspect: experimental validation
-            score: 8
-            comment: The paper demonstrates strong experimental validation.
-          - aspect: clarity of presentation
-            score: 1.2
-            comment: The paper demonstrates limited clarity of presentation.
-          - aspect: potential impact
-            score: 8.8
-            comment: The paper demonstrates strong potential impact.
-        overallScore: 3.7
-        summary: This paper has some limitations in the field.
-      - paperId: 2501.00539v2
-        reviewer:
-          id: reviewer-2
-          name: Prof. Michael Rodriguez
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 9.1
-            comment: The paper demonstrates strong technical depth.
-          - aspect: novelty
-            score: 4.5
-            comment: The paper demonstrates limited novelty.
-          - aspect: experimental validation
-            score: 1.9
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 10
-            comment: The paper demonstrates strong clarity of presentation.
-          - aspect: potential impact
-            score: 5.7
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 6.2
-        summary: This paper presents interesting work in the field.
-    comparison:
-      winner: 2501.00539v2
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
-      overallScores:
-        2501.00602v1: 3.7
-        2501.00539v2: 6.2
-      metricComparison:
-        - metric: technical depth
-          scores:
-            2501.00602v1: 0.2
-            2501.00539v2: 9.1
-          difference: -8.9
-        - metric: novelty
-          scores:
-            2501.00602v1: 0.3
-            2501.00539v2: 4.5
-          difference: -4.2
-        - metric: experimental validation
-          scores:
-            2501.00602v1: 8
-            2501.00539v2: 1.9
-          difference: 6.1
-        - metric: clarity of presentation
-          scores:
-            2501.00602v1: 1.2
-            2501.00539v2: 10
-          difference: -8.8
-        - metric: potential impact
-          scores:
-            2501.00602v1: 8.8
-            2501.00539v2: 5.7
-          difference: 3.1
-  - id: match-ai-ml-2024-2501.00602v1-2501.00514v1
-    paperIds:
-      - 2501.00602v1
-      - 2501.00514v1
-    category: ai
-    subcategory: ml
-    year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
-    status: completed
-    reviews:
-      - paperId: 2501.00602v1
-        reviewer:
-          id: reviewer-1
-          name: Dr. Sarah Chen
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 4.6
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 7.4
-            comment: The paper demonstrates strong novelty.
-          - aspect: experimental validation
-            score: 1.1
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 6
-            comment: The paper demonstrates adequate clarity of presentation.
-          - aspect: potential impact
-            score: 8.4
-            comment: The paper demonstrates strong potential impact.
-        overallScore: 5.5
-        summary: This paper presents interesting work in the field.
-      - paperId: 2501.00514v1
-        reviewer:
-          id: reviewer-2
-          name: Prof. Michael Rodriguez
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 6.8
-            comment: The paper demonstrates adequate technical depth.
-          - aspect: novelty
-            score: 7.9
-            comment: The paper demonstrates strong novelty.
-          - aspect: experimental validation
-            score: 9.1
-            comment: The paper demonstrates strong experimental validation.
-          - aspect: clarity of presentation
-            score: 8.9
-            comment: The paper demonstrates strong clarity of presentation.
-          - aspect: potential impact
-            score: 8.6
-            comment: The paper demonstrates strong potential impact.
-        overallScore: 8.3
-        summary: This paper makes significant contributions in the field.
-    comparison:
-      winner: 2501.00514v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
-      overallScores:
-        2501.00602v1: 5.5
-        2501.00514v1: 8.3
-      metricComparison:
-        - metric: technical depth
-          scores:
-            2501.00602v1: 4.6
-            2501.00514v1: 6.8
-          difference: -2.2
-        - metric: novelty
-          scores:
-            2501.00602v1: 7.4
-            2501.00514v1: 7.9
-          difference: -0.5
-        - metric: experimental validation
-          scores:
-            2501.00602v1: 1.1
-            2501.00514v1: 9.1
-          difference: -8
-        - metric: clarity of presentation
-          scores:
-            2501.00602v1: 6
-            2501.00514v1: 8.9
-          difference: -2.9
-        - metric: potential impact
-          scores:
-            2501.00602v1: 8.4
-            2501.00514v1: 8.6
-          difference: -0.2
-  - id: match-ai-ml-2024-2501.00602v1-2501.00556v1
-    paperIds:
-      - 2501.00602v1
-      - 2501.00556v1
-    category: ai
-    subcategory: ml
-    year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
-    status: completed
-    reviews:
-      - paperId: 2501.00602v1
-        reviewer:
-          id: reviewer-1
-          name: Dr. Sarah Chen
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 9.6
-            comment: The paper demonstrates strong technical depth.
-          - aspect: novelty
-            score: 3.2
-            comment: The paper demonstrates limited novelty.
-          - aspect: experimental validation
-            score: 5.9
-            comment: The paper demonstrates adequate experimental validation.
-          - aspect: clarity of presentation
-            score: 0
-            comment: The paper demonstrates limited clarity of presentation.
-          - aspect: potential impact
-            score: 3.5
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 4.4
-        summary: This paper has some limitations in the field.
-      - paperId: 2501.00556v1
-        reviewer:
-          id: reviewer-2
-          name: Prof. Michael Rodriguez
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 7.3
-            comment: The paper demonstrates strong technical depth.
-          - aspect: novelty
-            score: 6
-            comment: The paper demonstrates adequate novelty.
-          - aspect: experimental validation
-            score: 2.2
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 3.6
-            comment: The paper demonstrates limited clarity of presentation.
-          - aspect: potential impact
-            score: 7.5
-            comment: The paper demonstrates strong potential impact.
-        overallScore: 5.3
-        summary: This paper presents interesting work in the field.
-    comparison:
-      winner: 2501.00556v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
-      overallScores:
-        2501.00602v1: 4.4
-        2501.00556v1: 5.3
-      metricComparison:
-        - metric: technical depth
-          scores:
-            2501.00602v1: 9.6
-            2501.00556v1: 7.3
-          difference: 2.3
-        - metric: novelty
-          scores:
-            2501.00602v1: 3.2
-            2501.00556v1: 6
-          difference: -2.8
-        - metric: experimental validation
-          scores:
-            2501.00602v1: 5.9
-            2501.00556v1: 2.2
-          difference: 3.7
-        - metric: clarity of presentation
-          scores:
-            2501.00602v1: 0
-            2501.00556v1: 3.6
-          difference: -3.6
-        - metric: potential impact
-          scores:
-            2501.00602v1: 3.5
-            2501.00556v1: 7.5
-          difference: -4
-  - id: match-ai-ml-2024-2501.00602v1-2501.00511v1
-    paperIds:
-      - 2501.00602v1
-      - 2501.00511v1
-    category: ai
-    subcategory: ml
-    year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
-    status: completed
-    reviews:
-      - paperId: 2501.00602v1
-        reviewer:
-          id: reviewer-1
-          name: Dr. Sarah Chen
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 0.1
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 6.5
-            comment: The paper demonstrates adequate novelty.
-          - aspect: experimental validation
-            score: 3.4
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 8.3
-            comment: The paper demonstrates strong clarity of presentation.
-          - aspect: potential impact
-            score: 5
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 4.7
-        summary: This paper has some limitations in the field.
-      - paperId: 2501.00511v1
-        reviewer:
-          id: reviewer-2
-          name: Prof. Michael Rodriguez
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 0.1
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 9.2
-            comment: The paper demonstrates strong novelty.
-          - aspect: experimental validation
-            score: 7.3
-            comment: The paper demonstrates strong experimental validation.
-          - aspect: clarity of presentation
-            score: 2.6
-            comment: The paper demonstrates limited clarity of presentation.
-          - aspect: potential impact
-            score: 3.3
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 4.5
-        summary: This paper has some limitations in the field.
-    comparison:
-      winner: 2501.00602v1
-      reasoning: The winning paper shows stronger performance across all evaluation metrics.
-      overallScores:
-        2501.00602v1: 4.7
-        2501.00511v1: 4.5
-      metricComparison:
-        - metric: technical depth
-          scores:
-            2501.00602v1: 0.1
-            2501.00511v1: 0.1
-          difference: 0
-        - metric: novelty
-          scores:
-            2501.00602v1: 6.5
-            2501.00511v1: 9.2
-          difference: -2.7
-        - metric: experimental validation
-          scores:
-            2501.00602v1: 3.4
-            2501.00511v1: 7.3
-          difference: -3.9
-        - metric: clarity of presentation
-          scores:
-            2501.00602v1: 8.3
-            2501.00511v1: 2.6
-          difference: 5.7
-        - metric: potential impact
-          scores:
-            2501.00602v1: 5
-            2501.00511v1: 3.3
-          difference: 1.7
-  - id: match-ai-ml-2024-2501.00602v1-2501.00514v1
-    paperIds:
-      - 2501.00602v1
-      - 2501.00514v1
-    category: ai
-    subcategory: ml
-    year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
-    status: completed
-    reviews:
-      - paperId: 2501.00602v1
-        reviewer:
-          id: reviewer-1
-          name: Dr. Sarah Chen
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 2.6
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 9.4
-            comment: The paper demonstrates strong novelty.
-          - aspect: experimental validation
-            score: 4.4
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 2.2
-            comment: The paper demonstrates limited clarity of presentation.
-          - aspect: potential impact
-            score: 0.3
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 3.8
-        summary: This paper has some limitations in the field.
-      - paperId: 2501.00514v1
-        reviewer:
-          id: reviewer-2
-          name: Prof. Michael Rodriguez
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 7.8
-            comment: The paper demonstrates strong technical depth.
-          - aspect: novelty
-            score: 3.2
-            comment: The paper demonstrates limited novelty.
-          - aspect: experimental validation
-            score: 9.8
-            comment: The paper demonstrates strong experimental validation.
-          - aspect: clarity of presentation
-            score: 8.3
-            comment: The paper demonstrates strong clarity of presentation.
-          - aspect: potential impact
-            score: 3.1
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 6.4
-        summary: This paper presents interesting work in the field.
-    comparison:
-      winner: 2501.00514v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
-      overallScores:
-        2501.00602v1: 3.8
-        2501.00514v1: 6.4
-      metricComparison:
-        - metric: technical depth
-          scores:
-            2501.00602v1: 2.6
-            2501.00514v1: 7.8
-          difference: -5.2
-        - metric: novelty
-          scores:
-            2501.00602v1: 9.4
-            2501.00514v1: 3.2
-          difference: 6.2
-        - metric: experimental validation
-          scores:
-            2501.00602v1: 4.4
-            2501.00514v1: 9.8
-          difference: -5.4
-        - metric: clarity of presentation
-          scores:
-            2501.00602v1: 2.2
-            2501.00514v1: 8.3
-          difference: -6.1
-        - metric: potential impact
-          scores:
-            2501.00602v1: 0.3
-            2501.00514v1: 3.1
-          difference: -2.8
-  - id: match-ai-ml-2024-2501.00632v1-2501.00305v1
-    paperIds:
-      - 2501.00632v1
-      - 2501.00305v1
-    category: ai
-    subcategory: ml
-    year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
-    status: completed
-    reviews:
-      - paperId: 2501.00632v1
-        reviewer:
-          id: reviewer-1
-          name: Dr. Sarah Chen
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 4.9
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 9.7
-            comment: The paper demonstrates strong novelty.
-          - aspect: experimental validation
-            score: 7.1
-            comment: The paper demonstrates strong experimental validation.
-          - aspect: clarity of presentation
-            score: 2.9
-            comment: The paper demonstrates limited clarity of presentation.
-          - aspect: potential impact
-            score: 3.8
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 5.7
-        summary: This paper presents interesting work in the field.
-      - paperId: 2501.00305v1
-        reviewer:
-          id: reviewer-2
-          name: Prof. Michael Rodriguez
-          provider: academic
-        scores:
-          - aspect: technical depth
-            score: 3.6
-            comment: The paper demonstrates limited technical depth.
-          - aspect: novelty
-            score: 0.3
-            comment: The paper demonstrates limited novelty.
-          - aspect: experimental validation
-            score: 0.3
-            comment: The paper demonstrates limited experimental validation.
-          - aspect: clarity of presentation
-            score: 10
-            comment: The paper demonstrates strong clarity of presentation.
-          - aspect: potential impact
-            score: 4.6
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 3.8
-        summary: This paper has some limitations in the field.
-    comparison:
-      winner: 2501.00632v1
-      reasoning: The winning paper shows stronger performance across all evaluation metrics.
-      overallScores:
-        2501.00632v1: 5.7
-        2501.00305v1: 3.8
-      metricComparison:
-        - metric: technical depth
-          scores:
-            2501.00632v1: 4.9
-            2501.00305v1: 3.6
-          difference: 1.3
-        - metric: novelty
-          scores:
-            2501.00632v1: 9.7
-            2501.00305v1: 0.3
-          difference: 9.4
-        - metric: experimental validation
-          scores:
-            2501.00632v1: 7.1
-            2501.00305v1: 0.3
-          difference: 6.8
-        - metric: clarity of presentation
-          scores:
-            2501.00632v1: 2.9
-            2501.00305v1: 10
-          difference: -7.1
-        - metric: potential impact
-          scores:
-            2501.00632v1: 3.8
-            2501.00305v1: 4.6
-          difference: -0.8
-  - id: match-ai-ml-2024-2501.00632v1-2501.00539v2
-    paperIds:
-      - 2501.00632v1
-      - 2501.00539v2
-    category: ai
-    subcategory: ml
-    year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
-    status: completed
-    reviews:
-      - paperId: 2501.00632v1
         reviewer:
           id: reviewer-1
           name: Dr. Sarah Chen
@@ -723,17 +107,105 @@ matches:
             score: 0.5
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 3.3
-            comment: The paper demonstrates limited novelty.
+            score: 5.6
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 7.7
+            score: 9.5
             comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 4.3
+            score: 2.9
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 8.7
+            score: 7.5
             comment: The paper demonstrates strong potential impact.
+        overallScore: 5.2
+        summary: This paper presents interesting work in the field.
+      - paperId: 2501.00305v1
+        reviewer:
+          id: reviewer-2
+          name: Prof. Michael Rodriguez
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 0.1
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 5.2
+            comment: The paper demonstrates adequate novelty.
+          - aspect: experimental validation
+            score: 0.7
+            comment: The paper demonstrates limited experimental validation.
+          - aspect: clarity of presentation
+            score: 1.1
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 4.2
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 2.3
+        summary: This paper has some limitations in the field.
+    comparison:
+      winner: 2501.00602v1
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
+      overallScores:
+        2501.00602v1: 5.2
+        2501.00305v1: 2.3
+      metricComparison:
+        - metric: technical depth
+          scores:
+            2501.00602v1: 0.5
+            2501.00305v1: 0.1
+          difference: 0.4
+        - metric: novelty
+          scores:
+            2501.00602v1: 5.6
+            2501.00305v1: 5.2
+          difference: 0.4
+        - metric: experimental validation
+          scores:
+            2501.00602v1: 9.5
+            2501.00305v1: 0.7
+          difference: 8.8
+        - metric: clarity of presentation
+          scores:
+            2501.00602v1: 2.9
+            2501.00305v1: 1.1
+          difference: 1.8
+        - metric: potential impact
+          scores:
+            2501.00602v1: 7.5
+            2501.00305v1: 4.2
+          difference: 3.3
+  - id: match-ai-ml-2024-2501.00602v1-2501.00539v2
+    paperIds:
+      - 2501.00602v1
+      - 2501.00539v2
+    category: ai
+    subcategory: ml
+    year: 2024
+    createdAt: '2025-05-16T01:12:56.821Z'
+    status: completed
+    reviews:
+      - paperId: 2501.00602v1
+        reviewer:
+          id: reviewer-1
+          name: Dr. Sarah Chen
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 2
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 9.6
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 3.7
+            comment: The paper demonstrates limited experimental validation.
+          - aspect: clarity of presentation
+            score: 4.9
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 4.2
+            comment: The paper demonstrates limited potential impact.
         overallScore: 4.9
         summary: This paper has some limitations in the field.
       - paperId: 2501.00539v2
@@ -743,86 +215,86 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 1.3
+            score: 1.7
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 4.9
-            comment: The paper demonstrates limited novelty.
+            score: 5.5
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
             score: 0.1
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 7.1
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 3.3
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 2.5
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 3.2
+            score: 7.7
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 3.7
         summary: This paper has some limitations in the field.
     comparison:
-      winner: 2501.00632v1
+      winner: 2501.00602v1
       reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00632v1: 4.9
-        2501.00539v2: 3.2
+        2501.00602v1: 4.9
+        2501.00539v2: 3.7
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00632v1: 0.5
-            2501.00539v2: 1.3
-          difference: -0.8
+            2501.00602v1: 2
+            2501.00539v2: 1.7
+          difference: 0.3
         - metric: novelty
           scores:
-            2501.00632v1: 3.3
-            2501.00539v2: 4.9
-          difference: -1.6
+            2501.00602v1: 9.6
+            2501.00539v2: 5.5
+          difference: 4.1
         - metric: experimental validation
           scores:
-            2501.00632v1: 7.7
+            2501.00602v1: 3.7
             2501.00539v2: 0.1
-          difference: 7.6
+          difference: 3.6
         - metric: clarity of presentation
           scores:
-            2501.00632v1: 4.3
-            2501.00539v2: 7.1
-          difference: -2.8
+            2501.00602v1: 4.9
+            2501.00539v2: 3.3
+          difference: 1.6
         - metric: potential impact
           scores:
-            2501.00632v1: 8.7
-            2501.00539v2: 2.5
-          difference: 6.2
-  - id: match-ai-ml-2024-2501.00632v1-2501.00514v1
+            2501.00602v1: 4.2
+            2501.00539v2: 7.7
+          difference: -3.5
+  - id: match-ai-ml-2024-2501.00602v1-2501.00514v1
     paperIds:
-      - 2501.00632v1
+      - 2501.00602v1
       - 2501.00514v1
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
-      - paperId: 2501.00632v1
+      - paperId: 2501.00602v1
         reviewer:
           id: reviewer-1
           name: Dr. Sarah Chen
           provider: academic
         scores:
           - aspect: technical depth
-            score: 5.3
-            comment: The paper demonstrates adequate technical depth.
+            score: 4
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 3.7
-            comment: The paper demonstrates limited novelty.
+            score: 8.6
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 0.2
+            score: 1.3
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 9.7
+            score: 7.7
             comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 6.2
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 5
+            score: 4.3
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 5.2
         summary: This paper presents interesting work in the field.
       - paperId: 2501.00514v1
         reviewer:
@@ -831,87 +303,87 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 6.4
-            comment: The paper demonstrates adequate technical depth.
+            score: 9.4
+            comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 2.5
+            score: 4
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 3
-            comment: The paper demonstrates limited experimental validation.
+            score: 7.6
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 2.8
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 8.8
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 7.1
-            comment: The paper demonstrates strong potential impact.
-        overallScore: 4.4
-        summary: This paper has some limitations in the field.
+            score: 0.7
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 6.1
+        summary: This paper presents interesting work in the field.
     comparison:
-      winner: 2501.00632v1
-      reasoning: The winning paper shows stronger performance across all evaluation metrics.
+      winner: 2501.00514v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00632v1: 5
-        2501.00514v1: 4.4
+        2501.00602v1: 5.2
+        2501.00514v1: 6.1
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00632v1: 5.3
-            2501.00514v1: 6.4
-          difference: -1.1
+            2501.00602v1: 4
+            2501.00514v1: 9.4
+          difference: -5.4
         - metric: novelty
           scores:
-            2501.00632v1: 3.7
-            2501.00514v1: 2.5
-          difference: 1.2
+            2501.00602v1: 8.6
+            2501.00514v1: 4
+          difference: 4.6
         - metric: experimental validation
           scores:
-            2501.00632v1: 0.2
-            2501.00514v1: 3
-          difference: -2.8
+            2501.00602v1: 1.3
+            2501.00514v1: 7.6
+          difference: -6.3
         - metric: clarity of presentation
           scores:
-            2501.00632v1: 9.7
-            2501.00514v1: 2.8
-          difference: 6.9
+            2501.00602v1: 7.7
+            2501.00514v1: 8.8
+          difference: -1.1
         - metric: potential impact
           scores:
-            2501.00632v1: 6.2
-            2501.00514v1: 7.1
-          difference: -0.9
-  - id: match-ai-ml-2024-2501.00632v1-2501.00556v1
+            2501.00602v1: 4.3
+            2501.00514v1: 0.7
+          difference: 3.6
+  - id: match-ai-ml-2024-2501.00602v1-2501.00556v1
     paperIds:
-      - 2501.00632v1
+      - 2501.00602v1
       - 2501.00556v1
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
-      - paperId: 2501.00632v1
+      - paperId: 2501.00602v1
         reviewer:
           id: reviewer-1
           name: Dr. Sarah Chen
           provider: academic
         scores:
           - aspect: technical depth
-            score: 8.7
-            comment: The paper demonstrates strong technical depth.
+            score: 3.3
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 6.2
+            score: 5.6
             comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 8.6
-            comment: The paper demonstrates strong experimental validation.
+            score: 4.7
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 0.2
+            score: 2.8
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 2.9
+            score: 1.2
             comment: The paper demonstrates limited potential impact.
-        overallScore: 5.3
-        summary: This paper presents interesting work in the field.
+        overallScore: 3.5
+        summary: This paper has some limitations in the field.
       - paperId: 2501.00556v1
         reviewer:
           id: reviewer-2
@@ -919,85 +391,85 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 7.6
-            comment: The paper demonstrates strong technical depth.
+            score: 2.7
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 9.6
+            score: 10
             comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 0
+            score: 0.7
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 6.8
+            score: 6.7
             comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 5.7
+            score: 6
             comment: The paper demonstrates adequate potential impact.
-        overallScore: 5.9
+        overallScore: 5.2
         summary: This paper presents interesting work in the field.
     comparison:
       winner: 2501.00556v1
       reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00632v1: 5.3
-        2501.00556v1: 5.9
+        2501.00602v1: 3.5
+        2501.00556v1: 5.2
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00632v1: 8.7
-            2501.00556v1: 7.6
-          difference: 1.1
+            2501.00602v1: 3.3
+            2501.00556v1: 2.7
+          difference: 0.6
         - metric: novelty
           scores:
-            2501.00632v1: 6.2
-            2501.00556v1: 9.6
-          difference: -3.4
+            2501.00602v1: 5.6
+            2501.00556v1: 10
+          difference: -4.4
         - metric: experimental validation
           scores:
-            2501.00632v1: 8.6
-            2501.00556v1: 0
-          difference: 8.6
+            2501.00602v1: 4.7
+            2501.00556v1: 0.7
+          difference: 4
         - metric: clarity of presentation
           scores:
-            2501.00632v1: 0.2
-            2501.00556v1: 6.8
-          difference: -6.6
+            2501.00602v1: 2.8
+            2501.00556v1: 6.7
+          difference: -3.9
         - metric: potential impact
           scores:
-            2501.00632v1: 2.9
-            2501.00556v1: 5.7
-          difference: -2.8
-  - id: match-ai-ml-2024-2501.00632v1-2501.00511v1
+            2501.00602v1: 1.2
+            2501.00556v1: 6
+          difference: -4.8
+  - id: match-ai-ml-2024-2501.00602v1-2501.00511v1
     paperIds:
-      - 2501.00632v1
+      - 2501.00602v1
       - 2501.00511v1
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
-      - paperId: 2501.00632v1
+      - paperId: 2501.00602v1
         reviewer:
           id: reviewer-1
           name: Dr. Sarah Chen
           provider: academic
         scores:
           - aspect: technical depth
-            score: 8.7
+            score: 7.7
             comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 8.8
-            comment: The paper demonstrates strong novelty.
+            score: 5.3
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 7.8
+            score: 9.9
             comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 9.4
+            score: 8.8
             comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 4.1
-            comment: The paper demonstrates limited potential impact.
+            score: 7.2
+            comment: The paper demonstrates strong potential impact.
         overallScore: 7.8
         summary: This paper makes significant contributions in the field.
       - paperId: 2501.00511v1
@@ -1007,62 +479,150 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 0.1
+            score: 4.2
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 5.7
+            score: 5
             comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 9.7
+            score: 8
             comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 0.4
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 9.6
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 0.5
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 3.3
-        summary: This paper has some limitations in the field.
+            score: 7.4
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 6.8
+        summary: This paper presents interesting work in the field.
     comparison:
-      winner: 2501.00632v1
+      winner: 2501.00602v1
       reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00632v1: 7.8
-        2501.00511v1: 3.3
+        2501.00602v1: 7.8
+        2501.00511v1: 6.8
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00632v1: 8.7
-            2501.00511v1: 0.1
-          difference: 8.6
+            2501.00602v1: 7.7
+            2501.00511v1: 4.2
+          difference: 3.5
         - metric: novelty
           scores:
-            2501.00632v1: 8.8
-            2501.00511v1: 5.7
-          difference: 3.1
+            2501.00602v1: 5.3
+            2501.00511v1: 5
+          difference: 0.3
         - metric: experimental validation
           scores:
-            2501.00632v1: 7.8
-            2501.00511v1: 9.7
-          difference: -1.9
+            2501.00602v1: 9.9
+            2501.00511v1: 8
+          difference: 1.9
         - metric: clarity of presentation
           scores:
-            2501.00632v1: 9.4
-            2501.00511v1: 0.4
-          difference: 9
+            2501.00602v1: 8.8
+            2501.00511v1: 9.6
+          difference: -0.8
         - metric: potential impact
           scores:
-            2501.00632v1: 4.1
-            2501.00511v1: 0.5
-          difference: 3.6
-  - id: match-ai-ml-2024-2501.00632v1-2501.00514v1
+            2501.00602v1: 7.2
+            2501.00511v1: 7.4
+          difference: -0.2
+  - id: match-ai-ml-2024-2501.00602v1-2501.00514v1
     paperIds:
-      - 2501.00632v1
+      - 2501.00602v1
       - 2501.00514v1
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
+    status: completed
+    reviews:
+      - paperId: 2501.00602v1
+        reviewer:
+          id: reviewer-1
+          name: Dr. Sarah Chen
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 1.6
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 6.7
+            comment: The paper demonstrates adequate novelty.
+          - aspect: experimental validation
+            score: 7.4
+            comment: The paper demonstrates strong experimental validation.
+          - aspect: clarity of presentation
+            score: 9.2
+            comment: The paper demonstrates strong clarity of presentation.
+          - aspect: potential impact
+            score: 7
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 6.4
+        summary: This paper presents interesting work in the field.
+      - paperId: 2501.00514v1
+        reviewer:
+          id: reviewer-2
+          name: Prof. Michael Rodriguez
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 4.7
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 8.7
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 4
+            comment: The paper demonstrates limited experimental validation.
+          - aspect: clarity of presentation
+            score: 0.3
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 4.3
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 4.4
+        summary: This paper has some limitations in the field.
+    comparison:
+      winner: 2501.00602v1
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
+      overallScores:
+        2501.00602v1: 6.4
+        2501.00514v1: 4.4
+      metricComparison:
+        - metric: technical depth
+          scores:
+            2501.00602v1: 1.6
+            2501.00514v1: 4.7
+          difference: -3.1
+        - metric: novelty
+          scores:
+            2501.00602v1: 6.7
+            2501.00514v1: 8.7
+          difference: -2
+        - metric: experimental validation
+          scores:
+            2501.00602v1: 7.4
+            2501.00514v1: 4
+          difference: 3.4
+        - metric: clarity of presentation
+          scores:
+            2501.00602v1: 9.2
+            2501.00514v1: 0.3
+          difference: 8.9
+        - metric: potential impact
+          scores:
+            2501.00602v1: 7
+            2501.00514v1: 4.3
+          difference: 2.7
+  - id: match-ai-ml-2024-2501.00632v1-2501.00305v1
+    paperIds:
+      - 2501.00632v1
+      - 2501.00305v1
+    category: ai
+    subcategory: ml
+    year: 2024
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00632v1
@@ -1072,21 +632,197 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 9.5
+            score: 0.9
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 4.5
+            comment: The paper demonstrates limited novelty.
+          - aspect: experimental validation
+            score: 3
+            comment: The paper demonstrates limited experimental validation.
+          - aspect: clarity of presentation
+            score: 7.7
+            comment: The paper demonstrates strong clarity of presentation.
+          - aspect: potential impact
+            score: 6
+            comment: The paper demonstrates adequate potential impact.
+        overallScore: 4.4
+        summary: This paper has some limitations in the field.
+      - paperId: 2501.00305v1
+        reviewer:
+          id: reviewer-2
+          name: Prof. Michael Rodriguez
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 2.3
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 1.6
+            comment: The paper demonstrates limited novelty.
+          - aspect: experimental validation
+            score: 5.7
+            comment: The paper demonstrates adequate experimental validation.
+          - aspect: clarity of presentation
+            score: 8.7
+            comment: The paper demonstrates strong clarity of presentation.
+          - aspect: potential impact
+            score: 7.2
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 5.1
+        summary: This paper presents interesting work in the field.
+    comparison:
+      winner: 2501.00305v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      overallScores:
+        2501.00632v1: 4.4
+        2501.00305v1: 5.1
+      metricComparison:
+        - metric: technical depth
+          scores:
+            2501.00632v1: 0.9
+            2501.00305v1: 2.3
+          difference: -1.4
+        - metric: novelty
+          scores:
+            2501.00632v1: 4.5
+            2501.00305v1: 1.6
+          difference: 2.9
+        - metric: experimental validation
+          scores:
+            2501.00632v1: 3
+            2501.00305v1: 5.7
+          difference: -2.7
+        - metric: clarity of presentation
+          scores:
+            2501.00632v1: 7.7
+            2501.00305v1: 8.7
+          difference: -1
+        - metric: potential impact
+          scores:
+            2501.00632v1: 6
+            2501.00305v1: 7.2
+          difference: -1.2
+  - id: match-ai-ml-2024-2501.00632v1-2501.00539v2
+    paperIds:
+      - 2501.00632v1
+      - 2501.00539v2
+    category: ai
+    subcategory: ml
+    year: 2024
+    createdAt: '2025-05-16T01:12:56.821Z'
+    status: completed
+    reviews:
+      - paperId: 2501.00632v1
+        reviewer:
+          id: reviewer-1
+          name: Dr. Sarah Chen
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 6.4
+            comment: The paper demonstrates adequate technical depth.
+          - aspect: novelty
+            score: 8.1
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 7.2
+            comment: The paper demonstrates strong experimental validation.
+          - aspect: clarity of presentation
+            score: 0
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 8.9
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 6.1
+        summary: This paper presents interesting work in the field.
+      - paperId: 2501.00539v2
+        reviewer:
+          id: reviewer-2
+          name: Prof. Michael Rodriguez
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 8.1
+            comment: The paper demonstrates strong technical depth.
+          - aspect: novelty
+            score: 7.6
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 6.1
+            comment: The paper demonstrates adequate experimental validation.
+          - aspect: clarity of presentation
+            score: 4.7
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 2.1
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 5.7
+        summary: This paper presents interesting work in the field.
+    comparison:
+      winner: 2501.00632v1
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
+      overallScores:
+        2501.00632v1: 6.1
+        2501.00539v2: 5.7
+      metricComparison:
+        - metric: technical depth
+          scores:
+            2501.00632v1: 6.4
+            2501.00539v2: 8.1
+          difference: -1.7
+        - metric: novelty
+          scores:
+            2501.00632v1: 8.1
+            2501.00539v2: 7.6
+          difference: 0.5
+        - metric: experimental validation
+          scores:
+            2501.00632v1: 7.2
+            2501.00539v2: 6.1
+          difference: 1.1
+        - metric: clarity of presentation
+          scores:
+            2501.00632v1: 0
+            2501.00539v2: 4.7
+          difference: -4.7
+        - metric: potential impact
+          scores:
+            2501.00632v1: 8.9
+            2501.00539v2: 2.1
+          difference: 6.8
+  - id: match-ai-ml-2024-2501.00632v1-2501.00514v1
+    paperIds:
+      - 2501.00632v1
+      - 2501.00514v1
+    category: ai
+    subcategory: ml
+    year: 2024
+    createdAt: '2025-05-16T01:12:56.821Z'
+    status: completed
+    reviews:
+      - paperId: 2501.00632v1
+        reviewer:
+          id: reviewer-1
+          name: Dr. Sarah Chen
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 8.4
             comment: The paper demonstrates strong technical depth.
           - aspect: novelty
             score: 4.3
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 7.5
+            score: 8.5
             comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 0.8
+            score: 4.7
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 6.6
+            score: 6.5
             comment: The paper demonstrates adequate potential impact.
-        overallScore: 5.7
+        overallScore: 6.5
         summary: This paper presents interesting work in the field.
       - paperId: 2501.00514v1
         reviewer:
@@ -1095,34 +831,34 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 5.7
-            comment: The paper demonstrates adequate technical depth.
+            score: 4.2
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
             score: 9.2
             comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 8.2
-            comment: The paper demonstrates strong experimental validation.
+            score: 5.2
+            comment: The paper demonstrates adequate experimental validation.
           - aspect: clarity of presentation
-            score: 5.4
-            comment: The paper demonstrates adequate clarity of presentation.
+            score: 1.4
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 1.8
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 6.1
+            score: 7
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 5.4
         summary: This paper presents interesting work in the field.
     comparison:
-      winner: 2501.00514v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      winner: 2501.00632v1
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00632v1: 5.7
-        2501.00514v1: 6.1
+        2501.00632v1: 6.5
+        2501.00514v1: 5.4
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00632v1: 9.5
-            2501.00514v1: 5.7
-          difference: 3.8
+            2501.00632v1: 8.4
+            2501.00514v1: 4.2
+          difference: 4.2
         - metric: novelty
           scores:
             2501.00632v1: 4.3
@@ -1130,19 +866,283 @@ matches:
           difference: -4.9
         - metric: experimental validation
           scores:
-            2501.00632v1: 7.5
-            2501.00514v1: 8.2
-          difference: -0.7
+            2501.00632v1: 8.5
+            2501.00514v1: 5.2
+          difference: 3.3
         - metric: clarity of presentation
           scores:
-            2501.00632v1: 0.8
-            2501.00514v1: 5.4
-          difference: -4.6
+            2501.00632v1: 4.7
+            2501.00514v1: 1.4
+          difference: 3.3
         - metric: potential impact
           scores:
-            2501.00632v1: 6.6
-            2501.00514v1: 1.8
+            2501.00632v1: 6.5
+            2501.00514v1: 7
+          difference: -0.5
+  - id: match-ai-ml-2024-2501.00632v1-2501.00556v1
+    paperIds:
+      - 2501.00632v1
+      - 2501.00556v1
+    category: ai
+    subcategory: ml
+    year: 2024
+    createdAt: '2025-05-16T01:12:56.821Z'
+    status: completed
+    reviews:
+      - paperId: 2501.00632v1
+        reviewer:
+          id: reviewer-1
+          name: Dr. Sarah Chen
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 6.9
+            comment: The paper demonstrates adequate technical depth.
+          - aspect: novelty
+            score: 9.4
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 8.7
+            comment: The paper demonstrates strong experimental validation.
+          - aspect: clarity of presentation
+            score: 1.3
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 2.6
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 5.8
+        summary: This paper presents interesting work in the field.
+      - paperId: 2501.00556v1
+        reviewer:
+          id: reviewer-2
+          name: Prof. Michael Rodriguez
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 7.5
+            comment: The paper demonstrates strong technical depth.
+          - aspect: novelty
+            score: 9
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 5.8
+            comment: The paper demonstrates adequate experimental validation.
+          - aspect: clarity of presentation
+            score: 8.6
+            comment: The paper demonstrates strong clarity of presentation.
+          - aspect: potential impact
+            score: 3.7
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 6.9
+        summary: This paper presents interesting work in the field.
+    comparison:
+      winner: 2501.00556v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      overallScores:
+        2501.00632v1: 5.8
+        2501.00556v1: 6.9
+      metricComparison:
+        - metric: technical depth
+          scores:
+            2501.00632v1: 6.9
+            2501.00556v1: 7.5
+          difference: -0.6
+        - metric: novelty
+          scores:
+            2501.00632v1: 9.4
+            2501.00556v1: 9
+          difference: 0.4
+        - metric: experimental validation
+          scores:
+            2501.00632v1: 8.7
+            2501.00556v1: 5.8
+          difference: 2.9
+        - metric: clarity of presentation
+          scores:
+            2501.00632v1: 1.3
+            2501.00556v1: 8.6
+          difference: -7.3
+        - metric: potential impact
+          scores:
+            2501.00632v1: 2.6
+            2501.00556v1: 3.7
+          difference: -1.1
+  - id: match-ai-ml-2024-2501.00632v1-2501.00511v1
+    paperIds:
+      - 2501.00632v1
+      - 2501.00511v1
+    category: ai
+    subcategory: ml
+    year: 2024
+    createdAt: '2025-05-16T01:12:56.821Z'
+    status: completed
+    reviews:
+      - paperId: 2501.00632v1
+        reviewer:
+          id: reviewer-1
+          name: Dr. Sarah Chen
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 0
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 3.5
+            comment: The paper demonstrates limited novelty.
+          - aspect: experimental validation
+            score: 7.8
+            comment: The paper demonstrates strong experimental validation.
+          - aspect: clarity of presentation
+            score: 0.9
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 7.7
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 4
+        summary: This paper has some limitations in the field.
+      - paperId: 2501.00511v1
+        reviewer:
+          id: reviewer-2
+          name: Prof. Michael Rodriguez
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 0.4
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 7.3
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 7.3
+            comment: The paper demonstrates strong experimental validation.
+          - aspect: clarity of presentation
+            score: 6.1
+            comment: The paper demonstrates adequate clarity of presentation.
+          - aspect: potential impact
+            score: 0.3
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 4.3
+        summary: This paper has some limitations in the field.
+    comparison:
+      winner: 2501.00511v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      overallScores:
+        2501.00632v1: 4
+        2501.00511v1: 4.3
+      metricComparison:
+        - metric: technical depth
+          scores:
+            2501.00632v1: 0
+            2501.00511v1: 0.4
+          difference: -0.4
+        - metric: novelty
+          scores:
+            2501.00632v1: 3.5
+            2501.00511v1: 7.3
+          difference: -3.8
+        - metric: experimental validation
+          scores:
+            2501.00632v1: 7.8
+            2501.00511v1: 7.3
+          difference: 0.5
+        - metric: clarity of presentation
+          scores:
+            2501.00632v1: 0.9
+            2501.00511v1: 6.1
+          difference: -5.2
+        - metric: potential impact
+          scores:
+            2501.00632v1: 7.7
+            2501.00511v1: 0.3
+          difference: 7.4
+  - id: match-ai-ml-2024-2501.00632v1-2501.00514v1
+    paperIds:
+      - 2501.00632v1
+      - 2501.00514v1
+    category: ai
+    subcategory: ml
+    year: 2024
+    createdAt: '2025-05-16T01:12:56.821Z'
+    status: completed
+    reviews:
+      - paperId: 2501.00632v1
+        reviewer:
+          id: reviewer-1
+          name: Dr. Sarah Chen
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 8.9
+            comment: The paper demonstrates strong technical depth.
+          - aspect: novelty
+            score: 4.9
+            comment: The paper demonstrates limited novelty.
+          - aspect: experimental validation
+            score: 2.8
+            comment: The paper demonstrates limited experimental validation.
+          - aspect: clarity of presentation
+            score: 1.1
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 5.9
+            comment: The paper demonstrates adequate potential impact.
+        overallScore: 4.7
+        summary: This paper has some limitations in the field.
+      - paperId: 2501.00514v1
+        reviewer:
+          id: reviewer-2
+          name: Prof. Michael Rodriguez
+          provider: academic
+        scores:
+          - aspect: technical depth
+            score: 4.1
+            comment: The paper demonstrates limited technical depth.
+          - aspect: novelty
+            score: 9.7
+            comment: The paper demonstrates strong novelty.
+          - aspect: experimental validation
+            score: 8.6
+            comment: The paper demonstrates strong experimental validation.
+          - aspect: clarity of presentation
+            score: 5.5
+            comment: The paper demonstrates adequate clarity of presentation.
+          - aspect: potential impact
+            score: 9.4
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 7.5
+        summary: This paper makes significant contributions in the field.
+    comparison:
+      winner: 2501.00514v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      overallScores:
+        2501.00632v1: 4.7
+        2501.00514v1: 7.5
+      metricComparison:
+        - metric: technical depth
+          scores:
+            2501.00632v1: 8.9
+            2501.00514v1: 4.1
           difference: 4.8
+        - metric: novelty
+          scores:
+            2501.00632v1: 4.9
+            2501.00514v1: 9.7
+          difference: -4.8
+        - metric: experimental validation
+          scores:
+            2501.00632v1: 2.8
+            2501.00514v1: 8.6
+          difference: -5.8
+        - metric: clarity of presentation
+          scores:
+            2501.00632v1: 1.1
+            2501.00514v1: 5.5
+          difference: -4.4
+        - metric: potential impact
+          scores:
+            2501.00632v1: 5.9
+            2501.00514v1: 9.4
+          difference: -3.5
   - id: match-ai-ml-2024-2501.00305v1-2501.00539v2
     paperIds:
       - 2501.00305v1
@@ -1150,7 +1150,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00305v1
@@ -1160,22 +1160,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 0.2
-            comment: The paper demonstrates limited technical depth.
+            score: 9.4
+            comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 0.3
+            score: 4
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 5.9
-            comment: The paper demonstrates adequate experimental validation.
+            score: 2.2
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 0.1
+            score: 1.5
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 7.1
+            score: 8.4
             comment: The paper demonstrates strong potential impact.
-        overallScore: 2.7
-        summary: This paper has some limitations in the field.
+        overallScore: 5.1
+        summary: This paper presents interesting work in the field.
       - paperId: 2501.00539v2
         reviewer:
           id: reviewer-2
@@ -1183,54 +1183,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 0.3
-            comment: The paper demonstrates limited technical depth.
+            score: 8.3
+            comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 3.4
+            score: 3.7
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 5.8
-            comment: The paper demonstrates adequate experimental validation.
+            score: 9.2
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 7.5
+            score: 9.4
             comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 6.7
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 4.7
-        summary: This paper has some limitations in the field.
+            score: 3.4
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 6.8
+        summary: This paper presents interesting work in the field.
     comparison:
       winner: 2501.00539v2
       reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00305v1: 2.7
-        2501.00539v2: 4.7
+        2501.00305v1: 5.1
+        2501.00539v2: 6.8
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00305v1: 0.2
-            2501.00539v2: 0.3
-          difference: -0.1
+            2501.00305v1: 9.4
+            2501.00539v2: 8.3
+          difference: 1.1
         - metric: novelty
           scores:
-            2501.00305v1: 0.3
-            2501.00539v2: 3.4
-          difference: -3.1
+            2501.00305v1: 4
+            2501.00539v2: 3.7
+          difference: 0.3
         - metric: experimental validation
           scores:
-            2501.00305v1: 5.9
-            2501.00539v2: 5.8
-          difference: 0.1
+            2501.00305v1: 2.2
+            2501.00539v2: 9.2
+          difference: -7
         - metric: clarity of presentation
           scores:
-            2501.00305v1: 0.1
-            2501.00539v2: 7.5
-          difference: -7.4
+            2501.00305v1: 1.5
+            2501.00539v2: 9.4
+          difference: -7.9
         - metric: potential impact
           scores:
-            2501.00305v1: 7.1
-            2501.00539v2: 6.7
-          difference: 0.4
+            2501.00305v1: 8.4
+            2501.00539v2: 3.4
+          difference: 5
   - id: match-ai-ml-2024-2501.00305v1-2501.00514v1
     paperIds:
       - 2501.00305v1
@@ -1238,7 +1238,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00305v1
@@ -1248,21 +1248,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 3.2
+            score: 2.8
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 1.2
-            comment: The paper demonstrates limited novelty.
+            score: 5.9
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 9.2
-            comment: The paper demonstrates strong experimental validation.
+            score: 1
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 4.2
+            score: 4.4
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 1.5
+            score: 2.6
             comment: The paper demonstrates limited potential impact.
-        overallScore: 3.9
+        overallScore: 3.3
         summary: This paper has some limitations in the field.
       - paperId: 2501.00514v1
         reviewer:
@@ -1271,54 +1271,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 2
-            comment: The paper demonstrates limited technical depth.
+            score: 5.3
+            comment: The paper demonstrates adequate technical depth.
           - aspect: novelty
-            score: 4.2
+            score: 4.7
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 9.9
-            comment: The paper demonstrates strong experimental validation.
+            score: 3.4
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 1.7
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 7.7
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 4.6
+            score: 0.3
             comment: The paper demonstrates limited potential impact.
-        overallScore: 4.5
+        overallScore: 4.3
         summary: This paper has some limitations in the field.
     comparison:
       winner: 2501.00514v1
       reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00305v1: 3.9
-        2501.00514v1: 4.5
+        2501.00305v1: 3.3
+        2501.00514v1: 4.3
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00305v1: 3.2
-            2501.00514v1: 2
-          difference: 1.2
+            2501.00305v1: 2.8
+            2501.00514v1: 5.3
+          difference: -2.5
         - metric: novelty
           scores:
-            2501.00305v1: 1.2
-            2501.00514v1: 4.2
-          difference: -3
+            2501.00305v1: 5.9
+            2501.00514v1: 4.7
+          difference: 1.2
         - metric: experimental validation
           scores:
-            2501.00305v1: 9.2
-            2501.00514v1: 9.9
-          difference: -0.7
+            2501.00305v1: 1
+            2501.00514v1: 3.4
+          difference: -2.4
         - metric: clarity of presentation
           scores:
-            2501.00305v1: 4.2
-            2501.00514v1: 1.7
-          difference: 2.5
+            2501.00305v1: 4.4
+            2501.00514v1: 7.7
+          difference: -3.3
         - metric: potential impact
           scores:
-            2501.00305v1: 1.5
-            2501.00514v1: 4.6
-          difference: -3.1
+            2501.00305v1: 2.6
+            2501.00514v1: 0.3
+          difference: 2.3
   - id: match-ai-ml-2024-2501.00305v1-2501.00556v1
     paperIds:
       - 2501.00305v1
@@ -1326,7 +1326,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00305v1
@@ -1336,22 +1336,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 1.5
-            comment: The paper demonstrates limited technical depth.
+            score: 7
+            comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 3.5
+            score: 3.1
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 7.6
-            comment: The paper demonstrates strong experimental validation.
+            score: 0.1
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 9.5
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 0.6
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 4.5
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 5.3
-        summary: This paper presents interesting work in the field.
+            score: 9.1
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 4
+        summary: This paper has some limitations in the field.
       - paperId: 2501.00556v1
         reviewer:
           id: reviewer-2
@@ -1359,54 +1359,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 9.8
-            comment: The paper demonstrates strong technical depth.
+            score: 4.1
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 3.1
-            comment: The paper demonstrates limited novelty.
+            score: 6.1
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 3.9
+            score: 0.6
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 8.4
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 5.4
+            comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 8.7
+            score: 7
             comment: The paper demonstrates strong potential impact.
-        overallScore: 6.8
-        summary: This paper presents interesting work in the field.
+        overallScore: 4.6
+        summary: This paper has some limitations in the field.
     comparison:
       winner: 2501.00556v1
       reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00305v1: 5.3
-        2501.00556v1: 6.8
+        2501.00305v1: 4
+        2501.00556v1: 4.6
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00305v1: 1.5
-            2501.00556v1: 9.8
-          difference: -8.3
+            2501.00305v1: 7
+            2501.00556v1: 4.1
+          difference: 2.9
         - metric: novelty
           scores:
-            2501.00305v1: 3.5
-            2501.00556v1: 3.1
-          difference: 0.4
+            2501.00305v1: 3.1
+            2501.00556v1: 6.1
+          difference: -3
         - metric: experimental validation
           scores:
-            2501.00305v1: 7.6
-            2501.00556v1: 3.9
-          difference: 3.7
+            2501.00305v1: 0.1
+            2501.00556v1: 0.6
+          difference: -0.5
         - metric: clarity of presentation
           scores:
-            2501.00305v1: 9.5
-            2501.00556v1: 8.4
-          difference: 1.1
+            2501.00305v1: 0.6
+            2501.00556v1: 5.4
+          difference: -4.8
         - metric: potential impact
           scores:
-            2501.00305v1: 4.5
-            2501.00556v1: 8.7
-          difference: -4.2
+            2501.00305v1: 9.1
+            2501.00556v1: 7
+          difference: 2.1
   - id: match-ai-ml-2024-2501.00305v1-2501.00511v1
     paperIds:
       - 2501.00305v1
@@ -1414,7 +1414,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00305v1
@@ -1424,21 +1424,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 1.9
+            score: 1.3
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 8.2
-            comment: The paper demonstrates strong novelty.
+            score: 0.3
+            comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 3.6
-            comment: The paper demonstrates limited experimental validation.
+            score: 9.8
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 9.5
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 5.3
+            comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 8.9
+            score: 8.7
             comment: The paper demonstrates strong potential impact.
-        overallScore: 6.4
+        overallScore: 5.1
         summary: This paper presents interesting work in the field.
       - paperId: 2501.00511v1
         reviewer:
@@ -1447,54 +1447,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 6
-            comment: The paper demonstrates adequate technical depth.
+            score: 2.8
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 0.1
-            comment: The paper demonstrates limited novelty.
+            score: 7.9
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 1.7
-            comment: The paper demonstrates limited experimental validation.
+            score: 9.4
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 9.6
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 3.5
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 9.7
+            score: 7
             comment: The paper demonstrates strong potential impact.
-        overallScore: 5.4
+        overallScore: 6.1
         summary: This paper presents interesting work in the field.
     comparison:
-      winner: 2501.00305v1
-      reasoning: The winning paper shows stronger performance across all evaluation metrics.
+      winner: 2501.00511v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00305v1: 6.4
-        2501.00511v1: 5.4
+        2501.00305v1: 5.1
+        2501.00511v1: 6.1
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00305v1: 1.9
-            2501.00511v1: 6
-          difference: -4.1
+            2501.00305v1: 1.3
+            2501.00511v1: 2.8
+          difference: -1.5
         - metric: novelty
           scores:
-            2501.00305v1: 8.2
-            2501.00511v1: 0.1
-          difference: 8.1
+            2501.00305v1: 0.3
+            2501.00511v1: 7.9
+          difference: -7.6
         - metric: experimental validation
           scores:
-            2501.00305v1: 3.6
-            2501.00511v1: 1.7
-          difference: 1.9
+            2501.00305v1: 9.8
+            2501.00511v1: 9.4
+          difference: 0.4
         - metric: clarity of presentation
           scores:
-            2501.00305v1: 9.5
-            2501.00511v1: 9.6
-          difference: -0.1
+            2501.00305v1: 5.3
+            2501.00511v1: 3.5
+          difference: 1.8
         - metric: potential impact
           scores:
-            2501.00305v1: 8.9
-            2501.00511v1: 9.7
-          difference: -0.8
+            2501.00305v1: 8.7
+            2501.00511v1: 7
+          difference: 1.7
   - id: match-ai-ml-2024-2501.00305v1-2501.00514v1
     paperIds:
       - 2501.00305v1
@@ -1502,7 +1502,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00305v1
@@ -1512,21 +1512,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 2.4
-            comment: The paper demonstrates limited technical depth.
+            score: 8.5
+            comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 8.6
-            comment: The paper demonstrates strong novelty.
+            score: 5.7
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 1.4
+            score: 0.2
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 3.8
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 6.6
+            comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 9.1
+            score: 9.2
             comment: The paper demonstrates strong potential impact.
-        overallScore: 5.1
+        overallScore: 6
         summary: This paper presents interesting work in the field.
       - paperId: 2501.00514v1
         reviewer:
@@ -1535,54 +1535,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 5
-            comment: The paper demonstrates adequate technical depth.
+            score: 1
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 1.2
+            score: 4.3
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 1.6
-            comment: The paper demonstrates limited experimental validation.
+            score: 5.3
+            comment: The paper demonstrates adequate experimental validation.
           - aspect: clarity of presentation
-            score: 8
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 3.1
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 8.5
-            comment: The paper demonstrates strong potential impact.
-        overallScore: 4.9
+            score: 0.4
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 2.8
         summary: This paper has some limitations in the field.
     comparison:
       winner: 2501.00305v1
       reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00305v1: 5.1
-        2501.00514v1: 4.9
+        2501.00305v1: 6
+        2501.00514v1: 2.8
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00305v1: 2.4
-            2501.00514v1: 5
-          difference: -2.6
+            2501.00305v1: 8.5
+            2501.00514v1: 1
+          difference: 7.5
         - metric: novelty
           scores:
-            2501.00305v1: 8.6
-            2501.00514v1: 1.2
-          difference: 7.4
+            2501.00305v1: 5.7
+            2501.00514v1: 4.3
+          difference: 1.4
         - metric: experimental validation
           scores:
-            2501.00305v1: 1.4
-            2501.00514v1: 1.6
-          difference: -0.2
+            2501.00305v1: 0.2
+            2501.00514v1: 5.3
+          difference: -5.1
         - metric: clarity of presentation
           scores:
-            2501.00305v1: 3.8
-            2501.00514v1: 8
-          difference: -4.2
+            2501.00305v1: 6.6
+            2501.00514v1: 3.1
+          difference: 3.5
         - metric: potential impact
           scores:
-            2501.00305v1: 9.1
-            2501.00514v1: 8.5
-          difference: 0.6
+            2501.00305v1: 9.2
+            2501.00514v1: 0.4
+          difference: 8.8
   - id: match-ai-ml-2024-2501.00539v2-2501.00514v1
     paperIds:
       - 2501.00539v2
@@ -1590,7 +1590,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00539v2
@@ -1600,21 +1600,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 9.1
-            comment: The paper demonstrates strong technical depth.
-          - aspect: novelty
             score: 6.8
-            comment: The paper demonstrates adequate novelty.
+            comment: The paper demonstrates adequate technical depth.
+          - aspect: novelty
+            score: 4.3
+            comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 0.9
-            comment: The paper demonstrates limited experimental validation.
+            score: 7.7
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 3.6
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 8.7
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 6.4
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 5.4
+            score: 3.1
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 6.1
         summary: This paper presents interesting work in the field.
       - paperId: 2501.00514v1
         reviewer:
@@ -1623,54 +1623,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 4.8
+            score: 2.3
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 2.6
-            comment: The paper demonstrates limited novelty.
+            score: 8.6
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 9.8
-            comment: The paper demonstrates strong experimental validation.
+            score: 2.6
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 5.6
-            comment: The paper demonstrates adequate clarity of presentation.
+            score: 9.1
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 5.4
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 5.6
-        summary: This paper presents interesting work in the field.
+            score: 0.8
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 4.7
+        summary: This paper has some limitations in the field.
     comparison:
-      winner: 2501.00514v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      winner: 2501.00539v2
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00539v2: 5.4
-        2501.00514v1: 5.6
+        2501.00539v2: 6.1
+        2501.00514v1: 4.7
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00539v2: 9.1
-            2501.00514v1: 4.8
-          difference: 4.3
+            2501.00539v2: 6.8
+            2501.00514v1: 2.3
+          difference: 4.5
         - metric: novelty
           scores:
-            2501.00539v2: 6.8
-            2501.00514v1: 2.6
-          difference: 4.2
+            2501.00539v2: 4.3
+            2501.00514v1: 8.6
+          difference: -4.3
         - metric: experimental validation
           scores:
-            2501.00539v2: 0.9
-            2501.00514v1: 9.8
-          difference: -8.9
+            2501.00539v2: 7.7
+            2501.00514v1: 2.6
+          difference: 5.1
         - metric: clarity of presentation
           scores:
-            2501.00539v2: 3.6
-            2501.00514v1: 5.6
-          difference: -2
+            2501.00539v2: 8.7
+            2501.00514v1: 9.1
+          difference: -0.4
         - metric: potential impact
           scores:
-            2501.00539v2: 6.4
-            2501.00514v1: 5.4
-          difference: 1
+            2501.00539v2: 3.1
+            2501.00514v1: 0.8
+          difference: 2.3
   - id: match-ai-ml-2024-2501.00539v2-2501.00556v1
     paperIds:
       - 2501.00539v2
@@ -1678,7 +1678,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00539v2
@@ -1688,22 +1688,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 7.5
-            comment: The paper demonstrates strong technical depth.
+            score: 4
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 0.1
-            comment: The paper demonstrates limited novelty.
+            score: 9.3
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 4.6
-            comment: The paper demonstrates limited experimental validation.
+            score: 9.7
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 3.5
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 9.9
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 5
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 4.1
-        summary: This paper has some limitations in the field.
+            score: 3.6
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 7.3
+        summary: This paper makes significant contributions in the field.
       - paperId: 2501.00556v1
         reviewer:
           id: reviewer-2
@@ -1711,54 +1711,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 6
-            comment: The paper demonstrates adequate technical depth.
+            score: 1
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 6.5
-            comment: The paper demonstrates adequate novelty.
+            score: 8.2
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 5.4
-            comment: The paper demonstrates adequate experimental validation.
+            score: 7.4
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 1.9
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 5.7
+            comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 6.4
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 5.2
+            score: 4.8
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 5.4
         summary: This paper presents interesting work in the field.
     comparison:
-      winner: 2501.00556v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      winner: 2501.00539v2
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00539v2: 4.1
-        2501.00556v1: 5.2
+        2501.00539v2: 7.3
+        2501.00556v1: 5.4
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00539v2: 7.5
-            2501.00556v1: 6
-          difference: 1.5
+            2501.00539v2: 4
+            2501.00556v1: 1
+          difference: 3
         - metric: novelty
           scores:
-            2501.00539v2: 0.1
-            2501.00556v1: 6.5
-          difference: -6.4
+            2501.00539v2: 9.3
+            2501.00556v1: 8.2
+          difference: 1.1
         - metric: experimental validation
           scores:
-            2501.00539v2: 4.6
-            2501.00556v1: 5.4
-          difference: -0.8
+            2501.00539v2: 9.7
+            2501.00556v1: 7.4
+          difference: 2.3
         - metric: clarity of presentation
           scores:
-            2501.00539v2: 3.5
-            2501.00556v1: 1.9
-          difference: 1.6
+            2501.00539v2: 9.9
+            2501.00556v1: 5.7
+          difference: 4.2
         - metric: potential impact
           scores:
-            2501.00539v2: 5
-            2501.00556v1: 6.4
-          difference: -1.4
+            2501.00539v2: 3.6
+            2501.00556v1: 4.8
+          difference: -1.2
   - id: match-ai-ml-2024-2501.00539v2-2501.00511v1
     paperIds:
       - 2501.00539v2
@@ -1766,7 +1766,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00539v2
@@ -1776,22 +1776,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 5.9
-            comment: The paper demonstrates adequate technical depth.
+            score: 2.7
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 2.3
-            comment: The paper demonstrates limited novelty.
+            score: 5.5
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 7.6
-            comment: The paper demonstrates strong experimental validation.
+            score: 3.2
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 3.6
+            score: 4.9
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 2.1
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 4.3
-        summary: This paper has some limitations in the field.
+            score: 9.2
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 5.1
+        summary: This paper presents interesting work in the field.
       - paperId: 2501.00511v1
         reviewer:
           id: reviewer-2
@@ -1799,54 +1799,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 0.4
+            score: 1
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 0.3
+            score: 4.9
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 1.6
-            comment: The paper demonstrates limited experimental validation.
+            score: 6
+            comment: The paper demonstrates adequate experimental validation.
           - aspect: clarity of presentation
-            score: 3.7
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 8
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 2.5
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 1.7
-        summary: This paper has some limitations in the field.
+            score: 9.9
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 6
+        summary: This paper presents interesting work in the field.
     comparison:
-      winner: 2501.00539v2
-      reasoning: The winning paper shows stronger performance across all evaluation metrics.
+      winner: 2501.00511v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00539v2: 4.3
-        2501.00511v1: 1.7
+        2501.00539v2: 5.1
+        2501.00511v1: 6
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00539v2: 5.9
-            2501.00511v1: 0.4
-          difference: 5.5
+            2501.00539v2: 2.7
+            2501.00511v1: 1
+          difference: 1.7
         - metric: novelty
           scores:
-            2501.00539v2: 2.3
-            2501.00511v1: 0.3
-          difference: 2
+            2501.00539v2: 5.5
+            2501.00511v1: 4.9
+          difference: 0.6
         - metric: experimental validation
           scores:
-            2501.00539v2: 7.6
-            2501.00511v1: 1.6
-          difference: 6
+            2501.00539v2: 3.2
+            2501.00511v1: 6
+          difference: -2.8
         - metric: clarity of presentation
           scores:
-            2501.00539v2: 3.6
-            2501.00511v1: 3.7
-          difference: -0.1
+            2501.00539v2: 4.9
+            2501.00511v1: 8
+          difference: -3.1
         - metric: potential impact
           scores:
-            2501.00539v2: 2.1
-            2501.00511v1: 2.5
-          difference: -0.4
+            2501.00539v2: 9.2
+            2501.00511v1: 9.9
+          difference: -0.7
   - id: match-ai-ml-2024-2501.00539v2-2501.00514v1
     paperIds:
       - 2501.00539v2
@@ -1854,7 +1854,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00539v2
@@ -1864,22 +1864,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 2.5
+            score: 3.3
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 6.4
+            score: 5.8
             comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 2.7
+            score: 3.8
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 1.6
-            comment: The paper demonstrates limited clarity of presentation.
+            score: 7.5
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 0.8
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 2.8
-        summary: This paper has some limitations in the field.
+            score: 9.2
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 5.9
+        summary: This paper presents interesting work in the field.
       - paperId: 2501.00514v1
         reviewer:
           id: reviewer-2
@@ -1887,54 +1887,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 9.5
+            score: 7.8
             comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 1.7
+            score: 4.1
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 8.1
-            comment: The paper demonstrates strong experimental validation.
+            score: 3.4
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 2.1
+            score: 2.6
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 6.6
-            comment: The paper demonstrates adequate potential impact.
-        overallScore: 5.6
-        summary: This paper presents interesting work in the field.
+            score: 1.6
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 3.9
+        summary: This paper has some limitations in the field.
     comparison:
-      winner: 2501.00514v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      winner: 2501.00539v2
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00539v2: 2.8
-        2501.00514v1: 5.6
+        2501.00539v2: 5.9
+        2501.00514v1: 3.9
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00539v2: 2.5
-            2501.00514v1: 9.5
-          difference: -7
+            2501.00539v2: 3.3
+            2501.00514v1: 7.8
+          difference: -4.5
         - metric: novelty
           scores:
-            2501.00539v2: 6.4
-            2501.00514v1: 1.7
-          difference: 4.7
+            2501.00539v2: 5.8
+            2501.00514v1: 4.1
+          difference: 1.7
         - metric: experimental validation
           scores:
-            2501.00539v2: 2.7
-            2501.00514v1: 8.1
-          difference: -5.4
+            2501.00539v2: 3.8
+            2501.00514v1: 3.4
+          difference: 0.4
         - metric: clarity of presentation
           scores:
-            2501.00539v2: 1.6
-            2501.00514v1: 2.1
-          difference: -0.5
+            2501.00539v2: 7.5
+            2501.00514v1: 2.6
+          difference: 4.9
         - metric: potential impact
           scores:
-            2501.00539v2: 0.8
-            2501.00514v1: 6.6
-          difference: -5.8
+            2501.00539v2: 9.2
+            2501.00514v1: 1.6
+          difference: 7.6
   - id: match-ai-ml-2024-2501.00514v1-2501.00556v1
     paperIds:
       - 2501.00514v1
@@ -1942,7 +1942,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00514v1
@@ -1952,22 +1952,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 8.3
-            comment: The paper demonstrates strong technical depth.
+            score: 1.4
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 5.2
-            comment: The paper demonstrates adequate novelty.
+            score: 8
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 5.7
-            comment: The paper demonstrates adequate experimental validation.
-          - aspect: clarity of presentation
-            score: 9.2
-            comment: The paper demonstrates strong clarity of presentation.
-          - aspect: potential impact
             score: 7.7
+            comment: The paper demonstrates strong experimental validation.
+          - aspect: clarity of presentation
+            score: 1
+            comment: The paper demonstrates limited clarity of presentation.
+          - aspect: potential impact
+            score: 9.1
             comment: The paper demonstrates strong potential impact.
-        overallScore: 7.2
-        summary: This paper makes significant contributions in the field.
+        overallScore: 5.4
+        summary: This paper presents interesting work in the field.
       - paperId: 2501.00556v1
         reviewer:
           id: reviewer-2
@@ -1975,54 +1975,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 6
-            comment: The paper demonstrates adequate technical depth.
+            score: 3.3
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 3.9
+            score: 4.6
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 8.1
-            comment: The paper demonstrates strong experimental validation.
+            score: 5.9
+            comment: The paper demonstrates adequate experimental validation.
           - aspect: clarity of presentation
-            score: 6.4
+            score: 5.1
             comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 8.6
+            score: 7
             comment: The paper demonstrates strong potential impact.
-        overallScore: 6.6
+        overallScore: 5.2
         summary: This paper presents interesting work in the field.
     comparison:
       winner: 2501.00514v1
       reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00514v1: 7.2
-        2501.00556v1: 6.6
+        2501.00514v1: 5.4
+        2501.00556v1: 5.2
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00514v1: 8.3
-            2501.00556v1: 6
-          difference: 2.3
+            2501.00514v1: 1.4
+            2501.00556v1: 3.3
+          difference: -1.9
         - metric: novelty
           scores:
-            2501.00514v1: 5.2
-            2501.00556v1: 3.9
-          difference: 1.3
+            2501.00514v1: 8
+            2501.00556v1: 4.6
+          difference: 3.4
         - metric: experimental validation
           scores:
-            2501.00514v1: 5.7
-            2501.00556v1: 8.1
-          difference: -2.4
+            2501.00514v1: 7.7
+            2501.00556v1: 5.9
+          difference: 1.8
         - metric: clarity of presentation
           scores:
-            2501.00514v1: 9.2
-            2501.00556v1: 6.4
-          difference: 2.8
+            2501.00514v1: 1
+            2501.00556v1: 5.1
+          difference: -4.1
         - metric: potential impact
           scores:
-            2501.00514v1: 7.7
-            2501.00556v1: 8.6
-          difference: -0.9
+            2501.00514v1: 9.1
+            2501.00556v1: 7
+          difference: 2.1
   - id: match-ai-ml-2024-2501.00514v1-2501.00511v1
     paperIds:
       - 2501.00514v1
@@ -2030,7 +2030,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00514v1
@@ -2040,22 +2040,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 9.3
+            score: 9.5
             comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 9.5
-            comment: The paper demonstrates strong novelty.
+            score: 4.5
+            comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 3.4
+            score: 4.9
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 2.9
+            score: 2.1
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 4.3
+            score: 2.8
             comment: The paper demonstrates limited potential impact.
-        overallScore: 5.9
-        summary: This paper presents interesting work in the field.
+        overallScore: 4.8
+        summary: This paper has some limitations in the field.
       - paperId: 2501.00511v1
         reviewer:
           id: reviewer-2
@@ -2063,54 +2063,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 1.5
-            comment: The paper demonstrates limited technical depth.
+            score: 7.1
+            comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 3.1
-            comment: The paper demonstrates limited novelty.
+            score: 5.9
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 2.2
+            score: 2.8
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 7.7
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 3
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 3.5
+            score: 0.7
             comment: The paper demonstrates limited potential impact.
-        overallScore: 3.6
+        overallScore: 3.9
         summary: This paper has some limitations in the field.
     comparison:
       winner: 2501.00514v1
       reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00514v1: 5.9
-        2501.00511v1: 3.6
+        2501.00514v1: 4.8
+        2501.00511v1: 3.9
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00514v1: 9.3
-            2501.00511v1: 1.5
-          difference: 7.8
+            2501.00514v1: 9.5
+            2501.00511v1: 7.1
+          difference: 2.4
         - metric: novelty
           scores:
-            2501.00514v1: 9.5
-            2501.00511v1: 3.1
-          difference: 6.4
+            2501.00514v1: 4.5
+            2501.00511v1: 5.9
+          difference: -1.4
         - metric: experimental validation
           scores:
-            2501.00514v1: 3.4
-            2501.00511v1: 2.2
-          difference: 1.2
+            2501.00514v1: 4.9
+            2501.00511v1: 2.8
+          difference: 2.1
         - metric: clarity of presentation
           scores:
-            2501.00514v1: 2.9
-            2501.00511v1: 7.7
-          difference: -4.8
+            2501.00514v1: 2.1
+            2501.00511v1: 3
+          difference: -0.9
         - metric: potential impact
           scores:
-            2501.00514v1: 4.3
-            2501.00511v1: 3.5
-          difference: 0.8
+            2501.00514v1: 2.8
+            2501.00511v1: 0.7
+          difference: 2.1
   - id: match-ai-ml-2024-2501.00514v1-2501.00514v1
     paperIds:
       - 2501.00514v1
@@ -2118,7 +2118,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00514v1
@@ -2128,21 +2128,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 2.7
+            score: 0.7
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 1.2
+            score: 1.1
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 5.7
-            comment: The paper demonstrates adequate experimental validation.
+            score: 2.1
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
             score: 3.4
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 4.7
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 3.5
+            score: 8
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 3.1
         summary: This paper has some limitations in the field.
       - paperId: 2501.00514v1
         reviewer:
@@ -2151,48 +2151,48 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 2.1
-            comment: The paper demonstrates limited technical depth.
+            score: 7.4
+            comment: The paper demonstrates strong technical depth.
           - aspect: novelty
-            score: 3.1
-            comment: The paper demonstrates limited novelty.
+            score: 7.1
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 3.5
-            comment: The paper demonstrates limited experimental validation.
+            score: 5.7
+            comment: The paper demonstrates adequate experimental validation.
           - aspect: clarity of presentation
-            score: 0.1
+            score: 4.8
             comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 2.1
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 2.2
-        summary: This paper has some limitations in the field.
+            score: 7.8
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 6.6
+        summary: This paper presents interesting work in the field.
     comparison:
       winner: 2501.00514v1
       reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00514v1: 2.2
+        2501.00514v1: 6.6
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00514v1: 2.1
-          difference: 0.6
+            2501.00514v1: 7.4
+          difference: -6.7
         - metric: novelty
           scores:
-            2501.00514v1: 3.1
-          difference: -1.9
+            2501.00514v1: 7.1
+          difference: -6
         - metric: experimental validation
           scores:
-            2501.00514v1: 3.5
-          difference: 2.2
+            2501.00514v1: 5.7
+          difference: -3.6
         - metric: clarity of presentation
           scores:
-            2501.00514v1: 0.1
-          difference: 3.3
+            2501.00514v1: 4.8
+          difference: -1.4
         - metric: potential impact
           scores:
-            2501.00514v1: 2.1
-          difference: 2.6
+            2501.00514v1: 7.8
+          difference: 0.2
   - id: match-ai-ml-2024-2501.00556v1-2501.00511v1
     paperIds:
       - 2501.00556v1
@@ -2200,7 +2200,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00556v1
@@ -2210,21 +2210,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 3.4
-            comment: The paper demonstrates limited technical depth.
+            score: 6.2
+            comment: The paper demonstrates adequate technical depth.
           - aspect: novelty
-            score: 8.7
+            score: 9.7
             comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 3.9
+            score: 2.9
             comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 5.8
+            score: 5.5
             comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 2.8
+            score: 0.6
             comment: The paper demonstrates limited potential impact.
-        overallScore: 4.9
+        overallScore: 5
         summary: This paper has some limitations in the field.
       - paperId: 2501.00511v1
         reviewer:
@@ -2233,54 +2233,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 2.1
+            score: 4.5
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 1.3
+            score: 1.7
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 0.9
-            comment: The paper demonstrates limited experimental validation.
+            score: 8.8
+            comment: The paper demonstrates strong experimental validation.
           - aspect: clarity of presentation
-            score: 5.9
+            score: 6.6
             comment: The paper demonstrates adequate clarity of presentation.
           - aspect: potential impact
-            score: 1.8
+            score: 2.3
             comment: The paper demonstrates limited potential impact.
-        overallScore: 2.4
+        overallScore: 4.8
         summary: This paper has some limitations in the field.
     comparison:
       winner: 2501.00556v1
       reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00556v1: 4.9
-        2501.00511v1: 2.4
+        2501.00556v1: 5
+        2501.00511v1: 4.8
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00556v1: 3.4
-            2501.00511v1: 2.1
-          difference: 1.3
+            2501.00556v1: 6.2
+            2501.00511v1: 4.5
+          difference: 1.7
         - metric: novelty
           scores:
-            2501.00556v1: 8.7
-            2501.00511v1: 1.3
-          difference: 7.4
+            2501.00556v1: 9.7
+            2501.00511v1: 1.7
+          difference: 8
         - metric: experimental validation
           scores:
-            2501.00556v1: 3.9
-            2501.00511v1: 0.9
-          difference: 3
+            2501.00556v1: 2.9
+            2501.00511v1: 8.8
+          difference: -5.9
         - metric: clarity of presentation
           scores:
-            2501.00556v1: 5.8
-            2501.00511v1: 5.9
-          difference: -0.1
+            2501.00556v1: 5.5
+            2501.00511v1: 6.6
+          difference: -1.1
         - metric: potential impact
           scores:
-            2501.00556v1: 2.8
-            2501.00511v1: 1.8
-          difference: 1
+            2501.00556v1: 0.6
+            2501.00511v1: 2.3
+          difference: -1.7
   - id: match-ai-ml-2024-2501.00556v1-2501.00514v1
     paperIds:
       - 2501.00556v1
@@ -2288,7 +2288,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00556v1
@@ -2298,22 +2298,22 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 9.8
-            comment: The paper demonstrates strong technical depth.
+            score: 3.9
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 3.5
+            score: 2.9
             comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 7.6
-            comment: The paper demonstrates strong experimental validation.
+            score: 6.6
+            comment: The paper demonstrates adequate experimental validation.
           - aspect: clarity of presentation
-            score: 5.1
-            comment: The paper demonstrates adequate clarity of presentation.
+            score: 8.2
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 2.9
+            score: 3.4
             comment: The paper demonstrates limited potential impact.
-        overallScore: 5.8
-        summary: This paper presents interesting work in the field.
+        overallScore: 5
+        summary: This paper has some limitations in the field.
       - paperId: 2501.00514v1
         reviewer:
           id: reviewer-2
@@ -2321,54 +2321,54 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 7.3
-            comment: The paper demonstrates strong technical depth.
+            score: 0.2
+            comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 5.2
-            comment: The paper demonstrates adequate novelty.
+            score: 0.2
+            comment: The paper demonstrates limited novelty.
           - aspect: experimental validation
-            score: 7.5
-            comment: The paper demonstrates strong experimental validation.
+            score: 4.4
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 6
-            comment: The paper demonstrates adequate clarity of presentation.
+            score: 0.4
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 9.5
-            comment: The paper demonstrates strong potential impact.
-        overallScore: 7.1
-        summary: This paper makes significant contributions in the field.
+            score: 0.5
+            comment: The paper demonstrates limited potential impact.
+        overallScore: 1.1
+        summary: This paper has some limitations in the field.
     comparison:
-      winner: 2501.00514v1
-      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
+      winner: 2501.00556v1
+      reasoning: The winning paper shows stronger performance across all evaluation metrics.
       overallScores:
-        2501.00556v1: 5.8
-        2501.00514v1: 7.1
+        2501.00556v1: 5
+        2501.00514v1: 1.1
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00556v1: 9.8
-            2501.00514v1: 7.3
-          difference: 2.5
+            2501.00556v1: 3.9
+            2501.00514v1: 0.2
+          difference: 3.7
         - metric: novelty
           scores:
-            2501.00556v1: 3.5
-            2501.00514v1: 5.2
-          difference: -1.7
+            2501.00556v1: 2.9
+            2501.00514v1: 0.2
+          difference: 2.7
         - metric: experimental validation
           scores:
-            2501.00556v1: 7.6
-            2501.00514v1: 7.5
-          difference: 0.1
+            2501.00556v1: 6.6
+            2501.00514v1: 4.4
+          difference: 2.2
         - metric: clarity of presentation
           scores:
-            2501.00556v1: 5.1
-            2501.00514v1: 6
-          difference: -0.9
+            2501.00556v1: 8.2
+            2501.00514v1: 0.4
+          difference: 7.8
         - metric: potential impact
           scores:
-            2501.00556v1: 2.9
-            2501.00514v1: 9.5
-          difference: -6.6
+            2501.00556v1: 3.4
+            2501.00514v1: 0.5
+          difference: 2.9
   - id: match-ai-ml-2024-2501.00511v1-2501.00514v1
     paperIds:
       - 2501.00511v1
@@ -2376,7 +2376,7 @@ matches:
     category: ai
     subcategory: ml
     year: 2024
-    createdAt: '2025-05-15T23:39:41.586Z'
+    createdAt: '2025-05-16T01:12:56.821Z'
     status: completed
     reviews:
       - paperId: 2501.00511v1
@@ -2386,21 +2386,21 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 1.9
+            score: 1.1
             comment: The paper demonstrates limited technical depth.
           - aspect: novelty
-            score: 6.2
-            comment: The paper demonstrates adequate novelty.
+            score: 8.9
+            comment: The paper demonstrates strong novelty.
           - aspect: experimental validation
-            score: 0.5
-            comment: The paper demonstrates limited experimental validation.
+            score: 6.9
+            comment: The paper demonstrates adequate experimental validation.
           - aspect: clarity of presentation
-            score: 8
-            comment: The paper demonstrates strong clarity of presentation.
+            score: 2
+            comment: The paper demonstrates limited clarity of presentation.
           - aspect: potential impact
-            score: 3.9
+            score: 3.2
             comment: The paper demonstrates limited potential impact.
-        overallScore: 4.1
+        overallScore: 4.4
         summary: This paper has some limitations in the field.
       - paperId: 2501.00514v1
         reviewer:
@@ -2409,51 +2409,51 @@ matches:
           provider: academic
         scores:
           - aspect: technical depth
-            score: 0.4
-            comment: The paper demonstrates limited technical depth.
+            score: 5.6
+            comment: The paper demonstrates adequate technical depth.
           - aspect: novelty
-            score: 3.5
-            comment: The paper demonstrates limited novelty.
+            score: 6.6
+            comment: The paper demonstrates adequate novelty.
           - aspect: experimental validation
-            score: 9
-            comment: The paper demonstrates strong experimental validation.
+            score: 2.1
+            comment: The paper demonstrates limited experimental validation.
           - aspect: clarity of presentation
-            score: 6.1
-            comment: The paper demonstrates adequate clarity of presentation.
+            score: 7.6
+            comment: The paper demonstrates strong clarity of presentation.
           - aspect: potential impact
-            score: 0.6
-            comment: The paper demonstrates limited potential impact.
-        overallScore: 3.9
-        summary: This paper has some limitations in the field.
+            score: 8.2
+            comment: The paper demonstrates strong potential impact.
+        overallScore: 6
+        summary: This paper presents interesting work in the field.
     comparison:
-      winner: 2501.00511v1
-      reasoning: The winning paper shows stronger performance across all evaluation metrics.
+      winner: 2501.00514v1
+      reasoning: The winning paper shows more consistent performance across all evaluation metrics.
       overallScores:
-        2501.00511v1: 4.1
-        2501.00514v1: 3.9
+        2501.00511v1: 4.4
+        2501.00514v1: 6
       metricComparison:
         - metric: technical depth
           scores:
-            2501.00511v1: 1.9
-            2501.00514v1: 0.4
-          difference: 1.5
+            2501.00511v1: 1.1
+            2501.00514v1: 5.6
+          difference: -4.5
         - metric: novelty
           scores:
-            2501.00511v1: 6.2
-            2501.00514v1: 3.5
-          difference: 2.7
+            2501.00511v1: 8.9
+            2501.00514v1: 6.6
+          difference: 2.3
         - metric: experimental validation
           scores:
-            2501.00511v1: 0.5
-            2501.00514v1: 9
-          difference: -8.5
+            2501.00511v1: 6.9
+            2501.00514v1: 2.1
+          difference: 4.8
         - metric: clarity of presentation
           scores:
-            2501.00511v1: 8
-            2501.00514v1: 6.1
-          difference: 1.9
+            2501.00511v1: 2
+            2501.00514v1: 7.6
+          difference: -5.6
         - metric: potential impact
           scores:
-            2501.00511v1: 3.9
-            2501.00514v1: 0.6
-          difference: 3.3
+            2501.00511v1: 3.2
+            2501.00514v1: 8.2
+          difference: -5

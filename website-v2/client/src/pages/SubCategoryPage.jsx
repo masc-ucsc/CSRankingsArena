@@ -605,7 +605,7 @@ const SubcategoryPage = () => {
   const fetchLeaderboardData = async () => {
     setLoadingLeaderboard(true);
     try {
-      const response = await api.get('/api/v2/leaderboard', {
+      const response = await api.get('/leaderboard', {
         params: {
           category: categorySlug,
           subcategory: subcategorySlug,

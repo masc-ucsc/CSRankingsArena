@@ -75,7 +75,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
 
       try {
         // First try to get real data
-        const response = await api.get('/api/v2/leaderboard', {
+        const response = await api.get('/leaderboard', {
           params: {
             category,
             subcategory,
@@ -86,6 +86,8 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
 
         if (response.data?.rankings?.length > 0) {
           setData(response.data.rankings);
+          // Use the isMockData flag from the API response
+          setUsingMockData(response.data.isMockData || false);
           setLoading(false);
           return;
         }
@@ -676,15 +678,29 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
             <Space align="center">
               <Title level={4}>Paper Rankings</Title>
               {usingMockData && (
-                <Tag icon={<WarningOutlined />} color="warning">
-                  Using Sample Data
-                </Tag>
+                <Popover
+                  content={
+                    <div style={{ maxWidth: 300 }}>
+                      <p>This leaderboard is showing sample data because:</p>
+                      <ul>
+                        <li>No real match data is available for this category/year</li>
+                        <li>Or there was an error fetching the real data</li>
+                      </ul>
+                      <p>The sample data demonstrates how the leaderboard will look with real matches.</p>
+                    </div>
+                  }
+                  title="Sample Data Notice"
+                >
+                  <Tag icon={<WarningOutlined />} color="warning" style={{ cursor: 'help' }}>
+                    Using Sample Data
+                  </Tag>
+                </Popover>
               )}
             </Space>
             <Text type="secondary">
               {usingMockData 
-                ? 'Showing sample rankings (mock data)'
-                : `Rankings based on match performance in ${category}/${subcategory} (${year})`
+                ? 'Showing sample rankings to demonstrate the leaderboard format'
+                : `Rankings based on actual match performance in ${category}/${subcategory} (${year})`
               }
             </Text>
           </div>

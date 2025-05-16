@@ -1,92 +1,209 @@
 'use strict';
 
 const Joi = require('@hapi/joi');
+const Boom = require('@hapi/boom');
 const { db } = require('../../config/db');
 //const logger = require('../utils/logger');
 
 module.exports = [
   {
-    method: 'POST',
-    path: '/api/v2/feedback',
+    method: 'GET',
+    path: '/api/v2/feedback/{matchId}',
     options: {
-      // auth: { mode: 'required' },
+      // auth: { mode: 'try' }, // Temporarily disabled auth
       tags: ['api', 'feedback'],
-      description: 'Submit feedback for a match',
+      description: 'Get feedback for a match',
       validate: {
-        payload: Joi.object({
-          matchId: Joi.string().uuid().required(),
-          rating: Joi.number().integer().min(1).max(5).required(),
-          comment: Joi.string().max(1000).allow('').optional(),
-          feedbackType: Joi.string().valid('quality', 'accuracy', 'relevance', 'other').required(),
-          agentId: Joi.number().integer().required()
+        params: Joi.object({
+          matchId: Joi.string().required()
         })
       },
       handler: async (request, h) => {
         try {
-          const { matchId, rating, comment, feedbackType, agentId } = request.payload;
-          
-          // Verify match exists and is completed
-          const match = await db('matches')
-            .where('id', matchId)
-            .where('status', 'completed')
-            .first();
-            
-          if (!match) {
-            return h.response({ message: 'Match not found or not completed' }).code(404);
-          }
-          
-          // Verify agent exists and was part of the match
-          const agent = await db('agents')
-            .where('id', agentId)
-            .where(function() {
-              this.where('id', match.agent1_id).orWhere('id', match.agent2_id);
-            })
-            .first();
-            
-          if (!agent) {
-            return h.response({ message: 'Agent not found or not part of this match' }).code(404);
-          }
-          
-          // Check if feedback already exists for this match and agent
-          const existingFeedback = await db('feedback')
+          const { matchId } = request.params;
+          const userId = request.auth.credentials?.id;
+
+          // Get feedback for the match
+          const feedback = await db('match_feedback')
+            .select(
+              'match_feedback.*',
+              'users.username',
+              'users.avatar_url'
+            )
+            .leftJoin('users', 'match_feedback.user_id', 'users.id')
+            .where('match_feedback.match_id', matchId)
+            .orderBy('match_feedback.created_at', 'desc');
+
+          // Get user's like status for each feedback
+          const feedbackWithUserStatus = await Promise.all(feedback.map(async (item) => {
+            let userLiked = false;
+            if (userId) {
+              const like = await db('feedback_likes')
+                .where({
+                  feedback_id: item.id,
+                  user_id: userId
+                })
+                .first();
+              userLiked = !!like;
+            }
+
+            return {
+              ...item,
+              user: item.user_id ? {
+                id: item.user_id,
+                username: item.username,
+                avatar_url: item.avatar_url
+              } : null,
+              user_liked: userLiked
+            };
+          }));
+
+          return { feedback: feedbackWithUserStatus };
+        } catch (error) {
+          console.error('Error fetching feedback:', error);
+          throw Boom.badImplementation('Error fetching feedback');
+        }
+      }
+    }
+  },
+  {
+    method: 'POST',
+    path: '/api/v2/feedback',
+    options: {
+      // auth: 'jwt', // Temporarily disabled auth
+      tags: ['api', 'feedback'],
+      description: 'Add feedback for a match',
+      validate: {
+        payload: Joi.object({
+          matchId: Joi.string().required(),
+          liked: Joi.boolean().default(false),
+          disliked: Joi.boolean().default(false),
+          comment: Joi.string().allow('').max(1000)
+        })
+      },
+      handler: async (request, h) => {
+        try {
+          const { matchId, liked, disliked, comment } = request.payload;
+          const userId = request.auth.credentials.id;
+
+          // Check if user already provided feedback for this match
+          const existingFeedback = await db('match_feedback')
             .where({
               match_id: matchId,
-              agent_id: agentId,
-              feedback_type: feedbackType
+              user_id: userId
             })
             .first();
-            
+
+          let feedback;
           if (existingFeedback) {
-            return h.response({ message: 'Feedback already submitted for this match and agent' }).code(400);
-          }
-          
-          // Insert feedback
-          const [feedbackId] = await db('feedback').insert({
-            match_id: matchId,
-            agent_id: agentId,
-            rating,
-            comment,
-            feedback_type: feedbackType,
-            created_at: new Date()
-          }).returning('id');
-          
-          // Update agent stats based on feedback
-          if (feedbackType === 'quality') {
-            await db('agents')
-              .where('id', agentId)
+            // Update existing feedback
+            [feedback] = await db('match_feedback')
+              .where('id', existingFeedback.id)
               .update({
-                quality_rating: db.raw('(quality_rating * quality_rating_count + ?) / (quality_rating_count + 1)', [rating]),
-                quality_rating_count: db.raw('quality_rating_count + 1')
-              });
+                liked,
+                disliked,
+                comment: comment || existingFeedback.comment,
+                updated_at: new Date()
+              })
+              .returning('*');
+          } else {
+            // Create new feedback
+            [feedback] = await db('match_feedback')
+              .insert({
+                match_id: matchId,
+                user_id: userId,
+                liked,
+                disliked,
+                comment,
+                likes: 0
+              })
+              .returning('*');
           }
-          
+
+          // Get user info for the response
+          const user = await db('users')
+            .where('id', userId)
+            .select('id', 'username', 'avatar_url')
+            .first();
+
           return {
-            id: feedbackId,
-            message: 'Feedback submitted successfully'
+            ...feedback,
+            user: {
+              id: user.id,
+              username: user.username,
+              avatar_url: user.avatar_url
+            },
+            user_liked: false
           };
         } catch (error) {
-          //logger.error('Error submitting feedback:', error);
-          throw error;
+          console.error('Error adding feedback:', error);
+          throw Boom.badImplementation('Error adding feedback');
+        }
+      }
+    }
+  },
+  {
+    method: 'POST',
+    path: '/api/v2/feedback/{feedbackId}/like',
+    options: {
+      // auth: 'jwt', // Temporarily disabled auth
+      tags: ['api', 'feedback'],
+      description: 'Like or unlike a feedback',
+      validate: {
+        params: Joi.object({
+          feedbackId: Joi.number().integer().required()
+        })
+      },
+      handler: async (request, h) => {
+        try {
+          const { feedbackId } = request.params;
+          const userId = request.auth.credentials.id;
+
+          // Check if feedback exists
+          const feedback = await db('match_feedback')
+            .where('id', feedbackId)
+            .first();
+
+          if (!feedback) {
+            throw Boom.notFound('Feedback not found');
+          }
+
+          // Check if user already liked this feedback
+          const existingLike = await db('feedback_likes')
+            .where({
+              feedback_id: feedbackId,
+              user_id: userId
+            })
+            .first();
+
+          if (existingLike) {
+            // Unlike
+            await db('feedback_likes')
+              .where('id', existingLike.id)
+              .delete();
+
+            await db('match_feedback')
+              .where('id', feedbackId)
+              .decrement('likes', 1);
+
+            return { liked: false };
+          } else {
+            // Like
+            await db('feedback_likes')
+              .insert({
+                feedback_id: feedbackId,
+                user_id: userId
+              });
+
+            await db('match_feedback')
+              .where('id', feedbackId)
+              .increment('likes', 1);
+
+            return { liked: true };
+          }
+        } catch (error) {
+          console.error('Error liking feedback:', error);
+          throw Boom.badImplementation('Error liking feedback');
         }
       }
     }

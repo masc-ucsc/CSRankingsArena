@@ -14,20 +14,44 @@ async function getMatchDetails(matchId) {
     const category = parts[1];
     const subcategory = parts[2];
     const year = parts[3];
-    const yamlFile = path.join(__dirname, "../../../mock/matches", category, subcategory, `${category}-${subcategory}-${year}-matches.yaml`);
-    let yamlData;
+
+    // Load match data
+    const matchYamlFile = path.join(__dirname, "../../../mock/matches", category, `${subcategory}-${year}-matches.yaml`);
+    let matchYamlData;
     try {
-         yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
+        matchYamlData = yaml.load(fs.readFileSync(matchYamlFile, "utf8"));
     } catch (err) {
-         console.error("Error reading YAML file:", err);
-         throw Boom.notFound("Match YAML file not found or invalid");
+        console.error("Error reading match YAML file:", err);
+        throw Boom.notFound("Match YAML file not found or invalid");
     }
-    const match = yamlData.matches.find(m => m.id === matchId);
+    const match = matchYamlData.matches.find(m => m.id === matchId);
     if (!match) {
-         throw Boom.notFound("Match not found in YAML");
+        throw Boom.notFound("Match not found in YAML");
     }
-    // (Optionally, if you need to "join" with agents or papers, you can read additional YAML files or mock data.)
-    return match;
+
+    // Load paper data
+    const papersYamlFile = path.join(__dirname, "../../../mock/papers", category, subcategory, year, `${category}-${subcategory}-${year}-papers.yaml`);
+    let papersYamlData;
+    try {
+        papersYamlData = yaml.load(fs.readFileSync(papersYamlFile, "utf8"));
+    } catch (err) {
+        console.error("Error reading papers YAML file:", err);
+        throw Boom.notFound("Papers YAML file not found or invalid");
+    }
+
+    // Find paper data for both papers
+    const paper1 = papersYamlData.papers.find(p => p.id === match.paper1_id);
+    const paper2 = papersYamlData.papers.find(p => p.id === match.paper2_id);
+
+    // Add paper data to match object
+    // For backward compatibility, include both paper1/paper2 and paper fields
+    return {
+        ...match,
+        paper1: paper1 || null,
+        paper2: paper2 || null,
+        // For single paper matches, set paper to paper1
+        paper: paper1 || null
+    };
 }
 
 // Add feedback schema

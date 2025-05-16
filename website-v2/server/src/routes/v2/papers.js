@@ -33,6 +33,51 @@ async function fetchPapersFromYaml(category, subcategory, year) {
     return yamlData.papers;
 }
 
+// Helper function to find paper by ID in YAML files
+async function findPaperById(paperId) {
+    const papersDir = path.resolve(__dirname, '../../../../papers');
+    const categories = fs.readdirSync(papersDir);
+    
+    for (const category of categories) {
+        const categoryPath = path.join(papersDir, category);
+        if (!fs.statSync(categoryPath).isDirectory()) continue;
+        
+        const subcategories = fs.readdirSync(categoryPath);
+        for (const subcategory of subcategories) {
+            const subcategoryPath = path.join(categoryPath, subcategory);
+            if (!fs.statSync(subcategoryPath).isDirectory()) continue;
+            
+            const years = fs.readdirSync(subcategoryPath);
+            for (const year of years) {
+                const yearPath = path.join(subcategoryPath, year);
+                if (!fs.statSync(yearPath).isDirectory()) continue;
+                
+                const yamlFile = path.join(yearPath, `${category}-${subcategory}-${year}-papers.yaml`);
+                if (!fs.existsSync(yamlFile)) continue;
+                
+                try {
+                    const yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
+                    if (!yamlData || !yamlData.papers) continue;
+                    
+                    const paper = yamlData.papers.find(p => p.id === paperId);
+                    if (paper) {
+                        return {
+                            ...paper,
+                            category,
+                            subcategory,
+                            year: parseInt(year)
+                        };
+                    }
+                } catch (err) {
+                    console.error(`Error reading YAML file ${yamlFile}:`, err);
+                    continue;
+                }
+            }
+        }
+    }
+    return null;
+}
+
 module.exports = [
     {
         method: 'GET',
@@ -66,30 +111,43 @@ module.exports = [
     },
     {
         method: 'GET',
-        path: '/api/v2/papers/{id}',
+        path: '/api/v2/papers/{paperId}',
         options: {
-            description: 'Get paper details by ID',
+            description: 'Get paper details by ID (from database or YAML files)',
             tags: ['api', 'v2', 'papers'],
             validate: {
                 params: Joi.object({
-                    id: Joi.number().integer().required().description('Paper ID')
+                    paperId: Joi.alternatives().try(
+                        Joi.number().integer(),
+                        Joi.string()
+                    ).required().description('Paper ID (numeric for database, string for YAML)')
                 })
             },
             handler: async (request, h) => {
+                const { paperId } = request.params;
                 try {
-                    const paper = await db('papers')
-                        .where({ id: request.params.id })
-                        .first();
-
-                    if (!paper) {
-                        throw Boom.notFound('Paper not found');
+                    // First try to find in database if paperId is numeric
+                    if (!isNaN(paperId)) {
+                        const dbPaper = await db('papers')
+                            .where({ id: parseInt(paperId) })
+                            .first();
+                        
+                        if (dbPaper) {
+                            return h.response(dbPaper);
+                        }
                     }
-
-                    return h.response(paper);
+                    
+                    // If not found in database or paperId is string, try YAML files
+                    const yamlPaper = await findPaperById(paperId.toString());
+                    if (yamlPaper) {
+                        return h.response(yamlPaper);
+                    }
+                    
+                    throw Boom.notFound(`Paper with ID ${paperId} not found`);
                 } catch (error) {
                     if (error.isBoom) throw error;
-                    console.error('Error fetching paper details:', error);
-                    throw Boom.badImplementation('Failed to fetch paper details', error);
+                    console.error("Error fetching paper:", error);
+                    throw Boom.badImplementation("Failed to fetch paper", error);
                 }
             }
         }
