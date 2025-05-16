@@ -6,6 +6,16 @@ from llm_topic_classifier import classify_paper_topic, count_ref_topics
 
 
 def classify_papers(input_file: str, output_folder:str, api_key: Optional[str] = None):
+    """
+    Classify papers and seperate them into clusters.
+    
+    Args:
+        input_file: Yaml file containing papers to classify
+        output_folder: Folder to output clusters to
+        api_key: OpenAI API key
+
+    """
+        
     base_output_folder = output_folder
 
     os.makedirs(base_output_folder, exist_ok=True)
@@ -16,6 +26,7 @@ def classify_papers(input_file: str, output_folder:str, api_key: Optional[str] =
 
     output_dict = defaultdict(lambda: defaultdict(list))
 
+    # Perform classification
     for paper in yaml_content['papers']:
         sections = marker_runner.split_sections(paper['document'])
         references = marker_runner.extract_references(sections)
@@ -33,6 +44,7 @@ def classify_papers(input_file: str, output_folder:str, api_key: Optional[str] =
         if topics['secondary_topic']:
             output_dict[topics['secondary_topic']][topics['secondary_topic_sub']].append(paper)
 
+    # Seperate papers into folders
     for topic in output_dict.keys():
         for sub_topic in output_dict[topic].keys():
             output_path = os.path.join(base_output_folder, topic + "/" + sub_topic)
