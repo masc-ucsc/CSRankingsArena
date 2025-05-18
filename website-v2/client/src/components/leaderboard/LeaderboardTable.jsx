@@ -65,6 +65,8 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
   const [commentFilter, setCommentFilter] = useState('all');
   const [selectedTags, setSelectedTags] = useState([]);
   const [feedbackStats, setFeedbackStats] = useState({});
+  const [feedbackLoading, setFeedbackLoading] = useState({});
+  const [commentLoading, setCommentLoading] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
@@ -124,50 +126,73 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
   // Memoize handlers
   const handleFeedback = useCallback(async (matchId, type) => {
     try {
-      const match = selectedMatch || data.flatMap(p => p.matches).find(m => m.matchId === matchId);
-      if (!match) return;
+      setFeedbackLoading(prev => ({ ...prev, [matchId]: true }));
+      
+      const response = await api.post(`/api/matches/${matchId}/feedback`, {
+        type,
+        action: userFeedback[matchId]?.[type === 'like' ? 'liked' : 'disliked'] ? 'remove' : 'add'
+      });
 
-      const currentFeedback = userFeedback[matchId] || { liked: false, disliked: false };
-      const newFeedback = { ...currentFeedback };
+      const { success, feedback } = response.data;
+      
+      if (success) {
+        const match = data.flatMap(p => p.matches).find(m => m.matchId === matchId);
+        if (match) {
+          // Update the match feedback with new counts from server
+          match.feedback.likes = feedback.likes;
+          match.feedback.dislikes = feedback.dislikes;
+          
+          // Update local user feedback state
+          const currentFeedback = userFeedback[matchId] || { liked: false, disliked: false };
+          const newFeedback = { ...currentFeedback };
 
-      if (type === 'like') {
-        newFeedback.liked = !currentFeedback.liked;
-        newFeedback.disliked = false;
-        match.feedback.likes += newFeedback.liked ? 1 : -1;
-        if (currentFeedback.disliked) match.feedback.dislikes--;
-      } else if (type === 'dislike') {
-        newFeedback.disliked = !currentFeedback.disliked;
-        newFeedback.liked = false;
-        match.feedback.dislikes += newFeedback.disliked ? 1 : -1;
-        if (currentFeedback.liked) match.feedback.likes--;
+          if (type === 'like') {
+            newFeedback.liked = !currentFeedback.liked;
+            newFeedback.disliked = false;
+          } else if (type === 'dislike') {
+            newFeedback.disliked = !currentFeedback.disliked;
+            newFeedback.liked = false;
+          }
+
+          setUserFeedback(prev => ({ ...prev, [matchId]: newFeedback }));
+          message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
+        }
       }
-
-      setUserFeedback(prev => ({ ...prev, [matchId]: newFeedback }));
-      message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
     } catch (error) {
-      message.error('Failed to submit feedback');
+      console.error('Error submitting feedback:', error);
+      message.error(error.response?.data?.message || 'Failed to submit feedback');
+    } finally {
+      setFeedbackLoading(prev => ({ ...prev, [matchId]: false }));
     }
-  }, [data, selectedMatch, userFeedback]);
+  }, [data, userFeedback]);
 
   const handleComment = useCallback(async () => {
     if (!comment.trim() || !selectedMatch) return;
 
     try {
-      const newComment = {
-        id: Date.now(),
-        user: 'Anonymous',
-        text: comment.trim(),
-        date: new Date().toISOString()
-      };
+      setCommentLoading(true);
 
-      selectedMatch.feedback.comments.unshift(newComment);
-      setComment('');
-      setFeedbackModalVisible(false);
-      message.success('Comment added successfully!');
+      const response = await api.post(`/api/matches/${selectedMatch.matchId}/comments`, {
+        text: comment.trim(),
+        tags: selectedTags
+      });
+
+      const { success, comment: newComment } = response.data;
+
+      if (success) {
+        // Update the match with the new comment from server
+        selectedMatch.feedback.comments.unshift(newComment);
+        setComment('');
+        setFeedbackModalVisible(false);
+        message.success('Comment added successfully!');
+      }
     } catch (error) {
-      message.error('Failed to add comment');
+      console.error('Error adding comment:', error);
+      message.error(error.response?.data?.message || 'Failed to add comment');
+    } finally {
+      setCommentLoading(false);
     }
-  }, [comment, selectedMatch]);
+  }, [comment, selectedMatch, selectedTags]);
 
   // Memoize the filtered and sorted comments
   const getFilteredAndSortedComments = useCallback((match) => {
@@ -405,7 +430,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                       {match.reviews
                         .filter(review => review.paperId === record.paperId)
                         .map((review, idx) => (
-                          <div key={idx} style={{ marginBottom: 24 }}>
+                          <div key={`review-${idx}`} style={{ marginBottom: 24 }}>
                             <Space direction="vertical" style={{ width: '100%' }}>
                               <Space>
                                 <Avatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${review.reviewer.id}`} size="small" />
@@ -415,7 +440,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                               
                               <Descriptions size="small" bordered>
                                 {review.scores.map((score, scoreIdx) => (
-                                  <Descriptions.Item key={scoreIdx} label={score.aspect} span={3}>
+                                  <Descriptions.Item key={`${score.aspect}-${scoreIdx}`} label={score.aspect} span={3}>
                                     <Space direction="vertical" style={{ width: '100%' }}>
                                       <Space>
                                         <Rate disabled defaultValue={score.score} count={10} />
@@ -443,8 +468,8 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                                     <List
                                       size="small"
                                       dataSource={review.detailedFeedback}
-                                      renderItem={item => (
-                                        <List.Item>
+                                      renderItem={(item, index) => (
+                                        <List.Item key={`feedback-${index}`}>
                                           <Card size="small" style={{ width: '100%', backgroundColor: '#fafafa' }}>
                                             <Text type="secondary">{item}</Text>
                                           </Card>
@@ -471,7 +496,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                       {match.reviews
                         .filter(review => review.paperId === match.opponent.paperId)
                         .map((review, idx) => (
-                          <div key={idx} style={{ marginBottom: 24 }}>
+                          <div key={`review-${idx}`} style={{ marginBottom: 24 }}>
                             <Space direction="vertical" style={{ width: '100%' }}>
                               <Space>
                                 <Avatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${review.reviewer.id}`} size="small" />
@@ -481,7 +506,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                               
                               <Descriptions size="small" bordered>
                                 {review.scores.map((score, scoreIdx) => (
-                                  <Descriptions.Item key={scoreIdx} label={score.aspect} span={3}>
+                                  <Descriptions.Item key={`${score.aspect}-${scoreIdx}`} label={score.aspect} span={3}>
                                     <Space direction="vertical" style={{ width: '100%' }}>
                                       <Space>
                                         <Rate disabled defaultValue={score.score} count={10} />
@@ -509,8 +534,8 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                                     <List
                                       size="small"
                                       dataSource={review.detailedFeedback}
-                                      renderItem={item => (
-                                        <List.Item>
+                                      renderItem={(item, index) => (
+                                        <List.Item key={`feedback-${index}`}>
                                           <Card size="small" style={{ width: '100%', backgroundColor: '#fafafa' }}>
                                             <Text type="secondary">{item}</Text>
                                           </Card>
@@ -566,7 +591,10 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                       <Table
                         size="small"
                         pagination={false}
-                        dataSource={match.comparison.metricComparison}
+                        dataSource={match.comparison.metricComparison.map(item => ({
+                          ...item,
+                          key: item.metric
+                        }))}
                         columns={[
                           {
                             title: 'Aspect',
@@ -649,6 +677,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                 type={currentFeedback.liked ? "primary" : "default"}
                 icon={currentFeedback.liked ? <LikeFilled /> : <LikeOutlined />}
                 onClick={() => handleFeedback(match.matchId, 'like')}
+                loading={feedbackLoading[match.matchId]}
               >
                 Like
               </Button>
@@ -659,6 +688,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                 danger={currentFeedback.disliked}
                 icon={currentFeedback.disliked ? <DislikeFilled /> : <DislikeOutlined />}
                 onClick={() => handleFeedback(match.matchId, 'dislike')}
+                loading={feedbackLoading[match.matchId]}
               >
                 Dislike
               </Button>
@@ -676,8 +706,8 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
             </Badge>
           </Space>
           <Space>
-            {comments.slice(0, 3).map(comment => (
-              <Tag key={comment.id} color="blue">{comment.text.slice(0, 20)}</Tag>
+            {comments.slice(0, 3).map((comment, index) => (
+              <Tag key={comment.id || `recent-comment-${index}`} color="blue">{comment.text.slice(0, 20)}</Tag>
             ))}
           </Space>
         </Space>
@@ -714,8 +744,9 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
 
           <List
             dataSource={comments.slice(0, 2)}
-            renderItem={comment => (
+            renderItem={(comment, index) => (
               <List.Item
+                key={comment.id || `${comment.user}-${index}`}
                 actions={[
                   <Button 
                     type="text" 
@@ -730,10 +761,10 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                 ]}
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user}`} />}
+                  avatar={<Avatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user || 'Anonymous'}`} />}
                   title={
                     <Space>
-                      <Text strong>{comment.user}</Text>
+                      <Text strong>{comment.user || 'Anonymous'}</Text>
                       <Text type="secondary">{new Date(comment.date).toLocaleDateString()}</Text>
                       {comment.isHighlighted && <Tag color="gold">Highlighted</Tag>}
                     </Space>
@@ -741,11 +772,13 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                   description={
                     <Space direction="vertical" style={{ width: '100%' }}>
                       <Paragraph style={{ marginBottom: 8 }}>{comment.text}</Paragraph>
-                      <Space>
-                        {comment.tags.map(tag => (
-                          <Tag key={tag} color="blue">{tag}</Tag>
-                        ))}
-                      </Space>
+                      {comment.tags && Array.isArray(comment.tags) && comment.tags.length > 0 && (
+                        <Space>
+                          {comment.tags.map(tag => (
+                            <Tag key={tag} color="blue">{tag}</Tag>
+                          ))}
+                        </Space>
+                      )}
                     </Space>
                   }
                 />
@@ -915,6 +948,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
             type="primary" 
             onClick={handleComment}
             disabled={!comment.trim()}
+            loading={commentLoading}
           >
             Add Comment
           </Button>
