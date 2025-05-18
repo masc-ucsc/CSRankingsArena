@@ -73,7 +73,7 @@ TOPIC_KEYWORDS = {
     "Visualization": ["visualization","data visualization","information visualization","scientific visualization","visual analytics","interactive visualization","graph visualization","network visualization","geovisualization","3D visualization","volume rendering","rendering","visual representation","visual encoding","data mapping","color mapping","visual perception","visual design","visual storytelling","dashboard","infographic","charting","plotting","heatmap","scatter plot","bar chart","line chart","tree map","flow visualization","time series visualization","multivariate visualization","spatial visualization","temporal visualization","visual analytics system","user interaction","visual data exploration","visual abstraction","glyph","animation","simulation visualization","dimensionality reduction","PCA","t-SNE","UMAP","visual encoding techniques","visual hierarchy","visual variables","perceptual principles","cognitive load","visual analytics workflow"]
 }
 
-def classify_text(reference: str):
+def classify_text(text: str):
     """
     Classify text based on keywords.
     
@@ -85,13 +85,13 @@ def classify_text(reference: str):
     """
     for topic, conferences in TOPIC_CONFERENCES.items():
         for conf in conferences:
-            if re.search(r'\b' + conf + r'\b', reference):
+            if re.search(r'\b' + conf + r'\b', text):
                 return topic
     
     scores = Counter()
     for topic, keywords in TOPIC_KEYWORDS.items():
         for keyword in keywords:
-            if re.search(r'\b' + keyword + r'\b', reference, re.IGNORECASE):
+            if re.search(r'\b' + keyword + r'\b', text, re.IGNORECASE):
                 scores[topic] += 1
 
     if scores:
@@ -134,6 +134,7 @@ def classify_paper_topic(
         keywords: String containing keywords/index terms for the paper
         title: The paper's title
         abstract: The paper's abstract
+        reference_counts: Dictionary containing categories mapped to the # of references of those categories in the paper
         api_key: OpenAI API key
         
     Returns:

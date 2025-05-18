@@ -19,10 +19,22 @@ uv run .\paper_downloading\download_arxiv.py --output-dir arxiv_papers --start-d
 
 ## ACM Yaml
 
-Sample command line to add paper information to ComputerArchitecture.yaml
+This script scrapes paper metadata from the ACM digital library
+
+Sample command line to add paper information to example.yaml
 
 ```
-uv run .\clustering\ACM_yaml_generator.py -o clustering\yaml_files\ComputerArchitecture.yaml
+uv run .\clustering\ACM_yaml_generator.py -o example.yaml
+```
+
+## Paper Classifier
+
+Run classifier on a given input YAML and output to a folder
+
+Sample Command
+
+```
+uv run .\clustering\paper_classifier.py -f example_input.yaml -o /test_output/ -a OpenAI-Key-Here
 ```
 
 ## marker_runner.py Yaml
