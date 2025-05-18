@@ -28,6 +28,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 import MatchResults from '../components/competition/MatchResults';
+import MatchInteractions from '../components/match/MatchInteractions';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -331,6 +332,20 @@ const CategoryMatchPage = () => {
         }
     ];
 
+    const renderMatchResults = () => {
+        if (!matchResults) return null;
+
+        return (
+            <div>
+                <Card>
+                    <Title level={3}>Match Results</Title>
+                    <MatchResults results={matchResults} />
+                    <MatchInteractions matchId={matchResults.id} />
+                </Card>
+            </div>
+        );
+    };
+
     return (
         <div className="category-match-page" style={{ padding: '24px' }}>
             {agentConnectionError && (
@@ -345,60 +360,7 @@ const CategoryMatchPage = () => {
             )}
 
             {showResults && matchResults ? (
-                <Card style={{ marginBottom: '24px' }}>
-                    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Title level={4}>Match Results</Title>
-                            <Button onClick={() => setShowResults(false)}>Back to Creation</Button>
-                        </div>
-                        <div style={{ padding: '0 24px' }}>
-                            <MatchResults 
-                                match={{
-                                    id: matchResults.id,
-                                    status: matchResults.status,
-                                    created_at: matchResults.created_at,
-                                    agents: [
-                                        {
-                                            id: matchResults.agent1Id,
-                                            name: matchResults.agent1_name,
-                                            review: matchResults.reviews[0].content,
-                                            evaluation: [
-                                                { criterion: 'Technical Score', score: matchResults.reviews[0].technical_score, comment: 'Technical accuracy assessment' },
-                                                { criterion: 'Depth Score', score: matchResults.reviews[0].depth_score, comment: 'Depth of analysis' },
-                                                { criterion: 'Feedback Score', score: matchResults.reviews[0].feedback_score, comment: 'Quality of feedback' },
-                                                { criterion: 'Clarity Score', score: matchResults.reviews[0].clarity_score, comment: 'Clarity of review' },
-                                                { criterion: 'Fairness Score', score: matchResults.reviews[0].fairness_score, comment: 'Fairness in evaluation' }
-                                            ]
-                                        },
-                                        {
-                                            id: matchResults.agent2Id,
-                                            name: matchResults.agent2_name,
-                                            review: matchResults.reviews[1].content,
-                                            evaluation: [
-                                                { criterion: 'Technical Score', score: matchResults.reviews[1].technical_score, comment: 'Technical accuracy assessment' },
-                                                { criterion: 'Depth Score', score: matchResults.reviews[1].depth_score, comment: 'Depth of analysis' },
-                                                { criterion: 'Feedback Score', score: matchResults.reviews[1].feedback_score, comment: 'Quality of feedback' },
-                                                { criterion: 'Clarity Score', score: matchResults.reviews[1].clarity_score, comment: 'Clarity of review' },
-                                                { criterion: 'Fairness Score', score: matchResults.reviews[1].fairness_score, comment: 'Fairness in evaluation' }
-                                            ]
-                                        }
-                                    ]
-                                }}
-                                onFeedback={async (feedback) => {
-                                    try {
-                                        await axios.post(`/api/competition/matches/${matchResults.id}/feedback`, feedback);
-                                        message.success('Feedback submitted successfully');
-                                        const updatedMatch = await axios.get(`/api/competition/matches/${matchResults.id}`);
-                                        setMatchResults(updatedMatch.data);
-                                    } catch (error) {
-                                        console.error('Error submitting feedback:', error);
-                                        message.error('Failed to submit feedback');
-                                    }
-                                }}
-                            />
-                        </div>
-                    </Space>
-                </Card>
+                renderMatchResults()
             ) : (
                 <Row gutter={[24, 24]}>
                     <Col span={24}>
