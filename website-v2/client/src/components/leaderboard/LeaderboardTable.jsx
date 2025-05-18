@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Table, Card, Typography, Spin, Alert, Tag, Space, Collapse, Descriptions, Rate, Tooltip, Button, Input, Modal, message, Select, Radio, Divider, Badge, Popover, List, Avatar, Empty } from 'antd';
+import { Table, Card, Typography, Spin, Alert, Tag, Space, Collapse, Descriptions, Rate, Tooltip, Button, Input, Modal, message, Select, Radio, Divider, Badge, Popover, List, Avatar, Empty, Row, Col } from 'antd';
 import { 
   TrophyOutlined, 
   LinkOutlined, 
@@ -29,6 +29,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import API_CONFIG from '../../config/api';
 import { getMockLeaderboardData } from '../../mock/paperData';
+import LeaderboardFeedback from './LeaderboardFeedback';
 
 const { Title, Text, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -84,26 +85,31 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
           }
         });
 
-        if (response.data?.rankings?.length > 0) {
-          setData(response.data.rankings);
-          // Use the isMockData flag from the API response
-          setUsingMockData(response.data.isMockData || false);
-          setLoading(false);
-          return;
-        }
+        // Check if we have valid data
+        if (response.data && Array.isArray(response.data.rankings) && response.data.rankings.length > 0) {
+          // Check if any of the papers have real paperIds (not starting with 'mock-')
+          const hasRealData = response.data.rankings.some(paper => 
+            paper.paperId && !paper.paperId.startsWith('mock-')
+          );
 
-        // If no real data or empty rankings, use mock data
-        console.log('No real rankings data available, using mock data');
-        setData(getMockLeaderboardData());
-        setUsingMockData(true);
-      } catch (err) {
-        // Handle 404 and other errors by using mock data
-        console.warn('Error fetching rankings, using mock data as fallback:', err);
-        if (err.response?.status === 404) {
-          console.log('Leaderboard endpoint not found, using mock data');
+          if (hasRealData) {
+            setData(response.data.rankings);
+            setUsingMockData(false);
+          } else {
+            // If all papers are mock data, use mock data
+            console.log('All papers are mock data, using mock data');
+            setData(getMockLeaderboardData());
+            setUsingMockData(true);
+          }
         } else {
-          console.error('Error details:', err);
+          // If no valid data, use mock data
+          console.log('No valid rankings data available, using mock data');
+          setData(getMockLeaderboardData());
+          setUsingMockData(true);
         }
+      } catch (err) {
+        // Handle errors by using mock data
+        console.warn('Error fetching rankings, using mock data as fallback:', err);
         setData(getMockLeaderboardData());
         setUsingMockData(true);
         setError(null); // Clear any previous errors since we're using mock data
@@ -354,6 +360,8 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
               </Space>
             }
           >
+            {/* Feedback for this match */}
+            <LeaderboardFeedback matchId={match.matchId} />
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               <Descriptions title="Match Details" bordered size="small">
                 <Descriptions.Item label="Match ID" span={3}>
@@ -365,11 +373,11 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                     </Link>
                   )}
                 </Descriptions.Item>
-                <Descriptions.Item label="Your Score" span={1}>
-                  <Text strong>{match.score}</Text>
+                <Descriptions.Item label="Your Paper" span={1}>
+                  <Text strong>{record.title}</Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="Opponent Score" span={1}>
-                  <Text strong>{match.opponent.score}</Text>
+                <Descriptions.Item label="Opponent Paper" span={1}>
+                  <Text strong>{match.opponent.title}</Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Result" span={1}>
                   <Tag color={
@@ -382,122 +390,233 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                 </Descriptions.Item>
               </Descriptions>
 
-              {match.reviews && Array.isArray(match.reviews) && match.reviews.length > 0 && (
-                <Descriptions title="AI Review Analysis" bordered size="small">
-                  {match.reviews.map((review, idx) => {
-                    if (!review || !review.reviewer) return null;
-                    
-                    const { reviewer } = review;
-                    return (
-                      <React.Fragment key={idx}>
-                        <Descriptions.Item label="AI Reviewer" span={3}>
-                          <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                            <Space>
-                              {reviewer.avatar && (
-                                <Avatar src={reviewer.avatar} size="small" />
-                              )}
-                              <Space direction="vertical" size={0}>
-                                <Space>
-                                  <Text strong>{reviewer.name || 'Unknown AI'}</Text>
-                                  {reviewer.provider && (
-                                    <Tag color="blue">{reviewer.provider}</Tag>
-                                  )}
-                                  {reviewer.model && (
-                                    <Tag color="purple">{reviewer.model}</Tag>
-                                  )}
-                                </Space>
-                                {reviewer.version && (
-                                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                                    Version: {reviewer.version}
-                                  </Text>
+              {/* Reviews Section */}
+              <div style={{ marginTop: 24 }}>
+                <Title level={4}>Paper Reviews</Title>
+                <Row gutter={[24, 24]}>
+                  {/* Your Paper Reviews */}
+                  <Col span={12}>
+                    <Card title={
+                      <Space>
+                        <Text strong>Reviews for {record.title}</Text>
+                        <Tag color="blue">{record.paperId}</Tag>
+                      </Space>
+                    } bordered>
+                      {match.reviews
+                        .filter(review => review.paperId === record.paperId)
+                        .map((review, idx) => (
+                          <div key={idx} style={{ marginBottom: 24 }}>
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                              <Space>
+                                <Avatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${review.reviewer.id}`} size="small" />
+                                <Text strong>{review.reviewer.name}</Text>
+                                <Tag color="blue">{review.reviewer.provider}</Tag>
+                              </Space>
+                              
+                              <Descriptions size="small" bordered>
+                                {review.scores.map((score, scoreIdx) => (
+                                  <Descriptions.Item key={scoreIdx} label={score.aspect} span={3}>
+                                    <Space direction="vertical" style={{ width: '100%' }}>
+                                      <Space>
+                                        <Rate disabled defaultValue={score.score} count={10} />
+                                        <Text>{score.score.toFixed(1)}/10</Text>
+                                      </Space>
+                                      <Card size="small" style={{ marginTop: 8, backgroundColor: '#fafafa' }}>
+                                        <Text type="secondary">{score.comment}</Text>
+                                      </Card>
+                                    </Space>
+                                  </Descriptions.Item>
+                                ))}
+                                <Descriptions.Item label="Overall Score" span={3}>
+                                  <Space direction="vertical" style={{ width: '100%' }}>
+                                    <Space>
+                                      <Rate disabled defaultValue={review.overallScore} count={10} />
+                                      <Text strong>{review.overallScore.toFixed(1)}/10</Text>
+                                    </Space>
+                                    <Card size="small" style={{ marginTop: 8, backgroundColor: '#fafafa' }}>
+                                      <Text type="secondary">{review.summary}</Text>
+                                    </Card>
+                                  </Space>
+                                </Descriptions.Item>
+                                {review.detailedFeedback && (
+                                  <Descriptions.Item label="Detailed Analysis" span={3}>
+                                    <List
+                                      size="small"
+                                      dataSource={review.detailedFeedback}
+                                      renderItem={item => (
+                                        <List.Item>
+                                          <Card size="small" style={{ width: '100%', backgroundColor: '#fafafa' }}>
+                                            <Text type="secondary">{item}</Text>
+                                          </Card>
+                                        </List.Item>
+                                      )}
+                                    />
+                                  </Descriptions.Item>
                                 )}
-                              </Space>
+                              </Descriptions>
                             </Space>
-                            
-                            {reviewer.expertise && Array.isArray(reviewer.expertise) && reviewer.expertise.length > 0 && (
-                              <Space wrap>
-                                {reviewer.expertise.map(skill => (
-                                  <Tag key={skill} color="cyan">{skill}</Tag>
-                                ))}
+                          </div>
+                        ))}
+                    </Card>
+                  </Col>
+
+                  {/* Opponent Paper Reviews */}
+                  <Col span={12}>
+                    <Card title={
+                      <Space>
+                        <Text strong>Reviews for {match.opponent.title}</Text>
+                        <Tag color="blue">{match.opponent.paperId}</Tag>
+                      </Space>
+                    } bordered>
+                      {match.reviews
+                        .filter(review => review.paperId === match.opponent.paperId)
+                        .map((review, idx) => (
+                          <div key={idx} style={{ marginBottom: 24 }}>
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                              <Space>
+                                <Avatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${review.reviewer.id}`} size="small" />
+                                <Text strong>{review.reviewer.name}</Text>
+                                <Tag color="blue">{review.reviewer.provider}</Tag>
                               </Space>
-                            )}
-                            
-                            {reviewer.capabilities && Array.isArray(reviewer.capabilities) && reviewer.capabilities.length > 0 && (
-                              <Space wrap>
-                                {reviewer.capabilities.map(capability => (
-                                  <Tag 
-                                    key={capability} 
-                                    icon={getCapabilityIcon(capability)}
-                                    color="geekblue"
-                                  >
-                                    {capability}
-                                  </Tag>
+                              
+                              <Descriptions size="small" bordered>
+                                {review.scores.map((score, scoreIdx) => (
+                                  <Descriptions.Item key={scoreIdx} label={score.aspect} span={3}>
+                                    <Space direction="vertical" style={{ width: '100%' }}>
+                                      <Space>
+                                        <Rate disabled defaultValue={score.score} count={10} />
+                                        <Text>{score.score.toFixed(1)}/10</Text>
+                                      </Space>
+                                      <Card size="small" style={{ marginTop: 8, backgroundColor: '#fafafa' }}>
+                                        <Text type="secondary">{score.comment}</Text>
+                                      </Card>
+                                    </Space>
+                                  </Descriptions.Item>
                                 ))}
-                              </Space>
-                            )}
+                                <Descriptions.Item label="Overall Score" span={3}>
+                                  <Space direction="vertical" style={{ width: '100%' }}>
+                                    <Space>
+                                      <Rate disabled defaultValue={review.overallScore} count={10} />
+                                      <Text strong>{review.overallScore.toFixed(1)}/10</Text>
+                                    </Space>
+                                    <Card size="small" style={{ marginTop: 8, backgroundColor: '#fafafa' }}>
+                                      <Text type="secondary">{review.summary}</Text>
+                                    </Card>
+                                  </Space>
+                                </Descriptions.Item>
+                                {review.detailedFeedback && (
+                                  <Descriptions.Item label="Detailed Analysis" span={3}>
+                                    <List
+                                      size="small"
+                                      dataSource={review.detailedFeedback}
+                                      renderItem={item => (
+                                        <List.Item>
+                                          <Card size="small" style={{ width: '100%', backgroundColor: '#fafafa' }}>
+                                            <Text type="secondary">{item}</Text>
+                                          </Card>
+                                        </List.Item>
+                                      )}
+                                    />
+                                  </Descriptions.Item>
+                                )}
+                              </Descriptions>
+                            </Space>
+                          </div>
+                        ))}
+                    </Card>
+                  </Col>
+                </Row>
+              </div>
+
+              {/* Comparison Section */}
+              {match.comparison && (
+                <div style={{ marginTop: 24 }}>
+                  <Title level={4}>Comparison and Winner</Title>
+                  <Card bordered>
+                    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                      <Descriptions bordered>
+                        <Descriptions.Item label="Winner" span={3}>
+                          <Space>
+                            <Tag color="gold" style={{ fontSize: '16px', padding: '4px 8px' }}>
+                              <TrophyOutlined /> {match.comparison.winner === record.paperId ? 'Your Paper' : 'Opponent Paper'}
+                            </Tag>
+                            <Text strong style={{ fontSize: '16px' }}>
+                              {match.comparison.winner === record.paperId ? record.title : match.opponent.title}
+                            </Text>
+                            <Tag color="blue">
+                              {match.comparison.winner === record.paperId ? record.paperId : match.opponent.paperId}
+                            </Tag>
                           </Space>
                         </Descriptions.Item>
+                        <Descriptions.Item label="Reasoning" span={3}>
+                          <Text>{match.comparison.reasoning}</Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Overall Scores" span={3}>
+                          <Space>
+                            <Text strong>{record.title}:</Text>
+                            <Rate disabled defaultValue={match.comparison.overallScores[record.paperId]} count={10} />
+                            <Text>{match.comparison.overallScores[record.paperId].toFixed(1)}</Text>
+                            <Text strong style={{ marginLeft: 16 }}>{match.opponent.title}:</Text>
+                            <Rate disabled defaultValue={match.comparison.overallScores[match.opponent.paperId]} count={10} />
+                            <Text>{match.comparison.overallScores[match.opponent.paperId].toFixed(1)}</Text>
+                          </Space>
+                        </Descriptions.Item>
+                      </Descriptions>
 
-                        {reviewer.style && (
-                          <Descriptions.Item label="Review Style" span={3}>
-                            <Text italic>{reviewer.style}</Text>
-                          </Descriptions.Item>
-                        )}
-
-                        {review.metrics && (
-                          <Descriptions.Item label="Metrics" span={3}>
-                            <Space direction="vertical" style={{ width: '100%' }}>
-                              {Object.entries(review.metrics).map(([key, value]) => (
-                                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <Text strong style={{ width: '150px' }}>{key}:</Text>
-                                  <Rate 
-                                    disabled 
-                                    defaultValue={value} 
-                                    count={10} 
-                                    style={{ marginLeft: 8 }}
-                                  />
-                                  <Text type="secondary" style={{ marginLeft: 8 }}>
-                                    {value}/10
-                                  </Text>
-                                </div>
-                              ))}
-                            </Space>
-                          </Descriptions.Item>
-                        )}
-
-                        {review.analysis && (
-                          <Descriptions.Item label="Analysis" span={3}>
-                            <Paragraph style={{ whiteSpace: 'pre-line' }}>
-                              {review.analysis}
-                            </Paragraph>
-                          </Descriptions.Item>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </Descriptions>
-              )}
-
-              {match.comparison && (
-                <Descriptions title="Comparison Analysis" bordered size="small">
-                  <Descriptions.Item label="Winner" span={3}>
-                    <Tag color="gold">
-                      <TrophyOutlined /> {match.comparison.winner === record.paperId ? 'Your Paper' : 'Opponent Paper'}
-                    </Tag>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Analysis" span={3}>
-                    <Paragraph>{match.comparison.analysis}</Paragraph>
-                  </Descriptions.Item>
-                  {match.comparison.keyPoints && (
-                    <Descriptions.Item label="Key Points" span={3}>
-                      <ul style={{ margin: 0, paddingLeft: 20 }}>
-                        {match.comparison.keyPoints.map((point, idx) => (
-                          <li key={idx}>{point}</li>
-                        ))}
-                      </ul>
-                    </Descriptions.Item>
-                  )}
-                </Descriptions>
+                      <Table
+                        size="small"
+                        pagination={false}
+                        dataSource={match.comparison.metricComparison}
+                        columns={[
+                          {
+                            title: 'Aspect',
+                            dataIndex: 'metric',
+                            key: 'metric',
+                            width: '30%'
+                          },
+                          {
+                            title: record.title,
+                            dataIndex: ['scores', record.paperId],
+                            key: 'paper1',
+                            width: '25%',
+                            render: (score) => (
+                              <Space>
+                                <Rate disabled defaultValue={score} count={10} />
+                                <Text>{score.toFixed(1)}</Text>
+                              </Space>
+                            )
+                          },
+                          {
+                            title: match.opponent.title,
+                            dataIndex: ['scores', match.opponent.paperId],
+                            key: 'paper2',
+                            width: '25%',
+                            render: (score) => (
+                              <Space>
+                                <Rate disabled defaultValue={score} count={10} />
+                                <Text>{score.toFixed(1)}</Text>
+                              </Space>
+                            )
+                          },
+                          {
+                            title: 'Difference',
+                            dataIndex: 'difference',
+                            key: 'difference',
+                            width: '20%',
+                            render: (diff) => (
+                              <Text style={{ 
+                                color: diff > 0 ? '#52c41a' : diff < 0 ? '#f5222d' : '#666',
+                                fontWeight: 'bold'
+                              }}>
+                                {diff > 0 ? '+' : ''}{diff.toFixed(1)}
+                              </Text>
+                            )
+                          }
+                        ]}
+                      />
+                    </Space>
+                  </Card>
+                </div>
               )}
 
               {match.feedback && (

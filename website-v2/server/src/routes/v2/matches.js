@@ -16,7 +16,8 @@ async function getMatchDetails(matchId) {
     const year = parts[3];
 
     // Load match data
-    const matchYamlFile = path.join(__dirname, "../../../mock/matches", category, `${subcategory}-${year}-matches.yaml`);
+    
+    const matchYamlFile = path.join(__dirname, "../../../../papers", category, subcategory, year, `${category}-${subcategory}-${year}-matches.yaml`);
     let matchYamlData;
     try {
         matchYamlData = yaml.load(fs.readFileSync(matchYamlFile, "utf8"));
@@ -30,7 +31,7 @@ async function getMatchDetails(matchId) {
     }
 
     // Load paper data
-    const papersYamlFile = path.join(__dirname, "../../../mock/papers", category, subcategory, year, `${category}-${subcategory}-${year}-papers.yaml`);
+    const papersYamlFile = path.join(__dirname, "../../../../papers", category, subcategory, year, `${category}-${subcategory}-${year}-papers.yaml`);
     let papersYamlData;
     try {
         papersYamlData = yaml.load(fs.readFileSync(papersYamlFile, "utf8"));

@@ -29,6 +29,7 @@ const agentsRoutes = require('./src/routes/v2/agents');
 const leaderboardRoutes = require('./src/routes/v2/leaderboard');
 const feedbackRoutes = require('./src/routes/v2/feedback');
 const categoriesRoutes = require('./src/routes/v2/categories');
+const matchInteractionRoutes = require('./src/routes/v2/matchInteractions');
 
 // Server configuration
 const config = {
@@ -181,6 +182,7 @@ const init = async () => {
     server.route(leaderboardRoutes);
     server.route(feedbackRoutes);
     server.route(categoriesRoutes);
+    server.route(matchInteractionRoutes);
     server.route(require('./src/routes/v2/auth'));
 
     // Error handling
