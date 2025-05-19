@@ -190,6 +190,7 @@ module.exports = [
                     const feedback = request.payload;
                     
                     // Verify match exists
+                    console.log("HELOOOOOOOOOOO", id);
                     const match = await getMatchDetails(id);
                     if (!match) {
                         throw Boom.notFound('Match not found');
