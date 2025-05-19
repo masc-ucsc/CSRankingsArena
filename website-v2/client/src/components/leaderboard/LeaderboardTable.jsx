@@ -67,6 +67,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
   const [feedbackStats, setFeedbackStats] = useState({});
   const [feedbackLoading, setFeedbackLoading] = useState({});
   const [commentLoading, setCommentLoading] = useState(false);
+  const [matchFeedback, setMatchFeedback] = useState({});
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
@@ -123,40 +124,71 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     fetchLeaderboardData();
   }, [category, subcategory, year]);
 
-  // Memoize handlers
+  // Add fetchMatchDetails function
+  const fetchMatchDetails = async (matchId) => {
+    try {
+      const response = await api.get(`/api/v2/matches/${matchId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching match details:', error);
+      throw error;
+    }
+  };
+
+  // Add loadFeedback function
+  const loadFeedback = useCallback(async (matchId) => {
+    try {
+      setFeedbackLoading(prev => ({ ...prev, [matchId]: true }));
+      const response = await api.get(`/api/v2/matches/${matchId}/feedback`);
+      
+      if (response.data && response.data.data && response.data.data.length > 0) {
+        setMatchFeedback(prev => ({
+          ...prev,
+          [matchId]: response.data.data[0]
+        }));
+      } else {
+        setMatchFeedback(prev => ({
+          ...prev,
+          [matchId]: { likes: 0, dislikes: 0, comments: [] }
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading feedback:', error);
+      message.error('Failed to load feedback');
+    } finally {
+      setFeedbackLoading(prev => ({ ...prev, [matchId]: false }));
+    }
+  }, []);
+
+  // Update handleFeedback function to use submitMatchFeedback pattern
   const handleFeedback = useCallback(async (matchId, type) => {
     try {
       setFeedbackLoading(prev => ({ ...prev, [matchId]: true }));
       
-      const response = await api.post(`/api/matches/${matchId}/feedback`, {
+      const action = userFeedback[matchId]?.[type] ? 'remove' : 'add';
+      const response = await api.post(`/api/v2/matches/${matchId}/feedback`, {
         type,
-        action: userFeedback[matchId]?.[type === 'like' ? 'liked' : 'disliked'] ? 'remove' : 'add'
+        action
       });
 
-      const { success, feedback } = response.data;
-      
-      if (success) {
-        const match = data.flatMap(p => p.matches).find(m => m.matchId === matchId);
-        if (match) {
-          // Update the match feedback with new counts from server
-          match.feedback.likes = feedback.likes;
-          match.feedback.dislikes = feedback.dislikes;
-          
-          // Update local user feedback state
-          const currentFeedback = userFeedback[matchId] || { liked: false, disliked: false };
-          const newFeedback = { ...currentFeedback };
+      if (response.data.success) {
+        // Update local user feedback state
+        const currentFeedback = userFeedback[matchId] || { liked: false, disliked: false };
+        const newFeedback = { ...currentFeedback };
 
-          if (type === 'like') {
-            newFeedback.liked = !currentFeedback.liked;
-            newFeedback.disliked = false;
-          } else if (type === 'dislike') {
-            newFeedback.disliked = !currentFeedback.disliked;
-            newFeedback.liked = false;
-          }
-
-          setUserFeedback(prev => ({ ...prev, [matchId]: newFeedback }));
-          message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
+        if (type === 'like') {
+          newFeedback.liked = !currentFeedback.liked;
+          newFeedback.disliked = false;
+        } else if (type === 'dislike') {
+          newFeedback.disliked = !currentFeedback.disliked;
+          newFeedback.liked = false;
         }
+
+        setUserFeedback(prev => ({ ...prev, [matchId]: newFeedback }));
+
+        // Reload feedback data
+        await loadFeedback(matchId);
+        message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
       }
     } catch (error) {
       console.error('Error submitting feedback:', error);
@@ -164,24 +196,23 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     } finally {
       setFeedbackLoading(prev => ({ ...prev, [matchId]: false }));
     }
-  }, [data, userFeedback]);
+  }, [userFeedback, loadFeedback]);
 
+  // Update handleComment function to reload feedback after comment
   const handleComment = useCallback(async () => {
     if (!comment.trim() || !selectedMatch) return;
 
     try {
       setCommentLoading(true);
 
-      const response = await api.post(`/api/matches/${selectedMatch.matchId}/comments`, {
+      const response = await api.post(`/api/v2/matches/${selectedMatch.matchId}/comments`, {
         text: comment.trim(),
         tags: selectedTags
       });
 
-      const { success, comment: newComment } = response.data;
-
-      if (success) {
-        // Update the match with the new comment from server
-        selectedMatch.feedback.comments.unshift(newComment);
+      if (response.data.success) {
+        // Reload feedback data
+        await loadFeedback(selectedMatch.matchId);
         setComment('');
         setFeedbackModalVisible(false);
         message.success('Comment added successfully!');
@@ -192,7 +223,14 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     } finally {
       setCommentLoading(false);
     }
-  }, [comment, selectedMatch, selectedTags]);
+  }, [comment, selectedMatch, selectedTags, loadFeedback]);
+
+  // Add useEffect to load feedback when match is selected
+  useEffect(() => {
+    if (selectedMatch) {
+      loadFeedback(selectedMatch.matchId);
+    }
+  }, [selectedMatch, loadFeedback]);
 
   // Memoize the filtered and sorted comments
   const getFilteredAndSortedComments = useCallback((match) => {
@@ -661,18 +699,19 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     );
   }, []);
 
-  // Memoize the feedback render function
+  // Update the feedback rendering to use matchFeedback state
   const renderFeedback = useCallback((match) => {
-    if (!match?.feedback) return null;
+    if (!match?.matchId) return null;
 
     const currentFeedback = userFeedback[match.matchId] || { liked: false, disliked: false };
-    const comments = getFilteredAndSortedComments(match);
+    const feedback = matchFeedback[match.matchId] || { likes: 0, dislikes: 0, comments: [] };
+    const comments = getFilteredAndSortedComments(feedback);
     
     return (
       <Space direction="vertical" style={{ width: '100%' }}>
         <Space align="start" style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
-            <Badge count={comments.length} showZero>
+            <Badge count={feedback.likes} showZero>
               <Button 
                 type={currentFeedback.liked ? "primary" : "default"}
                 icon={currentFeedback.liked ? <LikeFilled /> : <LikeOutlined />}
@@ -682,7 +721,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                 Like
               </Button>
             </Badge>
-            <Badge count={comments.length} showZero>
+            <Badge count={feedback.dislikes} showZero>
               <Button 
                 type={currentFeedback.disliked ? "primary" : "default"}
                 danger={currentFeedback.disliked}

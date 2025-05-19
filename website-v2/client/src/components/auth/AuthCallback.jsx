@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Spin, Result } from 'antd';
+import { Spin, Result, message } from 'antd';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AuthCallback = () => {
@@ -15,6 +15,7 @@ const AuthCallback = () => {
             const error = params.get('error');
 
             if (error) {
+                message.error('Failed to authenticate with GitHub');
                 navigate('/?error=auth_failed');
                 return;
             }
@@ -22,12 +23,18 @@ const AuthCallback = () => {
             if (token) {
                 try {
                     await login(token);
+                    message.success('Successfully logged in with GitHub');
+                    
+                    // Redirect to the original destination or home
                     const redirectTo = params.get('redirect') || '/';
                     navigate(redirectTo);
                 } catch (err) {
+                    console.error('Auth callback error:', err);
+                    message.error('Failed to complete authentication');
                     navigate('/?error=auth_failed');
                 }
             } else {
+                message.error('No authentication token received');
                 navigate('/?error=no_token');
             }
         };

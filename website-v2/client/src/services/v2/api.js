@@ -83,6 +83,27 @@ export const submitMatchFeedback = async (matchId, feedback) => {
   }
 };
 
+// Feedback API functions
+export const fetchMatchFeedback = async (matchId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/matches/${matchId}/feedback`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching match feedback:', error);
+    throw error;
+  }
+};
+
+export const submitMatchComment = async (matchId, comment) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/matches/${matchId}/comments`, comment);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting match comment:', error);
+    throw error;
+  }
+}; 
+
 // Agents API
 export const fetchAgents = async () => {
   try {

@@ -98,6 +98,33 @@ api.interceptors.response.use(
   }
 );
 
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token');
+      window.location.href = '/auth/callback';
+    }
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Fetch all categories with their subcategories
  * @returns {Promise<Array>} List of categories with subcategories
@@ -261,6 +288,54 @@ export const getPaperMatches = async (id, params = {}) => {
   return await api.get(`/papers/${id}/matches`, { params });
 };
 
+// Match feedback endpoints
+export const submitMatchFeedback = async (matchId, feedback) => {
+  try {
+    const response = await api.post(`/matches/${matchId}/feedback`, feedback);
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    console.error('Error submitting feedback:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to submit feedback'
+    };
+  }
+};
+
+export const getMatchFeedback = async (matchId) => {
+  try {
+    const response = await api.get(`/matches/${matchId}/feedback`);
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    console.error('Error fetching match feedback:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to fetch feedback'
+    };
+  }
+};
+
+export const getProfile = async () => {
+  try {
+    const response = await api.get('/auth/profile');
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to fetch profile'
+    };
+  }
+};
 
 /**
  * Test API connectivity

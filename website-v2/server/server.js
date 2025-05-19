@@ -30,6 +30,7 @@ const leaderboardRoutes = require('./src/routes/v2/leaderboard');
 const feedbackRoutes = require('./src/routes/v2/feedback');
 const categoriesRoutes = require('./src/routes/v2/categories');
 const matchInteractionRoutes = require('./src/routes/v2/matchInteractions');
+// const matchFeedbackRoutes = require('./src/routes/v2/matchFeedback'); // Commented out as routes moved to matches.js
 
 // Server configuration
 const config = {
@@ -183,6 +184,7 @@ const init = async () => {
     server.route(feedbackRoutes);
     server.route(categoriesRoutes);
     server.route(matchInteractionRoutes);
+    // server.route(matchFeedbackRoutes); // Commented out as routes moved to matches.js
     server.route(require('./src/routes/v2/auth'));
 
     // Error handling

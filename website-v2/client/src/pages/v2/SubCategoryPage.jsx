@@ -69,11 +69,12 @@ const SubCategoryPageV2 = () => {
   const [error, setError] = useState(null);
   
   // Filter states
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(2025);
   const [searchText, setSearchText] = useState('');
   const [selectedVenue, setSelectedVenue] = useState('');
   const [selectedMatchStatus, setSelectedMatchStatus] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
+  const [availableYears, setAvailableYears] = useState([2025, 2024, 2023, 2022, 2021]);
   
   // Match creation states
   const [selectedPapers, setSelectedPapers] = useState({ paper1: null, paper2: null });
@@ -243,7 +244,7 @@ const SubCategoryPageV2 = () => {
 
   const handleResetFilters = () => {
     setSearchText('');
-    setSelectedYear(new Date().getFullYear());
+    setSelectedYear(2025);
     setSelectedVenue('');
     setSelectedMatchStatus('');
     setSelectedAgent('');
@@ -606,11 +607,19 @@ const SubCategoryPageV2 = () => {
                   style={{ width: '100%' }}
                   placeholder="Select Year"
                   value={selectedYear}
-                  onChange={setSelectedYear}
+                  onChange={(year) => {
+                    setSelectedYear(year);
+                    // If year is cleared, default to 2025
+                    if (!year) {
+                      setSelectedYear(2025);
+                    }
+                  }}
                   allowClear
                 >
-                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                    <Option key={year} value={year}>{year}</Option>
+                  {availableYears.map(year => (
+                    <Option key={year} value={year}>
+                      {year === 2025 ? `2025 (Current)` : year}
+                    </Option>
                   ))}
                 </Select>
               </Col>

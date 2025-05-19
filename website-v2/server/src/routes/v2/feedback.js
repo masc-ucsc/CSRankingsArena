@@ -5,6 +5,26 @@ const Boom = require('@hapi/boom');
 const { db } = require('../../config/db');
 //const logger = require('../utils/logger');
 
+const getFeedbackCounts = async (matchId) => {
+    const [likes, dislikes] = await Promise.all([
+        db('match_feedback')
+            .where('match_id', matchId)
+            .where('liked', true)
+            .count('* as count')
+            .first(),
+        db('match_feedback')
+            .where('match_id', matchId)
+            .where('disliked', true)
+            .count('* as count')
+            .first()
+    ]);
+
+    return {
+        likes: parseInt(likes.count),
+        dislikes: parseInt(dislikes.count)
+    };
+};
+
 module.exports = [
   {
     method: 'GET',
@@ -34,6 +54,9 @@ module.exports = [
             .where('match_feedback.match_id', matchId)
             .orderBy('match_feedback.created_at', 'desc');
 
+          // Get counts
+          const counts = await getFeedbackCounts(matchId);
+
           // Get user's like status for each feedback
           const feedbackWithUserStatus = await Promise.all(feedback.map(async (item) => {
             let userLiked = false;
@@ -58,7 +81,10 @@ module.exports = [
             };
           }));
 
-          return { feedback: feedbackWithUserStatus };
+          return { 
+            feedback: feedbackWithUserStatus,
+            counts
+          };
         } catch (error) {
           console.error('Error fetching feedback:', error);
           throw Boom.badImplementation('Error fetching feedback');
@@ -120,6 +146,9 @@ module.exports = [
               .returning('*');
           }
 
+          // Get updated counts
+          const counts = await getFeedbackCounts(matchId);
+
           // Get user info for the response
           const user = await db('users')
             .where('id', userId)
@@ -133,7 +162,8 @@ module.exports = [
               username: user.username,
               avatar_url: user.avatar_url
             },
-            user_liked: false
+            user_liked: false,
+            counts
           };
         } catch (error) {
           console.error('Error adding feedback:', error);
