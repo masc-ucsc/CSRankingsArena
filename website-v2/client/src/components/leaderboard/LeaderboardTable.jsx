@@ -67,10 +67,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
   const [feedbackStats, setFeedbackStats] = useState({});
   const [feedbackLoading, setFeedbackLoading] = useState({});
   const [commentLoading, setCommentLoading] = useState(false);
-<<<<<<< HEAD
   const [matchFeedback, setMatchFeedback] = useState({});
-=======
->>>>>>> 139b528182d5eb5e04cabde26df4e7049a126dea
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
@@ -168,7 +165,6 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     try {
       setFeedbackLoading(prev => ({ ...prev, [matchId]: true }));
       
-<<<<<<< HEAD
       const action = userFeedback[matchId]?.[type] ? 'remove' : 'add';
       const response = await api.post(`/api/v2/matches/${matchId}/feedback`, {
         type,
@@ -193,37 +189,6 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
         // Reload feedback data
         await loadFeedback(matchId);
         message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
-=======
-      const response = await api.post(`/api/matches/${matchId}/feedback`, {
-        type,
-        action: userFeedback[matchId]?.[type === 'like' ? 'liked' : 'disliked'] ? 'remove' : 'add'
-      });
-
-      const { success, feedback } = response.data;
-      
-      if (success) {
-        const match = data.flatMap(p => p.matches).find(m => m.matchId === matchId);
-        if (match) {
-          // Update the match feedback with new counts from server
-          match.feedback.likes = feedback.likes;
-          match.feedback.dislikes = feedback.dislikes;
-          
-          // Update local user feedback state
-          const currentFeedback = userFeedback[matchId] || { liked: false, disliked: false };
-          const newFeedback = { ...currentFeedback };
-
-          if (type === 'like') {
-            newFeedback.liked = !currentFeedback.liked;
-            newFeedback.disliked = false;
-          } else if (type === 'dislike') {
-            newFeedback.disliked = !currentFeedback.disliked;
-            newFeedback.liked = false;
-          }
-
-          setUserFeedback(prev => ({ ...prev, [matchId]: newFeedback }));
-          message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
-        }
->>>>>>> 139b528182d5eb5e04cabde26df4e7049a126dea
       }
     } catch (error) {
       console.error('Error submitting feedback:', error);
@@ -231,11 +196,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     } finally {
       setFeedbackLoading(prev => ({ ...prev, [matchId]: false }));
     }
-<<<<<<< HEAD
   }, [userFeedback, loadFeedback]);
-=======
-  }, [data, userFeedback]);
->>>>>>> 139b528182d5eb5e04cabde26df4e7049a126dea
 
   // Update handleComment function to reload feedback after comment
   const handleComment = useCallback(async () => {
@@ -244,26 +205,14 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     try {
       setCommentLoading(true);
 
-<<<<<<< HEAD
       const response = await api.post(`/api/v2/matches/${selectedMatch.matchId}/comments`, {
-=======
-      const response = await api.post(`/api/matches/${selectedMatch.matchId}/comments`, {
->>>>>>> 139b528182d5eb5e04cabde26df4e7049a126dea
         text: comment.trim(),
         tags: selectedTags
       });
 
-<<<<<<< HEAD
       if (response.data.success) {
         // Reload feedback data
         await loadFeedback(selectedMatch.matchId);
-=======
-      const { success, comment: newComment } = response.data;
-
-      if (success) {
-        // Update the match with the new comment from server
-        selectedMatch.feedback.comments.unshift(newComment);
->>>>>>> 139b528182d5eb5e04cabde26df4e7049a126dea
         setComment('');
         setFeedbackModalVisible(false);
         message.success('Comment added successfully!');
@@ -274,7 +223,6 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     } finally {
       setCommentLoading(false);
     }
-<<<<<<< HEAD
   }, [comment, selectedMatch, selectedTags, loadFeedback]);
 
   // Add useEffect to load feedback when match is selected
@@ -283,9 +231,6 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
       loadFeedback(selectedMatch.matchId);
     }
   }, [selectedMatch, loadFeedback]);
-=======
-  }, [comment, selectedMatch, selectedTags]);
->>>>>>> 139b528182d5eb5e04cabde26df4e7049a126dea
 
   // Memoize the filtered and sorted comments
   const getFilteredAndSortedComments = useCallback((match) => {
