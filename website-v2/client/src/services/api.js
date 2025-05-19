@@ -116,7 +116,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Skip auth redirect for feedback endpoints
+    if (error.response?.status === 401 && !error.config.url.includes('/feedback')) {
       // Clear token and redirect to login
       localStorage.removeItem('token');
       // Store current location for redirect after login

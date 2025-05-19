@@ -23,7 +23,7 @@ import {
   SortAscendingOutlined,
   GithubOutlined
 } from '@ant-design/icons';
-import { useAuth } from '../../contexts/AuthContext';
+// import { useAuth } from '../../contexts/AuthContext';
 import { submitMatchFeedback, getMatchFeedback } from '../../services/api';
 import API_CONFIG from '../../config/api';
 
@@ -31,7 +31,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const LeaderboardFeedback = ({ matchId }) => {
-  const { isAuthenticated, user } = useAuth();
+  // const { isAuthenticated, user } = useAuth();
   const [feedback, setFeedback] = useState({
     likes: 0,
     dislikes: 0,
@@ -43,7 +43,7 @@ const LeaderboardFeedback = ({ matchId }) => {
   });
   const [comment, setComment] = useState('');
   const [showCommentModal, setShowCommentModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  // const [showLoginModal, setShowLoginModal] = useState(false);
   const [commentSort, setCommentSort] = useState('recent');
   const [loading, setLoading] = useState(false);
 
@@ -53,16 +53,46 @@ const LeaderboardFeedback = ({ matchId }) => {
 
   const fetchFeedback = async () => {
     try {
-      const response = await getMatchFeedback(matchId);
-      if (response.success) {
+      let response = await getMatchFeedback(matchId);
+      
+      console.log('GET feedback', response.data);
+      console.log('GET feedback success', response.success);
+      if (response.success && response.data) {
+        response = response.data;
+        const items = response.data.items || [];
+
+        console.log('GET feedback items', items);
+        
+        // Count likes and dislikes
+        const likes = items.filter(item => item.type === 'like').length;
+        const dislikes = items.filter(item => item.type === 'dislike').length;
+        
+        console.log('likes', likes);
+        console.log('dislikes', dislikes);
+
+        // Get comments
+        const comments = items
+          .filter(item => item.type === 'comment')
+          .map(comment => ({
+            ...comment,
+            text: comment.content,
+            user: {
+              username: comment.isAnonymous ? 'Anonymous' : 'User',
+              avatar_url: null
+            }
+          }));
+
+        console.log('GET feedback comments', comments);
+
         setFeedback({
-          likes: response.data.counts.likes,
-          dislikes: response.data.counts.dislikes,
-          comments: response.data.items.filter(item => item.type === 'comment')
+          likes,
+          dislikes,
+          comments
         });
 
-        // Update user's feedback state
-        const userInteraction = response.data.items.find(
+        // Comment out user feedback state for now
+        /*
+        const userInteraction = response.data.items?.find(
           item => item.type === 'like' || item.type === 'dislike'
         );
         if (userInteraction) {
@@ -71,14 +101,34 @@ const LeaderboardFeedback = ({ matchId }) => {
             disliked: userInteraction.type === 'dislike'
           });
         }
+        */
+      } else {
+        setFeedback({
+          likes: 0,
+          dislikes: 0,
+          comments: []
+        });
+        setUserFeedback({
+          liked: false,
+          disliked: false
+        });
       }
     } catch (error) {
       console.error('Error fetching feedback:', error);
+      setFeedback({
+        likes: 0,
+        dislikes: 0,
+        comments: []
+      });
+      setUserFeedback({
+        liked: false,
+        disliked: false
+      });
     }
   };
 
+  /*
   const handleGitHubLogin = () => {
-    // Store current location and state for redirect after login
     const currentPath = window.location.pathname + window.location.search;
     const state = {
       path: currentPath,
@@ -87,48 +137,57 @@ const LeaderboardFeedback = ({ matchId }) => {
       comment: comment
     };
     
-    // Store state in sessionStorage to persist across the OAuth flow
     sessionStorage.setItem('authRedirectState', JSON.stringify(state));
     
-    // Redirect to GitHub OAuth using the full server URL
     const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
     window.location.href = `${serverUrl}/auth/github?redirect=${encodeURIComponent(currentPath)}`;
   };
 
-  // Add effect to handle post-login state restoration
   useEffect(() => {
     const storedState = sessionStorage.getItem('authRedirectState');
     if (storedState && isAuthenticated) {
       const state = JSON.parse(storedState);
       if (state.matchId === matchId) {
-        // Restore the previous state
         if (state.showCommentModal) {
           setShowCommentModal(true);
           setComment(state.comment || '');
         }
-        // Clear the stored state
         sessionStorage.removeItem('authRedirectState');
       }
     }
   }, [isAuthenticated, matchId]);
+  */
 
   const handleFeedback = async (type) => {
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
-
     try {
       setLoading(true);
       const response = await submitMatchFeedback(matchId, {
-        type: type // Send 'like' or 'dislike' directly
+        type: type
       });
 
-      if (response.success) {
+      if (response.success && response.data) {
+        const items = response.data.items || [];
+        
+        // Count likes and dislikes
+        const likes = items.filter(item => item.type === 'like').length;
+        const dislikes = items.filter(item => item.type === 'dislike').length;
+        
+        // Get comments
+        const comments = items
+          .filter(item => item.type === 'comment')
+          .map(comment => ({
+            ...comment,
+            text: comment.content,
+            user: {
+              username: comment.isAnonymous ? 'Anonymous' : 'User',
+              avatar_url: null
+            }
+          }));
+
         setFeedback({
-          likes: response.data.counts.likes,
-          dislikes: response.data.counts.dislikes,
-          comments: response.data.items.filter(item => item.type === 'comment')
+          likes,
+          dislikes,
+          comments
         });
 
         setUserFeedback({
@@ -140,23 +199,20 @@ const LeaderboardFeedback = ({ matchId }) => {
       }
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      if (error.response?.status === 401) {
-        // Clear token and show login modal
-        localStorage.removeItem('token');
-        setShowLoginModal(true);
-      } else {
-        message.error('Failed to submit feedback');
-      }
+      message.error('Failed to submit feedback');
     } finally {
       setLoading(false);
     }
   };
 
   const handleComment = async () => {
+    // Comment out authentication check
+    /*
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
+    */
 
     if (!comment.trim()) {
       message.warning('Please enter a comment');
@@ -170,10 +226,24 @@ const LeaderboardFeedback = ({ matchId }) => {
         text: comment.trim()
       });
       
-      if (response.success) {
+      if (response.success && response.data) {
+        const items = response.data.items || [];
+        
+        // Get comments
+        const comments = items
+          .filter(item => item.type === 'comment')
+          .map(comment => ({
+            ...comment,
+            text: comment.content,
+            user: {
+              username: comment.isAnonymous ? 'Anonymous' : 'User',
+              avatar_url: null
+            }
+          }));
+
         setFeedback(prev => ({
           ...prev,
-          comments: response.data.items.filter(item => item.type === 'comment')
+          comments
         }));
         setComment('');
         setShowCommentModal(false);
@@ -181,13 +251,14 @@ const LeaderboardFeedback = ({ matchId }) => {
       }
     } catch (error) {
       console.error('Error adding comment:', error);
+      /*
       if (error.response?.status === 401) {
-        // Clear token and show login modal
         localStorage.removeItem('token');
         setShowLoginModal(true);
       } else {
+      */
         message.error('Failed to add comment');
-      }
+      // }
     } finally {
       setLoading(false);
     }
@@ -240,7 +311,7 @@ const LeaderboardFeedback = ({ matchId }) => {
         </Badge>
       </Space>
 
-      {/* Login Modal */}
+      {/* Comment out Login Modal
       <Modal
         title="Login Required"
         open={showLoginModal}
@@ -267,6 +338,7 @@ const LeaderboardFeedback = ({ matchId }) => {
           </Button>
         </Space>
       </Modal>
+      */}
 
       {/* Comment Modal */}
       <Modal
@@ -277,7 +349,9 @@ const LeaderboardFeedback = ({ matchId }) => {
         width={600}
       >
         <Space direction="vertical" style={{ width: '100%' }}>
+          {/* Comment out authentication check
           {isAuthenticated ? (
+          */}
             <Space direction="vertical" style={{ width: '100%' }}>
               <TextArea
                 value={comment}
@@ -294,6 +368,7 @@ const LeaderboardFeedback = ({ matchId }) => {
                 Add Comment
               </Button>
             </Space>
+          {/* Comment out GitHub login button
           ) : (
             <Button
               type="primary"
@@ -312,6 +387,7 @@ const LeaderboardFeedback = ({ matchId }) => {
               Sign in with GitHub to comment
             </Button>
           )}
+          */}
 
           <Divider />
 

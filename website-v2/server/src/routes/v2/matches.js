@@ -25,6 +25,7 @@ async function getMatchDetails(matchId) {
         console.error("Error reading match YAML file:", err);
         throw Boom.notFound("Match YAML file not found or invalid");
     }
+
     const match = matchYamlData.matches.find(m => m.id === matchId);
     if (!match) {
         throw Boom.notFound("Match not found in YAML");
@@ -175,7 +176,7 @@ module.exports = [
         options: {
             description: 'Submit feedback for a match',
             tags: ['api', 'v2', 'matches'],
-            auth: 'jwt',
+            //auth: 'jwt',
             validate: {
                 params: Joi.object({
                     id: Joi.string().required().description('Match ID')
@@ -193,11 +194,11 @@ module.exports = [
                         throw Boom.notFound('Match not found');
                     }
 
-                    // Get user ID from auth credentials
-                    const userId = request.auth?.credentials?.id;
-                    if (!userId) {
-                        throw Boom.unauthorized('User not authenticated');
-                    }
+                    // // Get user ID from auth credentials
+                    // const userId = request.auth?.credentials?.id;
+                    // if (!userId) {
+                    //     throw Boom.unauthorized('User not authenticated');
+                    // }
 
                     // Check if user already has an interaction for this match
                     const existingInteraction = await request.db('match_interactions')
@@ -299,6 +300,7 @@ module.exports = [
 
                     // Verify match exists
                     const match = await getMatchDetails(matchId);
+                    console.log('GET match', matchId, match);
                     if (!match) {
                         throw Boom.notFound('Match not found');
                     }
@@ -309,6 +311,8 @@ module.exports = [
                         .orderBy('created_at', 'desc')
                         .limit(limit)
                         .offset(offset);
+
+                    console.log('GET feedback', feedback);
 
                     // Get total count for pagination
                     const total = await request.db('match_interactions')
