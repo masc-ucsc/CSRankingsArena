@@ -1,0 +1,382 @@
+{
+	"info": {
+		"_postman_id": "csrankings-arena-server",
+		"name": "CSRankings Arena Server API",
+		"description": "API collection for the CSRankings Arena server running on port 5000",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Get Health Status",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "health"]
+						},
+						"description": "Check if the server is running"
+					}
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "GitHub Login",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/auth/github",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "auth", "github"]
+						},
+						"description": "Initiate GitHub OAuth login"
+					}
+				},
+				{
+					"name": "GitHub Callback",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/auth/github/callback",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "auth", "github", "callback"]
+						},
+						"description": "GitHub OAuth callback endpoint"
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/auth/me",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "auth", "me"]
+						},
+						"description": "Get current authenticated user information",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Papers",
+			"item": [
+				{
+					"name": "Get Papers",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/papers?category=ai&year=2023",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "papers"],
+							"query": [
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category slug"
+								},
+								{
+									"key": "year",
+									"value": "2023",
+									"description": "Publication year"
+								}
+							]
+						},
+						"description": "Get papers by category and year"
+					}
+				},
+				{
+					"name": "Search Papers",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/papers/search?q=machine%20learning&category=ai&year=2023&page=1&limit=20",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "papers", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "machine learning",
+									"description": "Search query"
+								},
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category slug"
+								},
+								{
+									"key": "year",
+									"value": "2023",
+									"description": "Publication year"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Results per page"
+								}
+							]
+						},
+						"description": "Search papers by query, category, and year"
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/categories",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "categories"]
+						},
+						"description": "Get all available categories"
+					}
+				},
+				{
+					"name": "Get Category by Slug",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/categories/ai",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "categories", "ai"]
+						},
+						"description": "Get details for a specific category"
+					}
+				}
+			]
+		},
+		{
+			"name": "Competition",
+			"item": [
+				{
+					"name": "Get All Agents",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/agents",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "agents"]
+						},
+						"description": "Get all active competition agents"
+					}
+				},
+				{
+					"name": "Get Agent by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/agents/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "agents", "1"]
+						},
+						"description": "Get details for a specific agent"
+					}
+				},
+				{
+					"name": "Get Agent Matches",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/agents/1/matches?page=1&limit=10&status=completed",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "agents", "1", "matches"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Results per page"
+								},
+								{
+									"key": "status",
+									"value": "completed",
+									"description": "Match status filter"
+								}
+							]
+						},
+						"description": "Get matches for a specific agent"
+					}
+				}
+			]
+		},
+		{
+			"name": "Matches",
+			"item": [
+				{
+					"name": "Get Match by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/matches/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "matches", "1"]
+						},
+						"description": "Get details for a specific match"
+					}
+				},
+				{
+					"name": "Submit Match Feedback",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/matches/1/feedback",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "matches", "1", "feedback"]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rating\": 5,\n    \"comment\": \"Great match!\"\n}"
+						},
+						"description": "Submit feedback for a match"
+					}
+				}
+			]
+		},
+		{
+			"name": "Leaderboard",
+			"item": [
+				{
+					"name": "Get Leaderboard",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/leaderboard?limit=10&category=ai&timeRange=month",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "leaderboard"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of results"
+								},
+								{
+									"key": "category",
+									"value": "ai",
+									"description": "Category filter"
+								},
+								{
+									"key": "timeRange",
+									"value": "month",
+									"description": "Time range filter (all, week, month, year)"
+								}
+							]
+						},
+						"description": "Get the competition leaderboard"
+					}
+				}
+			]
+		},
+		{
+			"name": "Mock Data (Development Only)",
+			"item": [
+				{
+					"name": "Get Mock YAML",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:5000/api/v2/mock/papers/ai/machine-learning/2023/papers.yaml",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "v2", "mock", "papers", "ai", "machine-learning", "2023", "papers.yaml"]
+						},
+						"description": "Get mock YAML file (development only)"
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "jwt_token",
+			"value": "your_jwt_token_here",
+			"type": "string"
+		}
+	]
+} 

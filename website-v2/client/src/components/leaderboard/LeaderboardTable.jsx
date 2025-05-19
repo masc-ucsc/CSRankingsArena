@@ -458,13 +458,14 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
 
               {/* Reviews Section */}
               <div style={{ marginTop: 24 }}>
+                {console.log('.filter(review => review.paperId === record.paperId) ------} this is not happening')}
                 <Title level={4}>Paper Reviews</Title>
                 <Row gutter={[24, 24]}>
                   {/* Your Paper Reviews */}
                   <Col span={12}>
                     <Card title={
                       <Space>
-                        <Text strong>Reviews for {record.title}</Text>
+                        <Text strong>Reviews for </Text>
                         <Tag color="blue">{record.paperId}</Tag>
                       </Space>
                     } bordered>
@@ -530,7 +531,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                   <Col span={12}>
                     <Card title={
                       <Space>
-                        <Text strong>Reviews for {match.opponent.title}</Text>
+                        <Text strong>Reviews for </Text>
                         <Tag color="blue">{match.opponent.paperId}</Tag>
                       </Space>
                     } bordered>
@@ -619,10 +620,10 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                         </Descriptions.Item>
                         <Descriptions.Item label="Overall Scores" span={3}>
                           <Space>
-                            <Text strong>{record.title}:</Text>
+                            <Text strong>Your Paper:</Text>
                             <Rate disabled defaultValue={match.comparison.overallScores[record.paperId]} count={10} />
                             <Text>{match.comparison.overallScores[record.paperId].toFixed(1)}</Text>
-                            <Text strong style={{ marginLeft: 16 }}>{match.opponent.title}:</Text>
+                            <Text strong style={{ marginLeft: 16 }}>Opponent Paper:</Text>
                             <Rate disabled defaultValue={match.comparison.overallScores[match.opponent.paperId]} count={10} />
                             <Text>{match.comparison.overallScores[match.opponent.paperId].toFixed(1)}</Text>
                           </Space>
@@ -894,7 +895,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
             <Text type="secondary">
               {usingMockData 
                 ? 'Showing sample rankings to demonstrate the leaderboard format'
-                : `Rankings based on actual match performance in ${category}/${subcategory} (${year})`
+                : `Rankings based on actual match performance\nin ${category}/${subcategory} (${year})`
               }
             </Text>
           </div>
