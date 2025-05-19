@@ -176,22 +176,38 @@ module.exports = [
         method: 'GET',
         path: '/api/v2/auth/profile',
         options: {
-            // auth: 'jwt', // Temporarily disabled auth
+            auth: 'jwt', // Enable JWT authentication
             tags: ['api', 'auth'],
             description: 'Get current user profile',
             handler: async (request, h) => {
                 try {
-                    const user = await query(
+                    // Get user ID from JWT token
+                    const userId = request.auth.credentials.id;
+                    
+                    if (!userId) {
+                        throw Boom.unauthorized('Invalid token: missing user ID');
+                    }
+
+                    const { rows } = await query(
                         'SELECT id, username, email, avatar_url, created_at FROM users WHERE id = $1',
-                        [request.auth.credentials.id]
+                        [userId]
                     );
 
-                    if (!user.rows.length) {
+                    if (!rows.length) {
                         throw Boom.notFound('User not found');
                     }
 
-                    return { user: user.rows[0] };
+                    return { 
+                        success: true,
+                        data: { 
+                            user: rows[0] 
+                        }
+                    };
                 } catch (error) {
+                    console.error('Profile fetch error:', error);
+                    if (error.isBoom) {
+                        throw error;
+                    }
                     throw Boom.unauthorized('Failed to get user profile');
                 }
             }

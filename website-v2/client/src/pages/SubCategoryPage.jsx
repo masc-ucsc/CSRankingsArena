@@ -1027,18 +1027,6 @@ const SubcategoryPage = () => {
                 />
               </Space>
             </TabPane>
-
-            <TabPane 
-              tab={
-                <Space>
-                  <RobotOutlined />
-                  Recent Matches
-                </Space>
-              } 
-              key="matches"
-            >
-              {renderRecentMatches()}
-            </TabPane>
           </Tabs>
         </Card>
       </main>

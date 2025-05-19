@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Boom = require('@hapi/boom');
+const { query } = require('../config/db');
 
 // Get JWT secret from environment variable or use a default for development
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -9,10 +10,28 @@ if (!JWT_SECRET) {
 
 const validateJWT = async (decoded, request) => {
     try {
-        // Here you would typically validate the user exists in your database
-        // For now, we'll just return the decoded token
-        return { isValid: true, credentials: decoded };
+        // Validate that the user exists in the database
+        const { rows } = await query(
+            'SELECT id, username, email, role FROM users WHERE id = $1',
+            [decoded.id]
+        );
+
+        if (!rows.length) {
+            return { isValid: false };
+        }
+
+        // Return the user data as credentials
+        return {
+            isValid: true,
+            credentials: {
+                id: rows[0].id,
+                username: rows[0].username,
+                email: rows[0].email,
+                role: rows[0].role
+            }
+        };
     } catch (error) {
+        console.error('JWT validation error:', error);
         return { isValid: false };
     }
 };

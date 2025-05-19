@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { getProfile } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -12,9 +12,6 @@ export const AuthProvider = ({ children }) => {
         // Check if user is already logged in
         const token = localStorage.getItem('token');
         if (token) {
-            // Set default authorization header
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
             // Verify token and get user info
             verifyToken(token);
         } else {
@@ -24,13 +21,13 @@ export const AuthProvider = ({ children }) => {
 
     const verifyToken = async (token) => {
         try {
-            const response = await axios.get('/api/v2/auth/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setUser(response.data.user);
-            setIsAuthenticated(true);
+            const response = await getProfile();
+            if (response.success) {
+                setUser(response.data.user);
+                setIsAuthenticated(true);
+            } else {
+                throw new Error('Failed to verify token');
+            }
         } catch (error) {
             console.error('Token verification failed:', error);
             // If token is invalid, clear everything
@@ -45,17 +42,10 @@ export const AuthProvider = ({ children }) => {
             // Save token to localStorage
             localStorage.setItem('token', token);
             
-            // Set default authorization header
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
             // Get user profile
-            const response = await axios.get('/api/v2/auth/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.data && response.data.user) {
+            const response = await getProfile();
+            
+            if (response.success && response.data.user) {
                 setUser(response.data.user);
                 setIsAuthenticated(true);
                 return { success: true };
@@ -68,7 +58,7 @@ export const AuthProvider = ({ children }) => {
             logout();
             return {
                 success: false,
-                error: error.response?.data?.message || 'Login failed'
+                error: error.message || 'Login failed'
             };
         }
     };
@@ -76,9 +66,6 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         // Remove token from localStorage
         localStorage.removeItem('token');
-        
-        // Remove authorization header
-        delete axios.defaults.headers.common['Authorization'];
         
         // Clear any stored state
         sessionStorage.removeItem('authRedirectState');
