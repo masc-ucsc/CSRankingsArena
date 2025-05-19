@@ -89,6 +89,9 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
         });
 
         // Check if we have valid data
+
+        console.log('RESPONSE: leaderboard', response.data);
+
         if (response.data && Array.isArray(response.data.rankings) && response.data.rankings.length > 0) {
           // Check if any of the papers have real paperIds (not starting with 'mock-')
           const hasRealData = response.data.rankings.some(paper => 
@@ -165,30 +168,35 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     try {
       setFeedbackLoading(prev => ({ ...prev, [matchId]: true }));
       
-      const action = userFeedback[matchId]?.[type] ? 'remove' : 'add';
-      const response = await api.post(`/api/v2/matches/${matchId}/feedback`, {
+      const response = await api.post(`/api/matches/${matchId}/feedback`, {
         type,
-        action
+        action: userFeedback[matchId]?.[type === 'like' ? 'liked' : 'disliked'] ? 'remove' : 'add'
       });
 
-      if (response.data.success) {
-        // Update local user feedback state
-        const currentFeedback = userFeedback[matchId] || { liked: false, disliked: false };
-        const newFeedback = { ...currentFeedback };
+      const { success, feedback } = response.data;
+      
+      if (success) {
+        const match = data.flatMap(p => p.matches).find(m => m.matchId === matchId);
+        if (match) {
+          // Update the match feedback with new counts from server
+          match.feedback.likes = feedback.likes;
+          match.feedback.dislikes = feedback.dislikes;
+          
+          // Update local user feedback state
+          const currentFeedback = userFeedback[matchId] || { liked: false, disliked: false };
+          const newFeedback = { ...currentFeedback };
 
-        if (type === 'like') {
-          newFeedback.liked = !currentFeedback.liked;
-          newFeedback.disliked = false;
-        } else if (type === 'dislike') {
-          newFeedback.disliked = !currentFeedback.disliked;
-          newFeedback.liked = false;
+          if (type === 'like') {
+            newFeedback.liked = !currentFeedback.liked;
+            newFeedback.disliked = false;
+          } else if (type === 'dislike') {
+            newFeedback.disliked = !currentFeedback.disliked;
+            newFeedback.liked = false;
+          }
+
+          setUserFeedback(prev => ({ ...prev, [matchId]: newFeedback }));
+          message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
         }
-
-        setUserFeedback(prev => ({ ...prev, [matchId]: newFeedback }));
-
-        // Reload feedback data
-        await loadFeedback(matchId);
-        message.success(`Feedback ${type === 'like' ? 'liked' : 'disliked'} successfully!`);
       }
     } catch (error) {
       console.error('Error submitting feedback:', error);
@@ -196,7 +204,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     } finally {
       setFeedbackLoading(prev => ({ ...prev, [matchId]: false }));
     }
-  }, [userFeedback, loadFeedback]);
+  }, [data, userFeedback]);
 
   // Update handleComment function to reload feedback after comment
   const handleComment = useCallback(async () => {
@@ -205,14 +213,16 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     try {
       setCommentLoading(true);
 
-      const response = await api.post(`/api/v2/matches/${selectedMatch.matchId}/comments`, {
+      const response = await api.post(`/api/matches/${selectedMatch.matchId}/comments`, {
         text: comment.trim(),
         tags: selectedTags
       });
 
-      if (response.data.success) {
-        // Reload feedback data
-        await loadFeedback(selectedMatch.matchId);
+      const { success, comment: newComment } = response.data;
+
+      if (success) {
+        // Update the match with the new comment from server
+        selectedMatch.feedback.comments.unshift(newComment);
         setComment('');
         setFeedbackModalVisible(false);
         message.success('Comment added successfully!');
@@ -223,14 +233,7 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
     } finally {
       setCommentLoading(false);
     }
-  }, [comment, selectedMatch, selectedTags, loadFeedback]);
-
-  // Add useEffect to load feedback when match is selected
-  useEffect(() => {
-    if (selectedMatch) {
-      loadFeedback(selectedMatch.matchId);
-    }
-  }, [selectedMatch, loadFeedback]);
+  }, [comment, selectedMatch, selectedTags]);
 
   // Memoize the filtered and sorted comments
   const getFilteredAndSortedComments = useCallback((match) => {
@@ -291,9 +294,9 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
             {record.paperId.startsWith('mock-') ? (
               title
             ) : (
-              <Link to={`/papers/${record.paperId}`}>
+              <a href={record.url} target="_blank" rel="noopener noreferrer">
                 {title} <LinkOutlined style={{ fontSize: '12px' }} />
-              </Link>
+              </a>
             )}
           </div>
           <div style={{ color: '#666', fontSize: '0.9em' }}>

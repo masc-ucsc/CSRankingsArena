@@ -56,14 +56,38 @@ function calculatePaperRankings(matches) {
         const [paper1Id, paper2Id] = match.paperIds;
         const winner = match.comparison.winner;
 
+        console.log('paperId1', paper1Id, 'paperId2', paper2Id);
+        console.log('match', match);
+
         // Initialize paper stats and matches if not exists
+
         [paper1Id, paper2Id].forEach(paperId => {
             if (!paperStats.has(paperId)) {
+                // Load paper data from YAML
+                const parts = match.id.split("-");
+                const category = parts[1];
+                const subcategory = parts[2];
+                const year = parts[3];
+                
+                // Load papers YAML file
+                const papersYamlFile = path.join(__dirname, "../../../../papers", category, subcategory, year, `${category}-${subcategory}-${year}-papers.yaml`);
+                let papersYamlData;
+                try {
+                    papersYamlData = yaml.load(fs.readFileSync(papersYamlFile, "utf8"));
+                } catch (err) {
+                    console.error("Error reading papers YAML file:", err);
+                    throw Boom.notFound("Papers YAML file not found or invalid");
+                }
+
+                // Find paper data in YAML
+                const paperData = papersYamlData.papers.find(p => p.id === paperId);
+
                 paperStats.set(paperId, {
                     paperId,
-                    title: match.reviews.find(r => r.paperId === paperId)?.paperTitle || paperId,
-                    authors: match.reviews.find(r => r.paperId === paperId)?.paperAuthors || [],
-                    venue: match.reviews.find(r => r.paperId === paperId)?.paperVenue || '',
+                    title: paperData?.title || paperId,
+                    authors: paperData?.authors || [],
+                    venue: paperData?.venue || '',
+                    url: paperData?.url || '',
                     matches: 0,
                     wins: 0,
                     score: 0,
@@ -96,29 +120,51 @@ function calculatePaperRankings(matches) {
         }
 
         // Store detailed match data for both papers
-        const createMatchDetails = (currentPaperId, opponentPaperId, currentScore, opponentScore) => ({
-            matchId: match.id,
-            opponent: {
-                paperId: opponentPaperId,
-                title: match.reviews.find(r => r.paperId === opponentPaperId)?.paperTitle,
-                score: opponentScore
-            },
-            score: currentScore,
-            result: winner === currentPaperId ? 'win' : winner === opponentPaperId ? 'loss' : 'draw',
-            date: match.createdAt,
-            reviews: match.reviews.map(review => ({
-                reviewer: review.reviewer,
-                metrics: review.metrics,
-                analysis: review.analysis
-            })),
-            comparison: match.comparison
-        });
+        const createMatchDetails = (currentPaperId, opponentPaperId, currentScore, opponentScore) => {
+            // Load paper data from YAML for opponent
+            const parts = match.id.split("-");
+            const category = parts[1];
+            const subcategory = parts[2];
+            const year = parts[3];
+            
+            // Load papers YAML file
+            const papersYamlFile = path.join(__dirname, "../../../../papers", category, subcategory, year, `${category}-${subcategory}-${year}-papers.yaml`);
+            let papersYamlData;
+            try {
+                papersYamlData = yaml.load(fs.readFileSync(papersYamlFile, "utf8"));
+            } catch (err) {
+                console.error("Error reading papers YAML file:", err);
+                throw Boom.notFound("Papers YAML file not found or invalid");
+            }
+
+            // Find opponent paper data in YAML
+            const opponentPaperData = papersYamlData.papers.find(p => p.id === opponentPaperId);
+
+            return {
+                matchId: match.id,
+                opponent: {
+                    paperId: opponentPaperId,
+                    title: opponentPaperData?.title || opponentPaperId,
+                    url: opponentPaperData?.url || '',
+                    score: opponentScore
+                },
+                score: currentScore,
+                result: winner === currentPaperId ? 'win' : winner === opponentPaperId ? 'loss' : 'draw',
+                date: match.createdAt,
+                reviews: match.reviews.map(review => ({
+                    reviewer: review.reviewer,
+                    metrics: review.metrics,
+                    analysis: review.analysis
+                })),
+                comparison: match.comparison
+            };
+        };
 
         // Add match details for both papers
         paperMatches.get(paper1Id).push(createMatchDetails(paper1Id, paper2Id, paper1Score, paper2Score));
         paperMatches.get(paper2Id).push(createMatchDetails(paper2Id, paper1Id, paper2Score, paper1Score));
     });
-
+    console.log('paperMatches', paperStats);
     // Calculate final scores and convert to array
     const rankings = Array.from(paperStats.values()).map(stats => ({
         ...stats,
