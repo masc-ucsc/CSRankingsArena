@@ -56,6 +56,7 @@ const MatchDetail = () => {
   const loadMatchDetails = async () => {
     try {
       const data = await fetchMatchDetails(matchId);
+      console.log('data', data);
       setMatch(data);
       
       // Fetch paper details for both papers

@@ -247,28 +247,28 @@ export const getMatches = async (params = {}) => {
 };
 
 export const getMatch = async (id) => {
-  return await api.get(`/matches/${id}`);
+  return await api.get(`/v2/matches/${id}`);
 };
 
-export const getMatchReviews = async (id) => {
-  return await api.get(`/matches/${id}/reviews`);
-};
+// export const getMatchReviews = async (id) => {
+//   return await api.get(`/matches/${id}/reviews`);
+// };
 
-export const getMatchEvaluation = async (id) => {
-  return await api.get(`/matches/${id}/evaluation`);
-};
+// export const getMatchEvaluation = async (id) => {
+//   return await api.get(`/matches/${id}/evaluation`);
+// };
 
-export const runMatch = async (id) => {
-  return await api.post(`/matches/run/${id}`);
-};
+// export const runMatch = async (id) => {
+//   return await api.post(`/matches/run/${id}`);
+// };
 
-export const generateMatches = async (data) => {
-  return await api.post('/matches/generate', data);
-};
+// export const generateMatches = async (data) => {
+//   return await api.post('/matches/generate', data);
+// };
 
-export const runPendingMatches = async (data) => {
-  return await api.post('/matches/run-pending', data);
-};
+// export const runPendingMatches = async (data) => {
+//   return await api.post('/matches/run-pending', data);
+// };
 
 // Leaderboard endpoint
 export const getLeaderboard = async () => {
@@ -295,7 +295,7 @@ export const getPaperMatches = async (id, params = {}) => {
 // Match feedback endpoints
 export const submitMatchFeedback = async (matchId, feedback) => {
   try {
-    const response = await api.post(`/matches/${matchId}/feedback`, feedback);
+    const response = await api.post(`/v2/matches/${matchId}/feedback`, feedback);
     return {
       success: true,
       data: response.data
@@ -311,7 +311,7 @@ export const submitMatchFeedback = async (matchId, feedback) => {
 
 export const getMatchFeedback = async (matchId) => {
   try {
-    const response = await api.get(`/matches/${matchId}/feedback`);
+    const response = await api.get(`/v2/matches/${matchId}/feedback`);
     return {
       success: true,
       data: response.data
@@ -327,7 +327,7 @@ export const getMatchFeedback = async (matchId) => {
 
 export const getProfile = async () => {
   try {
-    const response = await api.get('/auth/profile');
+    const response = await api.get('/v2/auth/profile');
     return {
       success: true,
       data: response.data

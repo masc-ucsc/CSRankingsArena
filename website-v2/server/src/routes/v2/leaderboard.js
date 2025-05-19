@@ -174,8 +174,8 @@ module.exports = [
           
           // Check if we're using mock data
           const yearStr = String(year);
-          const isMockData = !fs.existsSync(path.join(__dirname, "../../../papers", category, subcategory, yearStr, `${category}-${subcategory}-${yearStr}-matches.yaml`));
-          
+          const isMockData = !fs.existsSync(path.join(__dirname, "../../../../papers", category, subcategory, yearStr, `${category}-${subcategory}-${yearStr}-matches.yaml`));
+          console.log('isMockData', category, subcategory, yearStr, isMockData);
           return {
             rankings: processedRankings,
             total: rankings.length,

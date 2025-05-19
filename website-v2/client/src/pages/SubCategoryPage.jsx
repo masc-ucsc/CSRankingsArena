@@ -31,7 +31,9 @@ import {
   DatePicker,
   Spin,
   Result,
-  Divider
+  Divider,
+  Popover,
+  Table
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -42,7 +44,9 @@ import {
   EyeOutlined,
   SearchOutlined,
   FilterOutlined,
-  BarChartOutlined
+  BarChartOutlined,
+  DownloadOutlined,
+  WarningOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import { getMockLeaderboardData } from '../mock/paperData';
@@ -630,6 +634,43 @@ const SubcategoryPage = () => {
     }
   };
 
+  const handleDownloadMatches = async () => {
+    try {
+      const response = await api.get('/matches/download', {
+        params: {
+          category: categorySlug,
+          subcategory: subcategorySlug,
+          year: leaderboardYear
+        },
+        responseType: 'blob'
+      });
+      
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: 'application/x-yaml' });
+      
+      // Create a temporary URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${categorySlug}-${subcategorySlug}-${leaderboardYear}-matches.yaml`;
+      
+      // Append the link to the document, click it, and remove it
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL
+      window.URL.revokeObjectURL(url);
+      
+      message.success('Matches YAML file downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading matches YAML file:', error);
+      message.error('Failed to download matches YAML file');
+    }
+  };
+
   const renderPaperList = () => {
     console.log('renderPaperList called with state:', {
       papers,
@@ -1025,6 +1066,15 @@ const SubcategoryPage = () => {
                   subcategory={subcategorySlug} 
                   year={leaderboardYear}
                 />
+                <Space align="center">
+                  <Button 
+                    type="primary" 
+                    icon={<DownloadOutlined />}
+                    onClick={handleDownloadMatches}
+                  >
+                    Download Matches YAML
+                  </Button>
+                </Space>
               </Space>
             </TabPane>
           </Tabs>

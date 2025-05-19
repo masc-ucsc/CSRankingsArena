@@ -402,5 +402,47 @@ module.exports = [
                 }
             }
         }
+    },
+    {
+        method: 'GET',
+        path: '/api/v2/matches/download',
+        options: {
+            description: 'Download matches YAML file for a category/subcategory/year',
+            tags: ['api', 'v2', 'matches'],
+            validate: {
+                query: Joi.object({
+                    category: Joi.string().required().description('Category slug (e.g. ai)'),
+                    subcategory: Joi.string().required().description('Subcategory slug (e.g. vision)'),
+                    year: Joi.number().integer().required().description('Year')
+                })
+            },
+            handler: async (request, h) => {
+                try {
+                    const { category, subcategory, year } = request.query;
+                    console.log(category, subcategory, year)
+                    const yearStr = String(year);
+                    
+                    // Try to read from actual data directory first
+                    const dataPath = path.join(__dirname, "../../../../papers", category, subcategory, yearStr, `${category}-${subcategory}-${yearStr}-matches.yaml`);
+                    console.log('dataPath', dataPath);
+                    let filePath;
+                    if (fs.existsSync(dataPath)) {
+                        filePath = dataPath;
+                    } else {
+                        throw Boom.notFound(`No match data found for ${category}/${subcategory}/${yearStr}`);
+                    }
+                    
+                    const fileContent = fs.readFileSync(filePath, 'utf8');
+                    const fileName = `${category}-${subcategory}-${yearStr}-matches.yaml`;
+                    return h.response(fileContent)
+                        .header('Content-Type', 'application/x-yaml')
+                        .header('Content-Disposition', `attachment; filename="${fileName}"`);
+                } catch (error) {
+                    if (error.isBoom) throw error;
+                    console.error("Error downloading matches YAML file:", error);
+                    throw Boom.badImplementation("Failed to download matches YAML file", error);
+                }
+            }
+        }
     }
 ]; 
