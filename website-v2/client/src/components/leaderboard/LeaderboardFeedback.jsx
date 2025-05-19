@@ -77,6 +77,41 @@ const LeaderboardFeedback = ({ matchId }) => {
     }
   };
 
+  const handleGitHubLogin = () => {
+    // Store current location and state for redirect after login
+    const currentPath = window.location.pathname + window.location.search;
+    const state = {
+      path: currentPath,
+      matchId: matchId,
+      showCommentModal: showCommentModal,
+      comment: comment
+    };
+    
+    // Store state in sessionStorage to persist across the OAuth flow
+    sessionStorage.setItem('authRedirectState', JSON.stringify(state));
+    
+    // Redirect to GitHub OAuth using the full server URL
+    const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
+    window.location.href = `${serverUrl}/auth/github?redirect=${encodeURIComponent(currentPath)}`;
+  };
+
+  // Add effect to handle post-login state restoration
+  useEffect(() => {
+    const storedState = sessionStorage.getItem('authRedirectState');
+    if (storedState && isAuthenticated) {
+      const state = JSON.parse(storedState);
+      if (state.matchId === matchId) {
+        // Restore the previous state
+        if (state.showCommentModal) {
+          setShowCommentModal(true);
+          setComment(state.comment || '');
+        }
+        // Clear the stored state
+        sessionStorage.removeItem('authRedirectState');
+      }
+    }
+  }, [isAuthenticated, matchId]);
+
   const handleFeedback = async (type) => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
@@ -106,6 +141,8 @@ const LeaderboardFeedback = ({ matchId }) => {
     } catch (error) {
       console.error('Error submitting feedback:', error);
       if (error.response?.status === 401) {
+        // Clear token and show login modal
+        localStorage.removeItem('token');
         setShowLoginModal(true);
       } else {
         message.error('Failed to submit feedback');
@@ -115,17 +152,12 @@ const LeaderboardFeedback = ({ matchId }) => {
     }
   };
 
-  const handleGitHubLogin = () => {
-    // Store current location for redirect after login
-    const currentPath = window.location.pathname + window.location.search;
-    const redirectUrl = encodeURIComponent(currentPath);
-    
-    // Redirect to GitHub OAuth using the full server URL
-    const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
-    window.location.href = `${serverUrl}/auth/github?redirect=${redirectUrl}`;
-  };
-
   const handleComment = async () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (!comment.trim()) {
       message.warning('Please enter a comment');
       return;
@@ -150,6 +182,8 @@ const LeaderboardFeedback = ({ matchId }) => {
     } catch (error) {
       console.error('Error adding comment:', error);
       if (error.response?.status === 401) {
+        // Clear token and show login modal
+        localStorage.removeItem('token');
         setShowLoginModal(true);
       } else {
         message.error('Failed to add comment');

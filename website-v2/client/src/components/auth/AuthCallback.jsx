@@ -13,6 +13,7 @@ const AuthCallback = () => {
             const params = new URLSearchParams(location.search);
             const token = params.get('token');
             const error = params.get('error');
+            const redirect = params.get('redirect') || '/';
 
             if (error) {
                 message.error('Failed to authenticate with GitHub');
@@ -22,12 +23,25 @@ const AuthCallback = () => {
 
             if (token) {
                 try {
-                    await login(token);
-                    message.success('Successfully logged in with GitHub');
+                    // Attempt to login with the token
+                    const result = await login(token);
                     
-                    // Redirect to the original destination or home
-                    const redirectTo = params.get('redirect') || '/';
-                    navigate(redirectTo);
+                    if (result.success) {
+                        message.success('Successfully logged in with GitHub');
+                        
+                        // Check for stored state
+                        const storedState = sessionStorage.getItem('authRedirectState');
+                        if (storedState) {
+                            const state = JSON.parse(storedState);
+                            // Navigate to the stored path
+                            navigate(state.path);
+                        } else {
+                            // Navigate to the original destination or home
+                            navigate(redirect);
+                        }
+                    } else {
+                        throw new Error(result.error || 'Login failed');
+                    }
                 } catch (err) {
                     console.error('Auth callback error:', err);
                     message.error('Failed to complete authentication');

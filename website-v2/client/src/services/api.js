@@ -119,7 +119,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear token and redirect to login
       localStorage.removeItem('token');
-      window.location.href = '/auth/callback';
+      // Store current location for redirect after login
+      const currentPath = window.location.pathname + window.location.search;
+      const redirectUrl = encodeURIComponent(currentPath);
+      const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
+      window.location.href = `${serverUrl}/auth/github?redirect=${redirectUrl}`;
     }
     return Promise.reject(error);
   }

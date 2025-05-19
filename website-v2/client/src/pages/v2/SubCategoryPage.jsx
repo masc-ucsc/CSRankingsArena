@@ -58,7 +58,7 @@ const SubCategoryPageV2 = () => {
   
   // Loading states
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadingMatches, setLoadingMatches] = useState(false);
   
   // Data states
@@ -70,11 +70,11 @@ const SubCategoryPageV2 = () => {
   
   // Filter states
   const [selectedYear, setSelectedYear] = useState(2025);
+  const [availableYears, setAvailableYears] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedVenue, setSelectedVenue] = useState('');
   const [selectedMatchStatus, setSelectedMatchStatus] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
-  const [availableYears, setAvailableYears] = useState([2025, 2024, 2023, 2022, 2021]);
   
   // Match creation states
   const [selectedPapers, setSelectedPapers] = useState({ paper1: null, paper2: null });
@@ -108,32 +108,49 @@ const SubCategoryPageV2 = () => {
   }, [categories]);
 
   useEffect(() => {
-    const loadData = async () => {
-      if (categoryNotFound || subcategoryNotFound || !category || !subcategory) return;
+    if (categorySlug && subcategorySlug) {
+      const loadInitialData = async () => {
+        try {
+          const [papersData, venuesData, agentsData] = await Promise.all([
+            fetchPapers(categorySlug, subcategorySlug, 2025),
+            fetchVenues(categorySlug, subcategorySlug, 2025),
+            fetchAgents()
+          ]);
+          
+          setPapers(papersData);
+          setVenues(venuesData);
+          setAgents(agentsData.agents || []);
+          
+          await fetchRecentMatches();
+        } catch (err) {
+          setError(err.message);
+          console.error('Error loading initial data:', err);
+        }
+      };
       
+      loadInitialData();
+    }
+  }, [categorySlug, subcategorySlug]);
+
+  useEffect(() => {
+    const fetchAvailableYears = async () => {
       try {
-        setLoading(true);
-        const [papersData, venuesData, agentsData] = await Promise.all([
-          fetchPapers(categorySlug, subcategorySlug, selectedYear),
-          fetchVenues(categorySlug, subcategorySlug, selectedYear),
-          fetchAgents()
-        ]);
-        
-        setPapers(papersData);
-        setVenues(venuesData);
-        setAgents(agentsData.agents || []);
-        
-        await fetchRecentMatches();
+        const currentYear = new Date().getFullYear();
+        const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+        setAvailableYears([2025, ...years.filter(year => year !== 2025)]);
       } catch (err) {
-        setError(err.message);
-        console.error('Error loading data:', err);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching years:', err);
+        // Use current year and previous 4 years as fallback
+        const currentYear = new Date().getFullYear();
+        const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+        setAvailableYears([2025, ...years.filter(year => year !== 2025)]);
       }
     };
-    
-    loadData();
-  }, [categorySlug, subcategorySlug, selectedYear, category, subcategory, categoryNotFound, subcategoryNotFound]);
+
+    if (category && subcategory) {
+      fetchAvailableYears();
+    }
+  }, [category, subcategory]);
 
   const fetchRecentMatches = async () => {
     setLoadingMatches(true);
@@ -607,19 +624,11 @@ const SubCategoryPageV2 = () => {
                   style={{ width: '100%' }}
                   placeholder="Select Year"
                   value={selectedYear}
-                  onChange={(year) => {
-                    setSelectedYear(year);
-                    // If year is cleared, default to 2025
-                    if (!year) {
-                      setSelectedYear(2025);
-                    }
-                  }}
-                  allowClear
+                  onChange={setSelectedYear}
+                  defaultValue={2025}
                 >
                   {availableYears.map(year => (
-                    <Option key={year} value={year}>
-                      {year === 2025 ? `2025 (Current)` : year}
-                    </Option>
+                    <Option key={year} value={year}>{year}</Option>
                   ))}
                 </Select>
               </Col>
@@ -694,12 +703,14 @@ const SubCategoryPageV2 = () => {
 
         <Card style={{ marginBottom: '24px' }}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            {loading ? (
-              <div>Loading papers...</div>
-            ) : error ? (
-              <div>Error: {error}</div>
+            {error ? (
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <Text type="danger">Error: {error}</Text>
+              </div>
             ) : papers.length === 0 ? (
-              <div>No papers found for this subcategory and year.</div>
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <Text type="secondary">No papers found for this subcategory and year.</Text>
+              </div>
             ) : (
               renderPaperList()
             )}

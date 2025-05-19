@@ -71,17 +71,6 @@ const Header = () => {
           </Space>
         </Link>
       )
-    },
-    {
-      key: 'competition',
-      label: (
-        <Link to="/competition" className={isCompetitionRoute ? 'active' : ''}>
-          <Space>
-            <RobotOutlined />
-            Competition
-          </Space>
-        </Link>
-      )
     }
   ];
 

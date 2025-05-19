@@ -24,10 +24,15 @@ export const AuthProvider = ({ children }) => {
 
     const verifyToken = async (token) => {
         try {
-            const response = await axios.get('/api/v2/auth/verify');
+            const response = await axios.get('/api/v2/auth/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             setUser(response.data.user);
             setIsAuthenticated(true);
         } catch (error) {
+            console.error('Token verification failed:', error);
             // If token is invalid, clear everything
             logout();
         } finally {
@@ -44,11 +49,19 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             
             // Get user profile
-            const response = await axios.get('/api/v2/auth/profile');
-            setUser(response.data.user);
-            setIsAuthenticated(true);
-            
-            return { success: true };
+            const response = await axios.get('/api/v2/auth/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.data && response.data.user) {
+                setUser(response.data.user);
+                setIsAuthenticated(true);
+                return { success: true };
+            } else {
+                throw new Error('Invalid user data received');
+            }
         } catch (error) {
             console.error('Login error:', error);
             // If token is invalid, clear everything
@@ -66,6 +79,9 @@ export const AuthProvider = ({ children }) => {
         
         // Remove authorization header
         delete axios.defaults.headers.common['Authorization'];
+        
+        // Clear any stored state
+        sessionStorage.removeItem('authRedirectState');
         
         setUser(null);
         setIsAuthenticated(false);
