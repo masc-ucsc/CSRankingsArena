@@ -445,9 +445,47 @@ module.exports = [
                         throw Boom.notFound(`No match data found for ${category}/${subcategory}/${yearStr}`);
                     }
                     
+                    // Read the YAML file
                     const fileContent = fs.readFileSync(filePath, 'utf8');
+                    const matchesData = yaml.load(fileContent);
+
+                    // Get all match IDs from the YAML
+                    const matchIds = matchesData.matches.map(match => match.id);
+
+                    // Fetch all interactions for these matches
+                    const interactions = await request.db('match_interactions')
+                        .whereIn('match_id', matchIds)
+                        .orderBy('created_at', 'asc');
+
+                    // Group interactions by match_id
+                    const interactionsByMatch = interactions.reduce((acc, interaction) => {
+                        if (!acc[interaction.match_id]) {
+                            acc[interaction.match_id] = [];
+                        }
+                        acc[interaction.match_id].push({
+                            type: interaction.type,
+                            content: interaction.content,
+                            is_anonymous: interaction.is_anonymous,
+                            created_at: interaction.created_at
+                        });
+                        return acc;
+                    }, {});
+
+                    // Add interactions to each match in the YAML data
+                    matchesData.matches = matchesData.matches.map(match => ({
+                        ...match,
+                        interactions: interactionsByMatch[match.id] || []
+                    }));
+
+                    // Convert back to YAML
+                    const updatedYamlContent = yaml.dump(matchesData, {
+                        indent: 2,
+                        lineWidth: -1,
+                        noRefs: true
+                    });
+
                     const fileName = `${category}-${subcategory}-${yearStr}-matches.yaml`;
-                    return h.response(fileContent)
+                    return h.response(updatedYamlContent)
                         .header('Content-Type', 'application/x-yaml')
                         .header('Content-Disposition', `attachment; filename="${fileName}"`);
                 } catch (error) {
