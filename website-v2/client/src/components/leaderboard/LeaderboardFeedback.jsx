@@ -167,38 +167,24 @@ const LeaderboardFeedback = ({ matchId }) => {
       });
 
       if (response.success && response.data) {
-       
-        // const likes = items.filter(item => item.type === 'like').length;
-        // const dislikes = items.filter(item => item.type === 'dislike').length;
-        
-        // // Get comments
-        // const comments = items
-        //   .filter(item => item.type === 'comment')
-        //   .map(comment => ({
-        //     ...comment,
-        //     text: comment.content,
-        //     user: {
-        //       username: comment.isAnonymous ? 'Anonymous' : 'User',
-        //       avatar_url: null
-        //     }
-        //   }));
-
-        // setFeedback({
-        //   likes,
-        //   dislikes,
-        //   comments
-        // });
-       
-       
-        // Fetch fresh data after any interaction
-        await fetchFeedback();
-
-        // Update user feedback state
-        setUserFeedback({
-          liked: type === 'like',
-          disliked: type === 'dislike'
+        // Update user feedback state based on the current state
+        setUserFeedback(prev => {
+          // If clicking the same button, remove the feedback
+          if ((type === 'like' && prev.liked) || (type === 'dislike' && prev.disliked)) {
+            return {
+              liked: false,
+              disliked: false
+            };
+          }
+          // If clicking a different button, switch the feedback
+          return {
+            liked: type === 'like',
+            disliked: type === 'dislike'
+          };
         });
 
+        // Fetch fresh data after any interaction
+        await fetchFeedback();
         message.success(`${type === 'like' ? 'Liked' : 'Disliked'} successfully`);
       }
     } catch (error) {

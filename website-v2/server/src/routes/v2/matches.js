@@ -312,7 +312,6 @@ module.exports = [
 
                     // Verify match exists
                     const match = await getMatchDetails(matchId);
-                    console.log('GET match', matchId, match);
                     if (!match) {
                         throw Boom.notFound('Match not found');
                     }
