@@ -25,6 +25,7 @@ async function getMatchDetails(matchId) {
         console.error("Error reading match YAML file:", err);
         throw Boom.notFound("Match YAML file not found or invalid");
     }
+
     const match = matchYamlData.matches.find(m => m.id === matchId);
     if (!match) {
         throw Boom.notFound("Match not found in YAML");
@@ -57,11 +58,12 @@ async function getMatchDetails(matchId) {
 
 // Add feedback schema
 const feedbackSchema = Joi.object({
-  rating: Joi.number().min(1).max(5).required(),
+  rating: Joi.number().min(1).max(5).optional(),
   comment: Joi.string().max(1000).allow(''),
   isAnonymous: Joi.boolean().default(false),
-  matchId: Joi.string().required()
-});
+  type: Joi.string().valid('like', 'dislike', 'liked', 'disliked', 'comment').optional(),
+  action: Joi.string().valid('add', 'remove').optional()
+}).or('rating', 'comment', 'type');
 
 module.exports = [
     {
@@ -174,6 +176,7 @@ module.exports = [
         options: {
             description: 'Submit feedback for a match',
             tags: ['api', 'v2', 'matches'],
+            //auth: 'jwt',
             validate: {
                 params: Joi.object({
                     id: Joi.string().required().description('Match ID')
@@ -182,6 +185,7 @@ module.exports = [
             },
             handler: async (request, h) => {
                 try {
+                    console.log('POST feedback', request.payload);
                     const { id } = request.params;
                     const feedback = request.payload;
                     
@@ -192,19 +196,89 @@ module.exports = [
                         throw Boom.notFound('Match not found');
                     }
 
-                    // In a real implementation, you would:
-                    // 1. Get the user ID from the session/auth token
-                    // 2. Store the feedback in a database
-                    // 3. Update match statistics
+                    // Get user ID from auth credentials or use a dummy ID for anonymous users
+                    const userId = request.auth?.credentials?.id || 'anonymous-' + Date.now();
                     
-                    // For now, we'll just return a success response
+                    if (feedback.type === 'comment') {
+                        // Handle comment
+                        await request.db('match_interactions').insert({
+                            match_id: id,
+                            user_id: userId,
+                            type: 'comment',
+                            content: feedback.comment,
+                            is_anonymous: feedback.isAnonymous || false,
+                            created_at: new Date(),
+                            updated_at: new Date()
+                        });
+                    } else {
+                        // Handle like/dislike
+                        const existingInteraction = await request.db('match_interactions')
+                            .where('match_id', id)
+                            .where('user_id', userId)
+                            .whereIn('type', ['like', 'dislike'])
+                            .first();
+
+                        if (existingInteraction) {
+                            // If user is trying to add the same type of interaction, remove it
+                            if (existingInteraction.type === feedback.type) {
+                                await request.db('match_interactions')
+                                    .where('id', existingInteraction.id)
+                                    .del();
+                            } else {
+                                // If user is changing their interaction type, update it
+                                await request.db('match_interactions')
+                                    .where('id', existingInteraction.id)
+                                    .update({
+                                        type: feedback.type,
+                                        updated_at: new Date()
+                                    });
+                            }
+                        } else {
+                            // Create new interaction
+                            await request.db('match_interactions').insert({
+                                match_id: id,
+                                user_id: userId,
+                                type: feedback.type,
+                                is_anonymous: feedback.isAnonymous || false,
+                                created_at: new Date(),
+                                updated_at: new Date()
+                            });
+                        }
+                    }
+
+                    // Get updated counts
+                    const [likeCount, dislikeCount] = await Promise.all([
+                        request.db('match_interactions')
+                            .where('match_id', id)
+                            .where('type', 'like')
+                            .count('* as count')
+                            .first(),
+                        request.db('match_interactions')
+                            .where('match_id', id)
+                            .where('type', 'dislike')
+                            .count('* as count')
+                            .first()
+                    ]);
+
+                    // Get all interactions for the match
+                    const interactions = await request.db('match_interactions')
+                        .where('match_id', id)
+                        .orderBy('created_at', 'desc');
+
                     return h.response({
-                        message: 'Feedback submitted successfully',
-                        feedback: {
-                            ...feedback,
-                            submittedAt: new Date().toISOString(),
-                            // In a real implementation, include userId if not anonymous
-                            userId: feedback.isAnonymous ? null : 'user-123' // Mock user ID
+                        success: true,
+                        data: {
+                            items: interactions.map(f => ({
+                                id: f.id,
+                                type: f.type,
+                                content: f.content,
+                                isAnonymous: f.is_anonymous,
+                                createdAt: f.created_at
+                            })),
+                            counts: {
+                                likes: parseInt(likeCount.count),
+                                dislikes: parseInt(dislikeCount.count)
+                            }
                         }
                     }).code(201);
                 } catch (error) {
@@ -217,13 +291,13 @@ module.exports = [
     },
     {
         method: 'GET',
-        path: '/api/v2/matches/{id}/feedback',
+        path: '/api/v2/matches/{matchId}/feedback',
         options: {
             description: 'Get feedback for a match',
             tags: ['api', 'v2', 'matches'],
             validate: {
                 params: Joi.object({
-                    id: Joi.string().required().description('Match ID')
+                    matchId: Joi.string().required().description('Match ID')
                 }),
                 query: Joi.object({
                     page: Joi.number().integer().min(1).default(1),
@@ -232,8 +306,75 @@ module.exports = [
             },
             handler: async (request, h) => {
                 try {
-                    const { id } = request.params;
+                    const { matchId } = request.params;
                     const { page, limit } = request.query;
+                    const offset = (page - 1) * limit;
+
+                    // Verify match exists
+                    const match = await getMatchDetails(matchId);
+                    console.log('GET match', matchId, match);
+                    if (!match) {
+                        throw Boom.notFound('Match not found');
+                    }
+
+                    // Get feedback from database with pagination
+                    const feedback = await request.db('match_interactions')
+                        .where('match_id', matchId)
+                        .orderBy('created_at', 'desc')
+                        .limit(limit)
+                        .offset(offset);
+
+                    // Get total count for pagination
+                    const total = await request.db('match_interactions')
+                        .where('match_id', matchId)
+                        .count('* as count')
+                        .first();
+
+                    return h.response({
+                        success: true,
+                        data: {
+                            items: feedback.map(f => ({
+                                id: f.id,
+                                type: f.type,
+                                content: f.content,
+                                isAnonymous: f.is_anonymous,
+                                createdAt: f.created_at
+                            })),
+                            pagination: {
+                                page,
+                                limit,
+                                total: parseInt(total.count),
+                                totalPages: Math.ceil(parseInt(total.count) / limit)
+                            }
+                        }
+                    });
+                } catch (error) {
+                    if (error.isBoom) throw error;
+                    console.error('Error fetching match feedback:', error);
+                    throw Boom.badImplementation('Failed to fetch match feedback');
+                }
+            }
+        }
+    },
+    {
+        method: 'POST',
+        path: '/api/v2/matches/{id}/comments',
+        options: {
+            description: 'Add a comment to a match',
+            tags: ['api', 'v2', 'matches'],
+            validate: {
+                params: Joi.object({
+                    id: Joi.string().required().description('Match ID')
+                }),
+                payload: Joi.object({
+                    text: Joi.string().required().min(1).max(1000),
+                    isAnonymous: Joi.boolean().default(false)
+                })
+            },
+            handler: async (request, h) => {
+                try {
+                    const { id } = request.params;
+                    const { text, isAnonymous } = request.payload;
                     
                     // Verify match exists
                     const match = await getMatchDetails(id);
@@ -241,43 +382,79 @@ module.exports = [
                         throw Boom.notFound('Match not found');
                     }
 
-                    // In a real implementation, you would:
-                    // 1. Query the database for feedback
-                    // 2. Apply pagination
-                    // 3. Filter out anonymous feedback if needed
-                    
-                    // For now, return mock feedback
-                    const mockFeedback = {
-                        items: [
-                            {
-                                id: 'feedback-1',
-                                rating: 5,
-                                comment: 'Great comparison! Very insightful analysis.',
-                                isAnonymous: false,
-                                userId: 'user-123',
-                                submittedAt: new Date().toISOString()
-                            },
-                            {
-                                id: 'feedback-2',
-                                rating: 4,
-                                comment: 'Good match, but could use more technical details.',
-                                isAnonymous: true,
-                                submittedAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-                            }
-                        ],
-                        pagination: {
-                            page,
-                            limit,
-                            total: 2,
-                            totalPages: 1
-                        }
-                    };
+                    // Create the comment
+                    await request.db('match_interactions').insert({
+                        match_id: id,
+                        type: 'comment',
+                        content: text,
+                        is_anonymous: isAnonymous,
+                        created_at: new Date(),
+                        updated_at: new Date()
+                    });
 
-                    return h.response(mockFeedback);
+                    // Get all interactions for the match
+                    const interactions = await request.db('match_interactions')
+                        .where('match_id', id)
+                        .orderBy('created_at', 'desc');
+
+                    return h.response({
+                        success: true,
+                        data: {
+                            items: interactions.map(f => ({
+                                id: f.id,
+                                type: f.type,
+                                content: f.content,
+                                isAnonymous: f.is_anonymous,
+                                createdAt: f.created_at
+                            }))
+                        }
+                    }).code(201);
                 } catch (error) {
                     if (error.isBoom) throw error;
-                    console.error('Error fetching match feedback:', error);
-                    throw Boom.badImplementation('Failed to fetch match feedback');
+                    console.error('Error adding comment:', error);
+                    throw Boom.badImplementation('Failed to add comment');
+                }
+            }
+        }
+    },
+    {
+        method: 'GET',
+        path: '/api/v2/matches/download',
+        options: {
+            description: 'Download matches YAML file for a category/subcategory/year',
+            tags: ['api', 'v2', 'matches'],
+            validate: {
+                query: Joi.object({
+                    category: Joi.string().required().description('Category slug (e.g. ai)'),
+                    subcategory: Joi.string().required().description('Subcategory slug (e.g. vision)'),
+                    year: Joi.number().integer().required().description('Year')
+                })
+            },
+            handler: async (request, h) => {
+                try {
+                    const { category, subcategory, year } = request.query;
+                    console.log(category, subcategory, year)
+                    const yearStr = String(year);
+                    
+                    // Try to read from actual data directory first
+                    const dataPath = path.join(__dirname, "../../../../papers", category, subcategory, yearStr, `${category}-${subcategory}-${yearStr}-matches.yaml`);
+                    console.log('dataPath', dataPath);
+                    let filePath;
+                    if (fs.existsSync(dataPath)) {
+                        filePath = dataPath;
+                    } else {
+                        throw Boom.notFound(`No match data found for ${category}/${subcategory}/${yearStr}`);
+                    }
+                    
+                    const fileContent = fs.readFileSync(filePath, 'utf8');
+                    const fileName = `${category}-${subcategory}-${yearStr}-matches.yaml`;
+                    return h.response(fileContent)
+                        .header('Content-Type', 'application/x-yaml')
+                        .header('Content-Disposition', `attachment; filename="${fileName}"`);
+                } catch (error) {
+                    if (error.isBoom) throw error;
+                    console.error("Error downloading matches YAML file:", error);
+                    throw Boom.badImplementation("Failed to download matches YAML file", error);
                 }
             }
         }

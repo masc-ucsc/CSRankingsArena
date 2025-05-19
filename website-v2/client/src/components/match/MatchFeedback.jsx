@@ -19,6 +19,10 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
         liked: false,
         disliked: false
     });
+    const [counts, setCounts] = useState({
+        likes: 0,
+        dislikes: 0
+    });
 
     useEffect(() => {
         fetchFeedback();
@@ -28,6 +32,14 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
         try {
             const response = await axios.get(`/api/v2/feedback/${matchId}`);
             setFeedback(response.data.feedback);
+            
+            // Calculate total likes and dislikes
+            const totalLikes = response.data.feedback.filter(f => f.liked).length;
+            const totalDislikes = response.data.feedback.filter(f => f.disliked).length;
+            setCounts({
+                likes: totalLikes,
+                dislikes: totalDislikes
+            });
             
             // Get user's feedback for this match
             const userFeedbackResponse = await axios.get(`/api/v2/feedback/${matchId}/user`);
@@ -53,10 +65,17 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
                 disliked: false
             });
             
+            // Update user feedback state
             setUserFeedback({
                 liked: response.data.liked,
                 disliked: response.data.disliked
             });
+            
+            // Update counts
+            setCounts(prev => ({
+                likes: response.data.liked ? prev.likes + 1 : prev.likes - 1,
+                dislikes: response.data.disliked ? prev.dislikes + 1 : prev.dislikes - 1
+            }));
             
             if (onFeedbackUpdate) {
                 onFeedbackUpdate();
@@ -76,10 +95,17 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
                 disliked: !userFeedback.disliked
             });
             
+            // Update user feedback state
             setUserFeedback({
                 liked: response.data.liked,
                 disliked: response.data.disliked
             });
+            
+            // Update counts
+            setCounts(prev => ({
+                likes: response.data.liked ? prev.likes + 1 : prev.likes - 1,
+                dislikes: response.data.disliked ? prev.dislikes + 1 : prev.dislikes - 1
+            }));
             
             if (onFeedbackUpdate) {
                 onFeedbackUpdate();
@@ -128,7 +154,7 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
                 icon={userFeedback.liked ? <LikeFilled /> : <LikeOutlined />}
                 onClick={handleLike}
             >
-                Like
+                Like ({counts.likes})
             </Button>
             <Button
                 type={userFeedback.disliked ? "primary" : "default"}
@@ -136,7 +162,7 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
                 icon={userFeedback.disliked ? <DislikeFilled /> : <DislikeOutlined />}
                 onClick={handleDislike}
             >
-                Dislike
+                Dislike ({counts.dislikes})
             </Button>
             <Button
                 type="primary"

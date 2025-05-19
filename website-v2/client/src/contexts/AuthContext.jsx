@@ -1,97 +1,83 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { message } from 'antd';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getProfile } from '../services/api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // Check if user is already logged in
-        const checkAuth = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    setLoading(false);
-                    return;
-                }
-
-                const response = await fetch('/api/v2/auth/profile', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const { user: userData } = await response.json();
-                    setUser(userData);
-                } else {
-                    // Token is invalid or expired
-                    localStorage.removeItem('token');
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                localStorage.removeItem('token');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkAuth();
+        const token = localStorage.getItem('token');
+        if (token) {
+            // Verify token and get user info
+            verifyToken(token);
+        } else {
+            setLoading(false);
+        }
     }, []);
 
-    const login = async (token) => {
+    const verifyToken = async (token) => {
         try {
-            // Store token
-            localStorage.setItem('token', token);
-
-            // Fetch user profile
-            const response = await fetch('/api/v2/auth/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch user profile');
+            const response = await getProfile();
+            if (response.success) {
+                setUser(response.data.user);
+                setIsAuthenticated(true);
+            } else {
+                throw new Error('Failed to verify token');
             }
-
-            const { user: userData } = await response.json();
-            setUser(userData);
-            message.success('Successfully logged in!');
         } catch (error) {
-            console.error('Login failed:', error);
-            localStorage.removeItem('token');
-            message.error('Failed to complete login');
-            throw error;
+            console.error('Token verification failed:', error);
+            // If token is invalid, clear everything
+            logout();
+        } finally {
+            setLoading(false);
         }
     };
 
-    const logout = async () => {
+    const login = async (token) => {
         try {
-            const token = localStorage.getItem('token');
-            if (token) {
-                await fetch('/api/v2/auth/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+            // Save token to localStorage
+            localStorage.setItem('token', token);
+            
+            // Get user profile
+            const response = await getProfile();
+            
+            if (response.success && response.data.user) {
+                setUser(response.data.user);
+                setIsAuthenticated(true);
+                return { success: true };
+            } else {
+                throw new Error('Invalid user data received');
             }
         } catch (error) {
-            console.error('Logout failed:', error);
-        } finally {
-            localStorage.removeItem('token');
-            setUser(null);
-            message.success('Successfully logged out!');
+            console.error('Login error:', error);
+            // If token is invalid, clear everything
+            logout();
+            return {
+                success: false,
+                error: error.message || 'Login failed'
+            };
         }
+    };
+
+    const logout = () => {
+        // Remove token from localStorage
+        localStorage.removeItem('token');
+        
+        // Clear any stored state
+        sessionStorage.removeItem('authRedirectState');
+        
+        setUser(null);
+        setIsAuthenticated(false);
     };
 
     const value = {
         user,
+        isAuthenticated,
         loading,
-        isAuthenticated: !!user,
         login,
         logout
     };

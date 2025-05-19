@@ -13,6 +13,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import CategoryMatchPage from './pages/CategoryMatchPage';
 import ApiDebugger from './components/ApiDebugger';
 import AuthCallback from './components/auth/AuthCallback';
+import Profile from './components/profile/Profile';
 
 // Import competition components
 import Dashboard from './components/competition/Dashboard';
@@ -35,6 +36,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/category/:categorySlug/:subcategorySlug" element={<SubcategoryPage />} />
             <Route path="/v2/category/:categorySlug/:subcategorySlug" element={<SubcategoryPageV2 />} />

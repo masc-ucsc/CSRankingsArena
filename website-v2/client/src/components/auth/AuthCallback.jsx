@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Spin, Result } from 'antd';
+import { Spin, Result, message } from 'antd';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AuthCallback = () => {
@@ -13,21 +13,42 @@ const AuthCallback = () => {
             const params = new URLSearchParams(location.search);
             const token = params.get('token');
             const error = params.get('error');
+            const redirect = params.get('redirect') || '/';
 
             if (error) {
+                message.error('Failed to authenticate with GitHub');
                 navigate('/?error=auth_failed');
                 return;
             }
 
             if (token) {
                 try {
-                    await login(token);
-                    const redirectTo = params.get('redirect') || '/';
-                    navigate(redirectTo);
+                    // Attempt to login with the token
+                    const result = await login(token);
+                    
+                    if (result.success) {
+                        message.success('Successfully logged in with GitHub');
+                        
+                        // Check for stored state
+                        const storedState = sessionStorage.getItem('authRedirectState');
+                        if (storedState) {
+                            const state = JSON.parse(storedState);
+                            // Navigate to the stored path
+                            navigate(state.path);
+                        } else {
+                            // Navigate to the original destination or home
+                            navigate(redirect);
+                        }
+                    } else {
+                        throw new Error(result.error || 'Login failed');
+                    }
                 } catch (err) {
+                    console.error('Auth callback error:', err);
+                    message.error('Failed to complete authentication');
                     navigate('/?error=auth_failed');
                 }
             } else {
+                message.error('No authentication token received');
                 navigate('/?error=no_token');
             }
         };

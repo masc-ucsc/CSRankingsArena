@@ -1,43 +1,37 @@
+require('dotenv').config();
+
 module.exports = {
   development: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 5432,
-      database: process.env.DB_NAME || 'cs_rankings',
-      user: process.env.DB_USER || 'cs_rankings_admin',
-      password: process.env.DB_PASSWORD || 'cse-247-admin'
-    },
-    pool: {
-      min: 2,
-      max: 10
+      host: process.env.PGHOST || 'localhost',
+      port: process.env.PGPORT || 5432,
+      user: process.env.PGUSER || 'cs_rankings_admin',
+      password: process.env.PGPASSWORD || 'cse-247-admin',
+      database: process.env.PGDATABASE || 'cs_rankings'
     },
     migrations: {
-      tableName: 'knex_migrations',
-      directory: './src/database/migrations'
+      directory: './src/migrations'
     },
     seeds: {
-      directory: './src/database/seeds'
+      directory: './src/seeds'
     }
   },
 
   production: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      ssl: { rejectUnauthorized: false }
-    },
-    pool: {
-      min: 2,
-      max: 10
+      host: process.env.PGHOST,
+      port: process.env.PGPORT,
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE
     },
     migrations: {
-      tableName: 'knex_migrations',
-      directory: './src/database/migrations'
+      directory: './src/migrations'
+    },
+    seeds: {
+      directory: './src/seeds'
     }
   }
 }; 

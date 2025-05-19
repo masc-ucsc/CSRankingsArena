@@ -98,6 +98,38 @@ api.interceptors.response.use(
   }
 );
 
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Skip auth redirect for feedback endpoints
+    if (error.response?.status === 401 && !error.config.url.includes('/feedback')) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token');
+      // Store current location for redirect after login
+      const currentPath = window.location.pathname + window.location.search;
+      const redirectUrl = encodeURIComponent(currentPath);
+      const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
+      window.location.href = `${serverUrl}/auth/github?redirect=${redirectUrl}`;
+    }
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Fetch all categories with their subcategories
  * @returns {Promise<Array>} List of categories with subcategories
@@ -216,28 +248,28 @@ export const getMatches = async (params = {}) => {
 };
 
 export const getMatch = async (id) => {
-  return await api.get(`/matches/${id}`);
+  return await api.get(`/v2/matches/${id}`);
 };
 
-export const getMatchReviews = async (id) => {
-  return await api.get(`/matches/${id}/reviews`);
-};
+// export const getMatchReviews = async (id) => {
+//   return await api.get(`/matches/${id}/reviews`);
+// };
 
-export const getMatchEvaluation = async (id) => {
-  return await api.get(`/matches/${id}/evaluation`);
-};
+// export const getMatchEvaluation = async (id) => {
+//   return await api.get(`/matches/${id}/evaluation`);
+// };
 
-export const runMatch = async (id) => {
-  return await api.post(`/matches/run/${id}`);
-};
+// export const runMatch = async (id) => {
+//   return await api.post(`/matches/run/${id}`);
+// };
 
-export const generateMatches = async (data) => {
-  return await api.post('/matches/generate', data);
-};
+// export const generateMatches = async (data) => {
+//   return await api.post('/matches/generate', data);
+// };
 
-export const runPendingMatches = async (data) => {
-  return await api.post('/matches/run-pending', data);
-};
+// export const runPendingMatches = async (data) => {
+//   return await api.post('/matches/run-pending', data);
+// };
 
 // Leaderboard endpoint
 export const getLeaderboard = async () => {
@@ -261,6 +293,54 @@ export const getPaperMatches = async (id, params = {}) => {
   return await api.get(`/papers/${id}/matches`, { params });
 };
 
+// Match feedback endpoints
+export const submitMatchFeedback = async (matchId, feedback) => {
+  try {
+    const response = await api.post(`/v2/matches/${matchId}/feedback`, feedback);
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    console.error('Error submitting feedback:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to submit feedback'
+    };
+  }
+};
+
+export const getMatchFeedback = async (matchId) => {
+  try {
+    const response = await api.get(`/v2/matches/${matchId}/feedback`);
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    console.error('Error fetching match feedback:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to fetch feedback'
+    };
+  }
+};
+
+export const getProfile = async () => {
+  try {
+    const response = await api.get('/v2/auth/profile');
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to fetch profile'
+    };
+  }
+};
 
 /**
  * Test API connectivity

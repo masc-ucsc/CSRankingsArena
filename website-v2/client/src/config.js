@@ -57,6 +57,8 @@ const config = {
   }
 };
 
+console.log('config', config);
+
 // Get configuration for current environment
 const currentEnv = process.env.NODE_ENV || 'development';
 const currentConfig = config[currentEnv];

@@ -30,8 +30,9 @@ const Header = () => {
     const currentPath = location.pathname + location.search;
     const redirectUrl = encodeURIComponent(currentPath);
     
-    // Redirect to GitHub OAuth
-    window.location.href = `/api/v2/auth/github?redirect=${redirectUrl}`;
+    // Redirect to GitHub OAuth using full server URL
+    const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
+    window.location.href = `${serverUrl}/auth/github?redirect=${redirectUrl}`;
   };
 
   const userMenuItems = [
@@ -67,17 +68,6 @@ const Header = () => {
           <Space>
             <HomeOutlined />
             Home
-          </Space>
-        </Link>
-      )
-    },
-    {
-      key: 'competition',
-      label: (
-        <Link to="/competition" className={isCompetitionRoute ? 'active' : ''}>
-          <Space>
-            <RobotOutlined />
-            Competition
           </Space>
         </Link>
       )

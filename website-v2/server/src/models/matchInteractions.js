@@ -9,12 +9,17 @@ const MatchInteraction = {
             if (!tableExists) {
                 await db.schema.createTable('match_interactions', (table) => {
                     table.increments('id').primary();
-                    table.integer('match_id').notNullable();
+                    table.string('match_id').notNullable();
+                    table.string('user_id').notNullable();
                     table.string('type').notNullable(); // 'like', 'dislike', or 'comment'
                     table.text('content').nullable(); // For comments
                     table.boolean('is_anonymous').defaultTo(false);
                     table.timestamp('created_at').defaultTo(db.fn.now());
                     table.timestamp('updated_at').defaultTo(db.fn.now());
+                    
+                    // Add indexes for better query performance
+                    table.index(['match_id', 'user_id', 'type']);
+                    table.index(['match_id', 'type']);
                 });
                 console.log('Created match_interactions table');
             }
@@ -24,13 +29,16 @@ const MatchInteraction = {
         }
     },
 
-    addInteraction: async (db, matchId, data) => {
+    addInteraction: async (db, matchId, userId, data) => {
         const { type, content, isAnonymous } = data;
         return await db('match_interactions').insert({
             match_id: matchId,
+            user_id: userId,
             type,
             content,
-            is_anonymous: isAnonymous
+            is_anonymous: isAnonymous,
+            created_at: new Date(),
+            updated_at: new Date()
         }).returning('*');
     },
 
@@ -52,9 +60,18 @@ const MatchInteraction = {
             .count('* as count');
 
         return {
-            likes: counts.find(c => c.type === 'like')?.count || 0,
-            dislikes: counts.find(c => c.type === 'dislike')?.count || 0
+            likes: parseInt(counts.find(c => c.type === 'like')?.count || 0),
+            dislikes: parseInt(counts.find(c => c.type === 'dislike')?.count || 0)
         };
+    },
+
+    getUserInteraction: async (db, matchId, userId) => {
+        return await db('match_interactions')
+            .where('match_id', matchId)
+            .where('user_id', userId)
+            .whereIn('type', ['like', 'dislike'])
+            .orderBy('created_at', 'desc')
+            .first();
     },
 
     deleteInteraction: async (db, interactionId) => {

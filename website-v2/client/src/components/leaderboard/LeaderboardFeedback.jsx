@@ -10,7 +10,8 @@ import {
   Rate, 
   message,
   Select,
-  Tag
+  Tag,
+  Divider
 } from 'antd';
 import { 
   LikeOutlined, 
@@ -19,14 +20,18 @@ import {
   DislikeFilled,
   MessageOutlined,
   UserOutlined,
-  SortAscendingOutlined
+  SortAscendingOutlined,
+  GithubOutlined
 } from '@ant-design/icons';
-import axios from 'axios';
+// import { useAuth } from '../../contexts/AuthContext';
+import { submitMatchFeedback, getMatchFeedback } from '../../services/api';
+import API_CONFIG from '../../config/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 const LeaderboardFeedback = ({ matchId }) => {
+  // const { isAuthenticated, user } = useAuth();
   const [feedback, setFeedback] = useState({
     likes: 0,
     dislikes: 0,
@@ -38,76 +43,236 @@ const LeaderboardFeedback = ({ matchId }) => {
   });
   const [comment, setComment] = useState('');
   const [showCommentModal, setShowCommentModal] = useState(false);
+  // const [showLoginModal, setShowLoginModal] = useState(false);
   const [commentSort, setCommentSort] = useState('recent');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadFeedback();
-    // eslint-disable-next-line
+    fetchFeedback();
   }, [matchId]);
 
-  const loadFeedback = async () => {
+  // Add new useEffect to fetch comments when modal opens
+  useEffect(() => {
+    if (showCommentModal) {
+      fetchFeedback();
+    }
+  }, [showCommentModal]);
+
+  const fetchFeedback = async () => {
+    try {
+      let response = await getMatchFeedback(matchId);
+      
+
+      if (response.success && response.data) {
+        response = response.data;
+        const items = response.data.items || [];
+        
+        // Count likes and dislikes
+        const likes = items.filter(item => item.type === 'like').length;
+        const dislikes = items.filter(item => item.type === 'dislike').length;
+
+
+        // Get comments
+        const comments = items
+          .filter(item => item.type === 'comment')
+          .map(comment => ({
+            ...comment,
+            text: comment.content,
+            user: {
+              username: comment.isAnonymous ? 'Anonymous' : 'User',
+              avatar_url: null
+            }
+          }));
+
+
+        setFeedback({
+          likes,
+          dislikes,
+          comments
+        });
+
+        // Comment out user feedback state for now
+        /*
+        const userInteraction = response.data.items?.find(
+          item => item.type === 'like' || item.type === 'dislike'
+        );
+        if (userInteraction) {
+          setUserFeedback({
+            liked: userInteraction.type === 'like',
+            disliked: userInteraction.type === 'dislike'
+          });
+        }
+        */
+      } else {
+        setFeedback({
+          likes: 0,
+          dislikes: 0,
+          comments: []
+        });
+        setUserFeedback({
+          liked: false,
+          disliked: false
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+      setFeedback({
+        likes: 0,
+        dislikes: 0,
+        comments: []
+      });
+      setUserFeedback({
+        liked: false,
+        disliked: false
+      });
+    }
+  };
+
+  /*
+  const handleGitHubLogin = () => {
+    const currentPath = window.location.pathname + window.location.search;
+    const state = {
+      path: currentPath,
+      matchId: matchId,
+      showCommentModal: showCommentModal,
+      comment: comment
+    };
+    
+    sessionStorage.setItem('authRedirectState', JSON.stringify(state));
+    
+    const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
+    window.location.href = `${serverUrl}/auth/github?redirect=${encodeURIComponent(currentPath)}`;
+  };
+
+  useEffect(() => {
+    const storedState = sessionStorage.getItem('authRedirectState');
+    if (storedState && isAuthenticated) {
+      const state = JSON.parse(storedState);
+      if (state.matchId === matchId) {
+        if (state.showCommentModal) {
+          setShowCommentModal(true);
+          setComment(state.comment || '');
+        }
+        sessionStorage.removeItem('authRedirectState');
+      }
+    }
+  }, [isAuthenticated, matchId]);
+  */
+
+  const handleFeedback = async (type) => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/v2/matches/${matchId}/feedback`);
-      if (response.data && response.data.data && response.data.data.length > 0) {
-        setFeedback(response.data.data[0]);
-      } else {
-        setFeedback({ likes: 0, dislikes: 0, comments: [] });
+      const response = await submitMatchFeedback(matchId, {
+        type: type
+      });
+
+      if (response.success && response.data) {
+       
+        // const likes = items.filter(item => item.type === 'like').length;
+        // const dislikes = items.filter(item => item.type === 'dislike').length;
+        
+        // // Get comments
+        // const comments = items
+        //   .filter(item => item.type === 'comment')
+        //   .map(comment => ({
+        //     ...comment,
+        //     text: comment.content,
+        //     user: {
+        //       username: comment.isAnonymous ? 'Anonymous' : 'User',
+        //       avatar_url: null
+        //     }
+        //   }));
+
+        // setFeedback({
+        //   likes,
+        //   dislikes,
+        //   comments
+        // });
+       
+       
+        // Fetch fresh data after any interaction
+        await fetchFeedback();
+
+        // Update user feedback state
+        setUserFeedback({
+          liked: type === 'like',
+          disliked: type === 'dislike'
+        });
+
+        message.success(`${type === 'like' ? 'Liked' : 'Disliked'} successfully`);
       }
-      // Optionally, fetch user feedback if you have a separate endpoint
     } catch (error) {
-      console.error('Error loading feedback:', error);
-      message.error('Failed to load feedback');
+      console.error('Error submitting feedback:', error);
+      message.error('Failed to submit feedback');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFeedback = async (type) => {
-    try {
-      const action = userFeedback[type] ? 'remove' : 'add';
-      const response = await axios.post(`/api/v2/matches/${matchId}/feedback`, {
-        type,
-        action
-      });
-      if (response.data && response.data.data && response.data.data.feedback) {
-        setFeedback(prev => ({
-          ...prev,
-          likes: response.data.data.feedback.likes,
-          dislikes: response.data.data.feedback.dislikes
-        }));
-        setUserFeedback(response.data.data.userFeedback);
-      }
-      message.success(userFeedback[type] ? 'Feedback removed' : 'Feedback added');
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-      message.error('Failed to submit feedback');
-    }
-  };
-
   const handleComment = async () => {
+    // Comment out authentication check
+    /*
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+    */
+
     if (!comment.trim()) {
       message.warning('Please enter a comment');
       return;
     }
 
     try {
-      const response = await axios.post(`/api/v2/matches/${matchId}/comments`, {
-        text: comment.trim()
+      setLoading(true);
+      const response = await submitMatchFeedback(matchId, {
+        type: 'comment',
+        comment: comment.trim(),
+        isAnonymous: false
       });
-      if (response.data && response.data.data) {
-        setFeedback(prev => ({
-          ...prev,
-          comments: response.data.data.comments
-        }));
+      
+      if (response.success && response.data) {
+        // Fetch updated feedback to get all comments
+        
+        // const items = response.data.items || [];
+        
+        // // Get the new comment (should be the first one since it's the most recent)
+        // const newComment = items
+        //   .filter(item => item.type === 'comment')
+        //   .map(comment => ({
+        //     ...comment,
+        //     text: comment.content,
+        //     user: {
+        //       username: comment.isAnonymous ? 'Anonymous' : 'User',
+        //       avatar_url: null
+        //     }
+        //   }))[0]; // Get the first (most recent) comment
+
+        // // Update feedback state by appending the new comment
+        // setFeedback(prev => ({
+        //   ...prev,
+        //   comments: [newComment, ...(prev.comments || [])] // Add new comment at the beginning
+        // }));
+        
+        await fetchFeedback();
+        
+        // Clear comment input and close modal
+        setComment('');
+        setShowCommentModal(false);
+        message.success('Comment added successfully');
       }
-      setComment('');
-      setShowCommentModal(false);
-      message.success('Comment added successfully');
     } catch (error) {
       console.error('Error adding comment:', error);
-      message.error('Failed to add comment');
+      /*
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        setShowLoginModal(true);
+      } else {
+      */
+        message.error('Failed to add comment');
+      // }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,10 +295,10 @@ const LeaderboardFeedback = ({ matchId }) => {
           <Button 
             type={userFeedback.liked ? "primary" : "default"}
             icon={userFeedback.liked ? <LikeFilled /> : <LikeOutlined />}
-            onClick={() => handleFeedback('liked')}
+            onClick={() => handleFeedback('like')}
             loading={loading}
           >
-            Like
+            {feedback.likes}
           </Button>
         </Badge>
         <Badge count={feedback.dislikes} showZero>
@@ -141,10 +306,10 @@ const LeaderboardFeedback = ({ matchId }) => {
             type={userFeedback.disliked ? "primary" : "default"}
             danger={userFeedback.disliked}
             icon={userFeedback.disliked ? <DislikeFilled /> : <DislikeOutlined />}
-            onClick={() => handleFeedback('disliked')}
+            onClick={() => handleFeedback('dislike')}
             loading={loading}
           >
-            Dislike
+            {feedback.dislikes}
           </Button>
         </Badge>
         <Badge count={(feedback.comments || []).length} showZero>
@@ -158,60 +323,117 @@ const LeaderboardFeedback = ({ matchId }) => {
         </Badge>
       </Space>
 
+      {/* Comment out Login Modal
+      <Modal
+        title="Login Required"
+        open={showLoginModal}
+        onCancel={() => setShowLoginModal(false)}
+        footer={null}
+      >
+        <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }}>
+          <p>Please log in to provide feedback</p>
+          <Button
+            type="primary"
+            icon={<GithubOutlined />}
+            onClick={handleGitHubLogin}
+            size="large"
+            style={{ 
+              backgroundColor: '#24292e',
+              borderColor: '#24292e',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              margin: '0 auto'
+            }}
+          >
+            Sign in with GitHub
+          </Button>
+        </Space>
+      </Modal>
+      */}
+
+      {/* Comment Modal */}
       <Modal
         title="Comments"
         open={showCommentModal}
-        onCancel={() => {
-          setShowCommentModal(false);
-          setComment('');
-        }}
-        footer={[
-          <Space key="filters" style={{ marginRight: 'auto' }}>
+        onCancel={() => setShowCommentModal(false)}
+        footer={null}
+        width={600}
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          {/* Comment out authentication check
+          {isAuthenticated ? (
+          */}
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <TextArea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write your comment..."
+                rows={4}
+              />
+              <Button 
+                type="primary" 
+                onClick={handleComment}
+                loading={loading}
+                disabled={!comment.trim()}
+              >
+                Add Comment
+              </Button>
+            </Space>
+          {/* Comment out GitHub login button
+          ) : (
+            <Button
+              type="primary"
+              icon={<GithubOutlined />}
+              onClick={handleGitHubLogin}
+              size="large"
+              style={{ 
+                backgroundColor: '#24292e',
+                borderColor: '#24292e',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                margin: '0 auto'
+              }}
+            >
+              Sign in with GitHub to comment
+            </Button>
+          )}
+          */}
+
+          <Divider />
+
+          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Select
               value={commentSort}
               onChange={setCommentSort}
               style={{ width: 120 }}
-              options={[
-                { value: 'recent', label: 'Most Recent' },
-                { value: 'popular', label: 'Most Liked' }
-              ]}
-              suffixIcon={<SortAscendingOutlined />}
-            />
-          </Space>,
-          <Button key="cancel" onClick={() => {
-            setShowCommentModal(false);
-            setComment('');
-          }}>
-            Cancel
-          </Button>,
-          <Button key="submit" type="primary" onClick={handleComment}>
-            Add Comment
-          </Button>
-        ]}
-      >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <TextArea
-            value={comment}
-            onChange={e => setComment(e.target.value)}
-            placeholder="Add your comment..."
-            rows={4}
-            style={{ marginBottom: 16 }}
-          />
-          
+            >
+              <Option value="recent">Most Recent</Option>
+              <Option value="popular">Most Popular</Option>
+            </Select>
+          </Space>
+
           <List
-            itemLayout="horizontal"
             dataSource={getSortedComments()}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
-                  avatar={<Avatar icon={<UserOutlined />} />}
+                  avatar={<Avatar src={item.user?.avatar_url} icon={<UserOutlined />} />}
                   title={
                     <Space>
-                      <span>{item.username || 'Anonymous'}</span>
-                      <Tag color="blue">{new Date(item.createdAt).toLocaleDateString()}</Tag>
+                      <span>{item.user?.username || 'Anonymous'}</span>
+                      <Tag color="blue">GitHub User</Tag>
                     </Space>
                   }
-                  description={item.text}
+                  description={
+                    <Space direction="vertical" size="small">
+                      <div>{item.text}</div>
+                      <div style={{ fontSize: '12px', color: '#999' }}>
+                        {new Date(item.createdAt).toLocaleString()}
+                      </div>
+                    </Space>
+                  }
                 />
               </List.Item>
             )}
