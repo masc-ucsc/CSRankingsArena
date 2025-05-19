@@ -61,7 +61,7 @@ const feedbackSchema = Joi.object({
   rating: Joi.number().min(1).max(5).optional(),
   comment: Joi.string().max(1000).allow(''),
   isAnonymous: Joi.boolean().default(false),
-  type: Joi.string().valid('like', 'dislike', 'liked', 'disliked').optional(),
+  type: Joi.string().valid('like', 'dislike', 'liked', 'disliked', 'comment').optional(),
   action: Joi.string().valid('add', 'remove').optional()
 }).or('rating', 'comment', 'type');
 
@@ -185,6 +185,7 @@ module.exports = [
             },
             handler: async (request, h) => {
                 try {
+                    console.log('POST feedback', request.payload);
                     const { id } = request.params;
                     const feedback = request.payload;
                     
@@ -194,44 +195,54 @@ module.exports = [
                         throw Boom.notFound('Match not found');
                     }
 
-                    // // Get user ID from auth credentials
-                    // const userId = request.auth?.credentials?.id;
-                    // if (!userId) {
-                    //     throw Boom.unauthorized('User not authenticated');
-                    // }
-
-                    // Check if user already has an interaction for this match
-                    const existingInteraction = await request.db('match_interactions')
-                        .where('match_id', id)
-                        .where('user_id', userId)
-                        .whereIn('type', ['like', 'dislike'])
-                        .first();
-
-                    if (existingInteraction) {
-                        // If user is trying to add the same type of interaction, remove it
-                        if (existingInteraction.type === (feedback.type === 'liked' ? 'like' : 'dislike')) {
-                            await request.db('match_interactions')
-                                .where('id', existingInteraction.id)
-                                .del();
-                        } else {
-                            // If user is changing their interaction type, update it
-                            await request.db('match_interactions')
-                                .where('id', existingInteraction.id)
-                                .update({
-                                    type: feedback.type === 'liked' ? 'like' : 'dislike',
-                                    updated_at: new Date()
-                                });
-                        }
-                    } else {
-                        // Create new interaction
+                    // Get user ID from auth credentials or use a dummy ID for anonymous users
+                    const userId = request.auth?.credentials?.id || 'anonymous-' + Date.now();
+                    
+                    if (feedback.type === 'comment') {
+                        // Handle comment
                         await request.db('match_interactions').insert({
                             match_id: id,
                             user_id: userId,
-                            type: feedback.type === 'liked' ? 'like' : 'dislike',
+                            type: 'comment',
+                            content: feedback.comment,
                             is_anonymous: feedback.isAnonymous || false,
                             created_at: new Date(),
                             updated_at: new Date()
                         });
+                    } else {
+                        // Handle like/dislike
+                        const existingInteraction = await request.db('match_interactions')
+                            .where('match_id', id)
+                            .where('user_id', userId)
+                            .whereIn('type', ['like', 'dislike'])
+                            .first();
+
+                        if (existingInteraction) {
+                            // If user is trying to add the same type of interaction, remove it
+                            if (existingInteraction.type === feedback.type) {
+                                await request.db('match_interactions')
+                                    .where('id', existingInteraction.id)
+                                    .del();
+                            } else {
+                                // If user is changing their interaction type, update it
+                                await request.db('match_interactions')
+                                    .where('id', existingInteraction.id)
+                                    .update({
+                                        type: feedback.type,
+                                        updated_at: new Date()
+                                    });
+                            }
+                        } else {
+                            // Create new interaction
+                            await request.db('match_interactions').insert({
+                                match_id: id,
+                                user_id: userId,
+                                type: feedback.type,
+                                is_anonymous: feedback.isAnonymous || false,
+                                created_at: new Date(),
+                                updated_at: new Date()
+                            });
+                        }
                     }
 
                     // Get updated counts
@@ -311,8 +322,6 @@ module.exports = [
                         .orderBy('created_at', 'desc')
                         .limit(limit)
                         .offset(offset);
-
-                    console.log('GET feedback', feedback);
 
                     // Get total count for pagination
                     const total = await request.db('match_interactions')

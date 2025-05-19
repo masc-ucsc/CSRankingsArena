@@ -51,24 +51,26 @@ const LeaderboardFeedback = ({ matchId }) => {
     fetchFeedback();
   }, [matchId]);
 
+  // Add new useEffect to fetch comments when modal opens
+  useEffect(() => {
+    if (showCommentModal) {
+      fetchFeedback();
+    }
+  }, [showCommentModal]);
+
   const fetchFeedback = async () => {
     try {
       let response = await getMatchFeedback(matchId);
       
-      console.log('GET feedback', response.data);
-      console.log('GET feedback success', response.success);
+
       if (response.success && response.data) {
         response = response.data;
         const items = response.data.items || [];
-
-        console.log('GET feedback items', items);
         
         // Count likes and dislikes
         const likes = items.filter(item => item.type === 'like').length;
         const dislikes = items.filter(item => item.type === 'dislike').length;
-        
-        console.log('likes', likes);
-        console.log('dislikes', dislikes);
+
 
         // Get comments
         const comments = items
@@ -82,7 +84,6 @@ const LeaderboardFeedback = ({ matchId }) => {
             }
           }));
 
-        console.log('GET feedback comments', comments);
 
         setFeedback({
           likes,
@@ -166,30 +167,33 @@ const LeaderboardFeedback = ({ matchId }) => {
       });
 
       if (response.success && response.data) {
-        const items = response.data.items || [];
+       
+        // const likes = items.filter(item => item.type === 'like').length;
+        // const dislikes = items.filter(item => item.type === 'dislike').length;
         
-        // Count likes and dislikes
-        const likes = items.filter(item => item.type === 'like').length;
-        const dislikes = items.filter(item => item.type === 'dislike').length;
-        
-        // Get comments
-        const comments = items
-          .filter(item => item.type === 'comment')
-          .map(comment => ({
-            ...comment,
-            text: comment.content,
-            user: {
-              username: comment.isAnonymous ? 'Anonymous' : 'User',
-              avatar_url: null
-            }
-          }));
+        // // Get comments
+        // const comments = items
+        //   .filter(item => item.type === 'comment')
+        //   .map(comment => ({
+        //     ...comment,
+        //     text: comment.content,
+        //     user: {
+        //       username: comment.isAnonymous ? 'Anonymous' : 'User',
+        //       avatar_url: null
+        //     }
+        //   }));
 
-        setFeedback({
-          likes,
-          dislikes,
-          comments
-        });
+        // setFeedback({
+        //   likes,
+        //   dislikes,
+        //   comments
+        // });
+       
+       
+        // Fetch fresh data after any interaction
+        await fetchFeedback();
 
+        // Update user feedback state
         setUserFeedback({
           liked: type === 'like',
           disliked: type === 'dislike'
@@ -223,28 +227,36 @@ const LeaderboardFeedback = ({ matchId }) => {
       setLoading(true);
       const response = await submitMatchFeedback(matchId, {
         type: 'comment',
-        text: comment.trim()
+        comment: comment.trim(),
+        isAnonymous: false
       });
       
       if (response.success && response.data) {
-        const items = response.data.items || [];
+        // Fetch updated feedback to get all comments
         
-        // Get comments
-        const comments = items
-          .filter(item => item.type === 'comment')
-          .map(comment => ({
-            ...comment,
-            text: comment.content,
-            user: {
-              username: comment.isAnonymous ? 'Anonymous' : 'User',
-              avatar_url: null
-            }
-          }));
+        // const items = response.data.items || [];
+        
+        // // Get the new comment (should be the first one since it's the most recent)
+        // const newComment = items
+        //   .filter(item => item.type === 'comment')
+        //   .map(comment => ({
+        //     ...comment,
+        //     text: comment.content,
+        //     user: {
+        //       username: comment.isAnonymous ? 'Anonymous' : 'User',
+        //       avatar_url: null
+        //     }
+        //   }))[0]; // Get the first (most recent) comment
 
-        setFeedback(prev => ({
-          ...prev,
-          comments
-        }));
+        // // Update feedback state by appending the new comment
+        // setFeedback(prev => ({
+        //   ...prev,
+        //   comments: [newComment, ...(prev.comments || [])] // Add new comment at the beginning
+        // }));
+        
+        await fetchFeedback();
+        
+        // Clear comment input and close modal
         setComment('');
         setShowCommentModal(false);
         message.success('Comment added successfully');
