@@ -56,8 +56,8 @@ function calculatePaperRankings(matches) {
         const [paper1Id, paper2Id] = match.paperIds;
         const winner = match.comparison.winner;
 
-        console.log('paperId1', paper1Id, 'paperId2', paper2Id);
-        console.log('match', match);
+        // console.log('paperId1', paper1Id, 'paperId2', paper2Id);
+        // console.log('match', match);
 
         // Initialize paper stats and matches if not exists
 
@@ -164,7 +164,7 @@ function calculatePaperRankings(matches) {
         paperMatches.get(paper1Id).push(createMatchDetails(paper1Id, paper2Id, paper1Score, paper2Score));
         paperMatches.get(paper2Id).push(createMatchDetails(paper2Id, paper1Id, paper2Score, paper1Score));
     });
-    console.log('paperMatches', paperStats);
+    // console.log('paperMatches', paperStats);
     // Calculate final scores and convert to array
     const rankings = Array.from(paperStats.values()).map(stats => ({
         ...stats,
