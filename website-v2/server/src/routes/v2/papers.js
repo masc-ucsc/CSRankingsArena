@@ -5,6 +5,7 @@ const { db } = require('../../config/db');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const fsPromises = require('fs').promises;
 
 
 // Helper function to read papers from a YAML file (for example, for ai/vision, read from papers/ai/vision/{year}/ai-vision-{year}-papers.yaml)
@@ -190,6 +191,70 @@ module.exports = [
                 } catch (error) {
                     console.error('Error fetching venues:', error);
                     throw Boom.badImplementation('Failed to fetch venues', error);
+                }
+            }
+        }
+    },
+    {
+        method: 'GET',
+        path: '/api/v2/papers/{category}/{subcategory}/{year}/disqualified',
+        options: {
+            description: 'Get disqualified papers for a category/subcategory/year',
+            tags: ['api', 'papers'],
+            validate: {
+                params: Joi.object({
+                    category: Joi.string().required(),
+                    subcategory: Joi.string().required(),
+                    year: Joi.string().pattern(/^\d{4}$/).required()
+                })
+            },
+            handler: async (request, h) => {
+                try {
+                    const { category, subcategory, year } = request.params;
+                    console.log('Fetching disqualified papers for:', { category, subcategory, year });
+                    
+                    // Resolve path to the papers directory in the project root
+                    const papersDir = path.resolve(__dirname, '../../../../papers');
+                    console.log('papersDir', papersDir);
+
+
+                    try {
+
+                        // Read and parse the YAML file
+                        const yamlFile = path.join(papersDir, category, subcategory, year.toString(), `${category}-${subcategory}-${year}-disqualification.yaml`);
+                        if (!fs.existsSync(yamlFile)) {
+                            console.error(`YAML file does not exist: ${yamlFile}`);
+                            throw Boom.notFound(`Papers YAML file not found for ${category}/${subcategory}/${year}`);
+                        }
+                        let yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
+                        //const yamlContent = await fs.readFile(yamlPath, 'utf8');
+                        console.log('Successfully read YAML file');
+                        console.log('Parsed YAML data:', yamlData);
+
+                        if (!yamlData || !yamlData.papers) {
+                            console.log('No papers found in YAML data');
+                            return h.response({ papers: [] });
+                        }
+
+                        const response = {
+                            category,
+                            subcategory,
+                            year,
+                            papers: yamlData.papers
+                        };
+                        //console.log('Sending Disqualification response:', response);
+                        return response;
+                    } catch (error) {
+                        console.error('Error reading YAML file:', error);
+                        if (error.code === 'ENOENT') {
+                            console.log('YAML file not found');
+                            return h.response({ papers: [] });
+                        }
+                        throw error;
+                    }
+                } catch (error) {
+                    console.error('Error in disqualified papers endpoint:', error);
+                    throw Boom.badImplementation('Error fetching disqualified papers');
                 }
             }
         }

@@ -50,6 +50,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 import { getMockLeaderboardData } from '../mock/paperData';
+import yaml from 'yaml';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -116,6 +117,12 @@ const SubcategoryPage = () => {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [usingMockLeaderboard, setUsingMockLeaderboard] = useState(false);
+  const [disqualifiedPapers, setDisqualifiedPapers] = useState([]);
+  const [loadingDisqualified, setLoadingDisqualified] = useState(false);
+
+  // Add state for modal
+  const [selectedDisqualifiedPaper, setSelectedDisqualifiedPaper] = useState(null);
+  const [isDecisionModalVisible, setIsDecisionModalVisible] = useState(false);
 
   // Find category and subcategory with null checks
   const category = categories?.find((cat) => cat.slug === categorySlug);
@@ -838,6 +845,202 @@ const SubcategoryPage = () => {
     }
   }, [selectedYear, categorySlug, subcategorySlug]);
 
+  // Add function to fetch disqualified papers
+  const fetchDisqualifiedPapers = async () => {
+    setLoadingDisqualified(true);
+    try {
+      // First try to fetch from the API endpoint
+      console.log('Attempting to fetch from API endpoint:', `/papers/${categorySlug}/${subcategorySlug}/${selectedYear}/disqualified`);
+      const response = await api.get(`/papers/${categorySlug}/${subcategorySlug}/${selectedYear}/disqualified`);
+      console.log('Disqualification API Response:', response);
+      
+      if (response.data && response.data.papers) {
+        console.log('Setting disqualified papers from API:', response.data.papers);
+        setDisqualifiedPapers(response.data.papers);
+        return;
+      } else {
+        console.log('No papers found in API response');
+        setDisqualifiedPapers([]);
+      }
+    } catch (apiError) {
+      console.error('API fetch failed:', apiError);
+      console.log('Falling back to local YAML file');
+      
+      // If API fails, try to read from the local YAML file
+      try {
+        const yamlPath = `/papers/${categorySlug}/${subcategorySlug}/${selectedYear}/${categorySlug}-${subcategorySlug}-${selectedYear}-disqualification.yaml`;
+        console.log('Attempting to fetch local YAML from:', yamlPath);
+        
+        const response = await fetch(yamlPath);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const yamlText = await response.text();
+        console.log('YAML file content:', yamlText);
+        
+        const parsedData = yaml.load(yamlText);
+        console.log('Parsed YAML data:', parsedData);
+        
+        if (parsedData && parsedData.papers) {
+          console.log('Setting disqualified papers from YAML:', parsedData.papers);
+          setDisqualifiedPapers(parsedData.papers);
+        } else {
+          console.log('No papers found in YAML data');
+          setDisqualifiedPapers([]);
+        }
+      } catch (yamlError) {
+        console.error('Error loading local YAML file:', yamlError);
+        setDisqualifiedPapers([]);
+      }
+    } finally {
+      setLoadingDisqualified(false);
+    }
+  };
+
+  // Add effect to fetch disqualified papers when year changes
+  useEffect(() => {
+    if (selectedYear && categorySlug && subcategorySlug) {
+      console.log('Fetching disqualified papers for:', {
+        categorySlug,
+        subcategorySlug,
+        selectedYear
+      });
+      fetchDisqualifiedPapers();
+    }
+  }, [selectedYear, categorySlug, subcategorySlug]);
+
+  // Add function to handle paper click
+  const handleDisqualifiedPaperClick = (paper) => {
+    setSelectedDisqualifiedPaper(paper);
+    setIsDecisionModalVisible(true);
+  };
+
+  // Add function to render decision content
+  const renderDecisionContent = (prompt, type) => {
+    if (!prompt) return null;
+    
+    const parts = prompt.split('Reason:');
+    const decision = parts[0].trim();
+    const reason = parts[1]?.trim() || 'No reason provided';
+    
+    return (
+      <div style={{ marginBottom: '16px' }}>
+        <Text strong style={{ color: '#cf1322' }}>{type}</Text>
+        <div style={{ marginTop: '8px' }}>
+          <Text strong>Decision:</Text>
+          <div style={{ marginTop: '4px' }}>{decision}</div>
+        </div>
+        <div style={{ marginTop: '8px' }}>
+          <Text strong>Reason:</Text>
+          <div style={{ marginTop: '4px' }}>{reason}</div>
+        </div>
+      </div>
+    );
+  };
+
+  // Update the renderDisqualifiedPapers function
+  const renderDisqualifiedPapers = () => {
+    if (loadingDisqualified) {
+      return (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: '16px' }}>Loading disqualified papers...</div>
+        </div>
+      );
+    }
+
+    if (!disqualifiedPapers || disqualifiedPapers.length === 0) {
+      return (
+        <Alert
+          message="No Disqualified Papers"
+          description={`No disqualified papers found for ${subcategory?.name || subcategorySlug} in ${selectedYear}.`}
+          type="info"
+          showIcon
+        />
+      );
+    }
+
+    return (
+      <>
+        <div style={{ 
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '24px',
+          width: '100%',
+          padding: '16px 0'
+        }}>
+          {disqualifiedPapers.map((paper, index) => (
+            <Card 
+              key={index}
+              style={{ 
+                height: '100%',
+                borderColor: '#ff4d4f',
+                backgroundColor: '#fff1f0',
+                cursor: 'pointer'
+              }}
+              onClick={() => handleDisqualifiedPaperClick(paper)}
+            >
+              <Card.Meta
+                title={
+                  <div style={{ 
+                    color: '#cf1322',
+                    fontSize: '16px',
+                    fontWeight: '500'
+                  }}>
+                    {paper.title}
+                  </div>
+                }
+                description={
+                  <Space direction="vertical" size="small">
+                    <Tag color="error">Disqualified</Tag>
+                    <div style={{ color: '#595959' }}>
+                      {paper.decisions?.evaluation_prompt?.split('Reason:')[1]?.trim() || 
+                       paper.decisions?.novelty_prompt?.split('Reason:')[1]?.trim() || 
+                       'No reason provided'}
+                    </div>
+                  </Space>
+                }
+              />
+            </Card>
+          ))}
+        </div>
+
+        <Modal
+          title={
+            <div style={{ color: '#cf1322' }}>
+              <WarningOutlined style={{ marginRight: '8px' }} />
+              Disqualified Paper Details
+            </div>
+          }
+          open={isDecisionModalVisible}
+          onCancel={() => setIsDecisionModalVisible(false)}
+          footer={[
+            <Button key="close" onClick={() => setIsDecisionModalVisible(false)}>
+              Close
+            </Button>
+          ]}
+          width={800}
+        >
+          {selectedDisqualifiedPaper && (
+            <div style={{ padding: '16px' }}>
+              <Title level={4} style={{ marginBottom: '24px' }}>
+                {selectedDisqualifiedPaper.title}
+              </Title>
+              
+              <Divider style={{ margin: '16px 0' }} />
+              
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.evaluation_prompt, 'Evaluation Decision')}
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.related_work_prompt, 'Related Work Decision')}
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.novelty_prompt, 'Novelty Decision')}
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.review_only_prompt, 'Review Decision')}
+            </div>
+          )}
+        </Modal>
+      </>
+    );
+  };
+
   // Show loading state while categories are loading
   if (loadingCategories) {
     return (
@@ -1075,6 +1278,39 @@ const SubcategoryPage = () => {
                     Download Matches YAML
                   </Button>
                 </Space>
+              </Space>
+            </TabPane>
+
+            <TabPane 
+              tab={
+                <Space>
+                  <WarningOutlined />
+                  Disqualified Papers
+                </Space>
+              } 
+              key="disqualified"
+            >
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  <Title level={4} style={{ margin: 0 }}>Disqualified Papers</Title>
+                  <Select
+                    style={{ width: 120 }}
+                    placeholder="Select Year"
+                    value={selectedYear}
+                    onChange={setSelectedYear}
+                    allowClear
+                  >
+                    {availableYears.map(year => (
+                      <Option key={year} value={year}>{year}</Option>
+                    ))}
+                  </Select>
+                </div>
+                {renderDisqualifiedPapers()}
               </Space>
             </TabPane>
           </Tabs>
