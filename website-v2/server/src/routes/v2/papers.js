@@ -229,7 +229,7 @@ module.exports = [
                         let yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
                         //const yamlContent = await fs.readFile(yamlPath, 'utf8');
                         console.log('Successfully read YAML file');
-                        console.log('Parsed YAML data:', yamlData);
+                        //console.log('Parsed YAML data:', yamlData);
 
                         if (!yamlData || !yamlData.papers) {
                             console.log('No papers found in YAML data');

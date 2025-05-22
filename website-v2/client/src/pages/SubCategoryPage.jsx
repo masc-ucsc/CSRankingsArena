@@ -33,7 +33,8 @@ import {
   Result,
   Divider,
   Popover,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -46,11 +47,17 @@ import {
   FilterOutlined,
   BarChartOutlined,
   DownloadOutlined,
-  WarningOutlined
+  WarningOutlined,
+  LikeOutlined,
+  DislikeOutlined,
+  LikeFilled,
+  DislikeFilled,
+  CommentOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import { getMockLeaderboardData } from '../mock/paperData';
 import yaml from 'yaml';
+import PaperInteractions from '../components/PaperInteractions';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -123,6 +130,13 @@ const SubcategoryPage = () => {
   // Add state for modal
   const [selectedDisqualifiedPaper, setSelectedDisqualifiedPaper] = useState(null);
   const [isDecisionModalVisible, setIsDecisionModalVisible] = useState(false);
+
+  // Add state for mock interactions
+  const [mockInteractions, setMockInteractions] = useState({});
+  const [mockComments, setMockComments] = useState({});
+  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [selectedPaperForComment, setSelectedPaperForComment] = useState(null);
+  const [newComment, setNewComment] = useState('');
 
   // Find category and subcategory with null checks
   const category = categories?.find((cat) => cat.slug === categorySlug);
@@ -880,7 +894,7 @@ const SubcategoryPage = () => {
         console.log('YAML file content:', yamlText);
         
         const parsedData = yaml.load(yamlText);
-        console.log('Parsed YAML data:', parsedData);
+        //console.log('Parsed YAML data:', parsedData);
         
         if (parsedData && parsedData.papers) {
           console.log('Setting disqualified papers from YAML:', parsedData.papers);
@@ -939,7 +953,64 @@ const SubcategoryPage = () => {
     );
   };
 
-  // Update the renderDisqualifiedPapers function
+  // Add handlers for mock interactions
+  const handleMockLike = (paperId) => {
+    setMockInteractions(prev => {
+      const current = prev[paperId] || { likes: 0, dislikes: 0 };
+      return {
+        ...prev,
+        [paperId]: {
+          ...current,
+          likes: current.likes + 1
+        }
+      };
+    });
+    message.success('Liked paper');
+  };
+
+  const handleMockDislike = (paperId) => {
+    setMockInteractions(prev => {
+      const current = prev[paperId] || { likes: 0, dislikes: 0 };
+      return {
+        ...prev,
+        [paperId]: {
+          ...current,
+          dislikes: current.dislikes + 1
+        }
+      };
+    });
+    message.success('Disliked paper');
+  };
+
+  const handleMockComment = (paper) => {
+    setSelectedPaperForComment(paper);
+    setCommentModalVisible(true);
+  };
+
+  const handleSubmitComment = () => {
+    if (!newComment.trim()) {
+      message.warning('Please enter a comment');
+      return;
+    }
+
+    setMockComments(prev => ({
+      ...prev,
+      [selectedPaperForComment.id]: [
+        ...(prev[selectedPaperForComment.id] || []),
+        {
+          id: Date.now(),
+          text: newComment,
+          timestamp: new Date().toISOString()
+        }
+      ]
+    }));
+
+    setNewComment('');
+    setCommentModalVisible(false);
+    message.success('Comment added');
+  };
+
+  // Update the renderDisqualifiedPapers function to include interaction buttons
   const renderDisqualifiedPapers = () => {
     if (loadingDisqualified) {
       return (
@@ -970,40 +1041,83 @@ const SubcategoryPage = () => {
           width: '100%',
           padding: '16px 0'
         }}>
-          {disqualifiedPapers.map((paper, index) => (
-            <Card 
-              key={index}
-              style={{ 
-                height: '100%',
-                borderColor: '#ff4d4f',
-                backgroundColor: '#fff1f0',
-                cursor: 'pointer'
-              }}
-              onClick={() => handleDisqualifiedPaperClick(paper)}
-            >
-              <Card.Meta
-                title={
-                  <div style={{ 
-                    color: '#cf1322',
-                    fontSize: '16px',
-                    fontWeight: '500'
-                  }}>
-                    {paper.title}
-                  </div>
-                }
-                description={
-                  <Space direction="vertical" size="small">
-                    <Tag color="error">Disqualified</Tag>
-                    <div style={{ color: '#595959' }}>
-                      {paper.decisions?.evaluation_prompt?.split('Reason:')[1]?.trim() || 
-                       paper.decisions?.novelty_prompt?.split('Reason:')[1]?.trim() || 
-                       'No reason provided'}
+          {disqualifiedPapers.map((paper, index) => {
+            const interactions = mockInteractions[paper.id] || { likes: 0, dislikes: 0 };
+            const comments = mockComments[paper.id] || [];
+            
+            return (
+              <Card 
+                key={index}
+                style={{ 
+                  height: '100%',
+                  borderColor: '#ff4d4f',
+                  backgroundColor: '#fff1f0',
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleDisqualifiedPaperClick(paper)}
+                actions={[
+                  <Tooltip title="Like">
+                    <Button 
+                      type="text" 
+                      icon={<LikeOutlined />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMockLike(paper.id);
+                      }}
+                    >
+                      {interactions.likes}
+                    </Button>
+                  </Tooltip>,
+                  <Tooltip title="Dislike">
+                    <Button 
+                      type="text" 
+                      icon={<DislikeOutlined />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMockDislike(paper.id);
+                      }}
+                    >
+                      {interactions.dislikes}
+                    </Button>
+                  </Tooltip>,
+                  <Tooltip title="Comment">
+                    <Button 
+                      type="text" 
+                      icon={<CommentOutlined />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMockComment(paper);
+                      }}
+                    >
+                      {comments.length}
+                    </Button>
+                  </Tooltip>
+                ]}
+              >
+                <Card.Meta
+                  title={
+                    <div style={{ 
+                      color: '#cf1322',
+                      fontSize: '16px',
+                      fontWeight: '500'
+                    }}>
+                      {paper.title}
                     </div>
-                  </Space>
-                }
-              />
-            </Card>
-          ))}
+                  }
+                  description={
+                    <Space direction="vertical" size="small">
+                      <Tag color="error">Disqualified</Tag>
+                      <div style={{ color: '#595959' }}>
+                        {paper.decisions?.evaluation_prompt?.split('Reason:')[1]?.trim() || 
+                         paper.decisions?.novelty_prompt?.split('Reason:')[1]?.trim() || 
+                         'No reason provided'}
+                      </div>
+                    </Space>
+                  }
+                />
+              </Card>
+            );
+          })}
         </div>
 
         <Modal
@@ -1034,8 +1148,74 @@ const SubcategoryPage = () => {
               {renderDecisionContent(selectedDisqualifiedPaper.decisions?.related_work_prompt, 'Related Work Decision')}
               {renderDecisionContent(selectedDisqualifiedPaper.decisions?.novelty_prompt, 'Novelty Decision')}
               {renderDecisionContent(selectedDisqualifiedPaper.decisions?.review_only_prompt, 'Review Decision')}
+
+              <Divider style={{ margin: '24px 0' }} />
+              
+              {/* Add comment history section */}
+              <div style={{ marginBottom: '24px' }}>
+                <Title level={5}>Comments</Title>
+                {mockComments[selectedDisqualifiedPaper.id]?.length > 0 ? (
+                  <List
+                    dataSource={mockComments[selectedDisqualifiedPaper.id]}
+                    renderItem={comment => (
+                      <List.Item>
+                        <div style={{ width: '100%' }}>
+                          <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between',
+                            marginBottom: '4px'
+                          }}>
+                            <Text type="secondary">
+                              {new Date(comment.timestamp).toLocaleString()}
+                            </Text>
+                          </div>
+                          <div style={{ 
+                            padding: '12px',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '4px'
+                          }}>
+                            {comment.text}
+                          </div>
+                        </div>
+                      </List.Item>
+                    )}
+                  />
+                ) : (
+                  <Text type="secondary">No comments yet</Text>
+                )}
+              </div>
+
+              <Divider style={{ margin: '24px 0' }} />
+              
+              <PaperInteractions 
+                paperPath={`${categorySlug}/${subcategorySlug}/${selectedYear}/${selectedDisqualifiedPaper.title}`} 
+              />
             </div>
           )}
+        </Modal>
+
+        {/* Add comment modal */}
+        <Modal
+          title="Add Comment"
+          open={commentModalVisible}
+          onOk={handleSubmitComment}
+          onCancel={() => {
+            setCommentModalVisible(false);
+            setNewComment('');
+          }}
+          okText="Submit"
+          cancelText="Cancel"
+        >
+          <Form layout="vertical">
+            <Form.Item label="Comment">
+              <Input.TextArea
+                rows={4}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Enter your comment..."
+              />
+            </Form.Item>
+          </Form>
         </Modal>
       </>
     );
