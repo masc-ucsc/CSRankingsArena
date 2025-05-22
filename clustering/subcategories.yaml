@@ -146,7 +146,7 @@ Natural Language Processing:
   - Speech recognition, text-to-speech and spoken language understanding
   - Summarization
   - Syntax: Tagging, Chunking and Parsing
-The Web and Information Retrieval:
+The Web & Information Retrieval:
   - Economics, Online Markets, and Human Computation
   - Graph Algorithms and Modeling for the Web
   - Responsible Web
@@ -191,4 +191,386 @@ Design Automation:
   - Embedded System Design Tools and Methodologies
   - Embedded Memory and Storage Systems
   - Time-Critical and Fault Tolerant System Design
-
+Embedded & Real-time Systems:
+  - Real-Time Scheduling and Analysis
+  - Real-Time Operating Systems (RTOS)
+  - Time-Sensitive Networking (TSN)
+  - Embedded Software and Toolchains
+  - Low-Power and Energy-Aware Systems
+  - Cyber-Physical Systems (CPS)
+  - Safety-Critical and Certifiable Systems
+  - Embedded AI and ML Acceleration
+  - Hardware/Software Co-Design
+  - Real-Time Communication Protocols
+  - Automotive and Avionics Systems
+  - Industrial Internet of Things (IIoT)
+  - Resource Management in Embedded Systems
+  - Real-Time Virtualization
+  - Sensor Networks and Embedded Perception
+  - Real-Time Security and Trust
+  - FPGA-based Embedded Systems
+  - Edge Computing and Edge AI
+  - Embedded GPU and Heterogeneous Computing
+  - Formal Methods for Embedded Systems
+  - Model-Based Design and Verification
+  - Timing Analysis and Worst-Case Execution Time (WCET)
+  - Embedded Systems for Robotics and Automation
+  - Scheduling under Uncertainty
+  - Adaptive and Reconfigurable Embedded Systems
+High-performance Computing:
+  - Parallel Programming Models and Languages
+  - Compiler Optimizations for HPC
+  - Performance Modeling and Analysis
+  - GPU and Accelerator Computing
+  - Heterogeneous and Hybrid Architectures
+  - High-Performance Interconnects and Networks
+  - Distributed and Cluster Computing
+  - Exascale and Petascale Systems
+  - Energy-Efficient HPC
+  - Fault Tolerance and Resilience
+  - HPC Workloads and Benchmarking
+  - Numerical Algorithms and Scientific Computing
+  - Task-Based and Dataflow Execution Models
+  - Runtime Systems and Scheduling
+  - Memory and Storage Systems for HPC
+  - Parallel I/O and Filesystems
+  - HPC for AI and Machine Learning
+  - Quantum and Neuromorphic Computing for HPC
+  - Cloud-HPC Convergence
+  - Programming Tools and Debuggers
+  - Domain-Specific Languages for HPC
+  - High-Performance Graph Analytics
+  - HPC Applications in Science and Engineering
+  - Visualization and In-situ Analytics
+  - Security in HPC Systems
+Mobile Computing:
+  - Mobile Systems and Applications
+  - Mobile Operating Systems
+  - Energy-Efficient Mobile Computing
+  - Mobile Security and Privacy
+  - Mobile Networking and Connectivity
+  - Edge and Fog Computing for Mobile Systems
+  - Mobile Sensing and Context Awareness
+  - Location-Based Services and Localization
+  - Mobile Augmented and Virtual Reality (AR/VR)
+  - Wearable and Body-Area Networks
+  - Human-Computer Interaction in Mobile Systems
+  - Mobile Health (mHealth) and Wellness Applications
+  - Crowdsensing and Participatory Sensing
+  - Mobile AI and On-device Learning
+  - Adaptive and Resilient Mobile Systems
+  - Cross-device and Cross-platform Systems
+  - Delay-Tolerant and Opportunistic Networking
+  - Mobile Cloud Offloading
+  - Mobile Multimedia Systems
+  - Vehicular Mobile Systems and V2X Communication
+  - IoT Integration with Mobile Devices
+  - Mobile Robotics and Drones
+  - Ubiquitous and Pervasive Computing
+  - Mobile Privacy-Preserving Computation
+Measurement & Perf. Analysis:
+  - System Profiling and Instrumentation
+  - Performance Modeling and Prediction
+  - Tracing and Monitoring Tools
+  - Benchmarking Methodologies
+  - Microarchitectural Analysis
+  - Network Measurement and Traffic Analysis
+  - Performance Debugging and Bottleneck Diagnosis
+  - Application-level Performance Analysis
+  - Load Testing and Scalability Analysis
+  - Resource Usage Analysis (CPU, Memory, I/O)
+  - Latency and Throughput Optimization
+  - Power and Energy Efficiency Measurement
+  - Performance Isolation in Multi-Tenant Systems
+  - Caching and Storage Performance
+  - Virtualization and Container Performance
+  - Performance of Distributed Systems
+  - Cloud and Data Center Performance
+  - Real-Time and Embedded Systems Measurement
+  - Machine Learning for Performance Analysis
+  - Performance Visualization Techniques
+  - Security and Side-Channel Performance Analysis
+  - Performance Reproducibility and Methodology
+  - Performance Impacts of System Configuration
+  - Hardware Performance Counters and PMUs
+  - Toolkits and Frameworks for Performance Analysis
+Operating Systems:
+  - OS Kernels and Core System Architecture
+  - Process and Thread Management
+  - Scheduling and Resource Management
+  - Memory Management and Virtual Memory
+  - File Systems and Storage
+  - I/O Systems and Device Drivers
+  - Security and Access Control in OS
+  - OS Support for Multicore and Manycore Systems
+  - Virtualization and Hypervisors
+  - Containerization and OS-level Isolation
+  - Distributed and Networked Operating Systems
+  - Real-Time and Embedded Operating Systems
+  - Energy-Aware and Power-Efficient OS
+  - OS Support for Persistent Memory
+  - Crash Consistency and Recovery
+  - OS Support for Cloud and Data Center Systems
+  - Mobile and Wearable Operating Systems
+  - Operating Systems for Edge and IoT Devices
+  - User and Kernel-Level Debugging Tools
+  - OS Performance and Scalability
+  - Microkernel and Exokernel Architectures
+  - Operating Systems for Secure Enclaves (e.g., SGX, TEE)
+  - OS Support for Heterogeneous and Accelerated Hardware
+  - Operating Systems Education and Novel Interfaces
+Software Engineering:
+  - Language Design and Semantics
+  - Type Systems and Type Theory
+  - Program Analysis and Static Analysis
+  - Compiler Construction and Optimization
+  - Intermediate Representations and Code Generation
+  - Functional Programming
+  - Object-Oriented Programming
+  - Logic Programming
+  - Concurrent and Parallel Programming Languages
+  - Domain-Specific Languages (DSLs)
+  - Formal Verification and Proof Systems
+  - Program Synthesis and Repair
+  - Runtime Systems and Garbage Collection
+  - Just-in-Time (JIT) Compilation
+  - Language Support for Systems Programming
+  - Probabilistic and Differentiable Programming
+  - Gradual and Optional Typing
+  - Language-Based Security and Information Flow
+  - Educational Programming Languages
+  - Metaprogramming and Reflection
+  - Cross-Language Interoperability
+  - Quantum Programming Languages
+  - Visual and Block-Based Languages
+  - ML/AI-Oriented Programming Languages
+  - Language Tooling (IDEs, Debuggers, Linters)
+  - Semantics and Program Logics
+Algorithms & Complexity:
+  - Graph Algorithms
+  - Combinatorial Optimization
+  - Approximation Algorithms
+  - Online Algorithms
+  - Randomized Algorithms
+  - Distributed and Parallel Algorithms
+  - Streaming and Sublinear Algorithms
+  - Geometric and Computational Geometry Algorithms
+  - Data Structures and Dynamic Algorithms
+  - Parameterized and Exact Algorithms
+  - Network Algorithms and Routing
+  - String and Text Algorithms
+  - Scheduling and Load Balancing Algorithms
+  - Algorithmic Game Theory and Mechanism Design
+  - Algorithms for Big Data and External Memory
+  - Quantum Algorithms
+  - Cryptographic Algorithms and Protocols
+  - Bioinformatics and Computational Biology Algorithms
+  - Numerical Algorithms and Linear Algebra
+  - Theoretical Machine Learning Algorithms
+  - Complexity Theory (P vs NP, Reductions, Completeness)
+  - Circuit Complexity
+  - Communication Complexity
+  - Proof Complexity
+  - Lower Bounds and Hardness of Approximation
+  - Fixed-Parameter Tractability and Kernelization
+Cryptography:
+  - Symmetric-Key Cryptography
+  - Public-Key Cryptography
+  - Cryptographic Protocols
+  - Zero-Knowledge Proofs
+  - Secure Multiparty Computation (MPC)
+  - Homomorphic Encryption
+  - Functional Encryption
+  - Lattice-Based Cryptography
+  - Code-Based Cryptography
+  - Post-Quantum Cryptography
+  - Elliptic Curve Cryptography
+  - Digital Signatures
+  - Hash Functions and MACs
+  - Key Exchange Protocols
+  - Blockchain and Cryptocurrencies
+  - Cryptographic Primitives
+  - Anonymous Credentials and Privacy-Preserving Auth
+  - Identity-Based and Attribute-Based Encryption
+  - Oblivious RAM (ORAM)
+  - Verifiable Computation
+  - Cryptanalysis and Side-Channel Attacks
+  - Provable Security and Reductions
+  - White-Box and Tamper-Resistant Cryptography
+  - Quantum Cryptography and Quantum Key Distribution (QKD)
+  - Cryptographic Hardware and Implementations
+Logic & Verification:
+  - Formal Methods and Specification Languages
+  - Model Checking
+  - Theorem Proving and Interactive Proof Assistants
+  - SAT Solving and SAT Modulo Theories (SMT)
+  - Program Verification
+  - Type Systems and Logical Frameworks
+  - Temporal and Modal Logics
+  - Abstract Interpretation
+  - Static Analysis and Data Flow Analysis
+  - Symbolic Execution
+  - Proof-Carrying Code and Certified Compilation
+  - Decision Procedures
+  - Hoare Logic and Separation Logic
+  - Model-Based Design and Verification
+  - Runtime Verification and Monitoring
+  - Contract-Based Design and Verification
+  - Probabilistic and Quantitative Verification
+  - Logic in AI and Knowledge Representation
+  - Automated Deduction
+  - Hardware Verification
+  - Cyber-Physical Systems Verification
+  - Concurrency and Distributed System Verification
+  - Software Model Synthesis and Repair
+  - Formal Semantics of Programs and Systems
+  - Formal Verification of Machine Learning Systems
+Comp. Bio & Bioinformatics:
+  - Bioinformatics Education and Citizen Science
+  - Bioinformatics of Microbes and Microbiomes
+  - Biomedical Informatics
+  - Equity and Diversity in Computational Biology Research
+  - Evolutionary, Comparative and Population Genomics
+  - Genome Sequence Analysis
+  - Macromolecular Sequence, Structure, and Function
+  - Privacy and Security for Computational Biology
+  - Regulatory and Functional Genomics
+  - Systems Biology and Networks
+  - General Computational Biology
+Computer Graphics:
+  - Rendering Techniques
+  - Real-Time Graphics and Game Engines
+  - Ray Tracing and Path Tracing
+  - Global Illumination and Light Transport
+  - Physically-Based Rendering (PBR)
+  - Image-Based Rendering
+  - Non-Photorealistic Rendering (NPR)
+  - Geometry Processing and Mesh Manipulation
+  - 3D Modeling and Shape Representation
+  - Character Animation and Rigging
+  - Physics-Based Animation and Simulation
+  - Skinning and Deformation Techniques
+  - Cloth, Hair, and Fluid Simulation
+  - Visual Effects and Procedural Generation
+  - Virtual Reality (VR) and Augmented Reality (AR)
+  - Human-Computer Interaction for Graphics
+  - Graphics Hardware and GPU Programming
+  - Computer-Aided Design (CAD) and Industrial Applications
+  - Stylized and Artistic Rendering
+  - Volume Rendering and Scientific Visualization
+  - Medical Visualization and Imaging
+  - Computational Photography
+  - Deep Learning for Graphics
+  - Digital Humans and Facial Animation
+  - Perception and Cognition in Graphics
+  - Graphics Software Tools and Systems
+Computer Science Education:
+ - Introductory Programming and CS1/CS2 Curriculum
+  - Active Learning and Pedagogical Techniques
+  - Online and Blended Learning
+  - Assessment and Evaluation in CS Education
+  - Computational Thinking and Problem Solving
+  - K–12 Computer Science Education
+  - Diversity, Equity, and Inclusion in CS
+  - Educational Technology and Tools
+  - Programming Languages for Teaching
+  - CS Education Research Methods
+  - Peer Instruction and Mentoring
+  - Project-Based and Experiential Learning
+  - Curriculum Design and Learning Outcomes
+  - Educational Data Mining and Learning Analytics
+  - Teaching Software Engineering and Systems
+  - Teaching AI, ML, and Data Science
+  - Ethics and Social Implications of Computing
+  - MOOCs and Scalable CS Education
+  - Game-Based Learning and Gamification
+  - Accessibility in Computing Education
+  - Professional Development for Educators
+  - Student Motivation and Engagement
+  - Code Comprehension and Debugging Skills
+  - Interdisciplinary Computing Education
+  - Industry-Academia Collaboration in Teaching
+Economics & Computation:
+  - Algorithmic Game Theory
+  - Mechanism Design
+  - Auction Theory and Market Design
+  - Computational Social Choice
+  - Fairness and Equity in Algorithms
+  - Matching Theory and Algorithms
+  - Pricing and Revenue Optimization
+  - Learning in Games and Markets
+  - Online Decision Making and Bandits
+  - Network Economics
+  - Behavioral Economics and Bounded Rationality
+  - Information and Signaling in Markets
+  - Computational Aspects of Voting and Elections
+  - Resource Allocation and Scheduling
+  - Peer Prediction and Crowdsourcing Mechanisms
+  - Blockchain and Cryptocurrency Economics
+  - Marketplaces and Platform Design
+  - Game-Theoretic Models of Security and Privacy
+  - Mechanism Design without Money
+  - Economics of Privacy and Data Markets
+  - Experimental and Empirical Game Theory
+  - Equilibrium Computation and Complexity
+  - Cooperative Game Theory and Cost Sharing
+  - Social Networks and Strategic Interaction
+Human-computer Interaction:
+  - User Interface Design and Evaluation
+  - Interaction Techniques and Input Devices
+  - Usability and User Experience (UX)
+  - Accessibility and Inclusive Design
+  - Computer-Supported Cooperative Work (CSCW)
+  - Mobile and Wearable Interaction
+  - Augmented Reality (AR) and Virtual Reality (VR)
+  - Tangible and Embodied Interaction
+  - Voice, Speech, and Conversational Interfaces
+  - HCI for Health and Wellbeing
+  - HCI for Education and Learning Technologies
+  - Social Computing and Online Communities
+  - Personalization and Adaptive Interfaces
+  - Human-AI Interaction and Explainability
+  - Cognitive Models and Theories of Interaction
+  - Crowdsourcing and Human Computation
+  - Privacy, Security, and Ethics in HCI
+  - HCI for Development (HCI4D)
+  - Multimodal Interaction
+  - Eye Tracking and Gaze-Based Interfaces
+  - Affective and Emotion-Aware Computing
+  - Design Methods and Research Through Design
+  - End-User Programming and Customization
+  - Novel Display Technologies and Interaction Surfaces
+  - Evaluation Methods and User Studies
+Robotics:
+  - Robot Perception and Sensing
+  - Robot Motion Planning and Navigation
+  - Manipulation and Grasping
+  - Robot Control Systems
+  - Multi-Robot Systems and Swarm Robotics
+  - Human-Robot Interaction
+  - Robot Learning and Adaptation
+  - Mobile Robots and Autonomous Vehicles
+  - Simultaneous Localization and Mapping (SLAM)
+  - Robot Hardware and Actuators
+  - Robotics for Healthcare and Assistive Technologies
+  - Robot Kinematics and Dynamics
+  - Underwater and Aerial Robotics
+  - Robot Safety and Reliability
+  - Soft Robotics
+  - Bio-inspired and Biomimetic Robotics
+  - Industrial and Service Robotics
+  - Robotics Simulation and Modeling
+  - Reinforcement Learning in Robotics
+  - Robot Perception with Computer Vision and AI
+  - Robot Ethics and Social Implications
+  - Robot Operating Systems and Middleware
+  - Robot Localization and Mapping
+  - Tactile Sensing and Haptics
+  - Robot Design and Fabrication
+Visualization:
+  - Theoretical & Empirical
+  - Applications
+  - Systems & Rendering
+  - Representations & Interaction
+  - Data Transformations
+  - Analytics & Decisions

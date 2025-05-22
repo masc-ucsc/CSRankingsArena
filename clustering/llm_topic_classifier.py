@@ -1,4 +1,7 @@
-import os, json, yaml, re
+import os
+import json
+import yaml
+import re
 
 from collections import Counter
 from litellm import completion
@@ -140,8 +143,8 @@ def classify_paper_topic(
     Returns:
         Dictionary containing main and secondary topic classification, as well as reasonings for the decisions
     """
-
-    os.environ["OPENAI_API_KEY"] = api_key
+    if api_key is not None:
+        os.environ["OPENAI_API_KEY"] = api_key
     
     categories = ["Artificial Intelligence", "Computer Vision", "Machine Learning", "Natural Language Processing", 
                     "The Web & Information Retrieval", "Computer Architecture", "Computer Networks", "Computer Security", "Databases", "Design Automation", 

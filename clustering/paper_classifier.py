@@ -1,4 +1,7 @@
-import marker_runner, yaml, os, argparse
+import marker_runner
+import yaml
+import os
+import argparse
 
 from collections import defaultdict
 from typing import Optional
@@ -56,7 +59,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Filter papers by qualification status.")
     parser.add_argument("-f", "--file", required=True, help="Path to input yaml containing papers")
     parser.add_argument("-o", "--output", required=True, help="Path to output folder")
-    parser.add_argument("-a", "--key", required=True, help="OpenAI API key")
+    parser.add_argument("-a", "--key", help="OpenAI API key")
     args = parser.parse_args()
 
     classify_papers(args.file, args.output, args.key)
