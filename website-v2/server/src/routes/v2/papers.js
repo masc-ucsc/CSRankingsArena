@@ -5,6 +5,7 @@ const { db } = require('../../config/db');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const fsPromises = require('fs').promises;
 
 
 // Helper function to read papers from a YAML file (for example, for ai/vision, read from papers/ai/vision/{year}/ai-vision-{year}-papers.yaml)
@@ -190,6 +191,325 @@ module.exports = [
                 } catch (error) {
                     console.error('Error fetching venues:', error);
                     throw Boom.badImplementation('Failed to fetch venues', error);
+                }
+            }
+        }
+    },
+    {
+        method: 'GET',
+        path: '/api/v2/papers/{category}/{subcategory}/{year}/disqualified',
+        options: {
+            description: 'Get disqualified papers for a category/subcategory/year',
+            tags: ['api', 'papers'],
+            validate: {
+                params: Joi.object({
+                    category: Joi.string().required(),
+                    subcategory: Joi.string().required(),
+                    year: Joi.string().pattern(/^\d{4}$/).required()
+                })
+            },
+            handler: async (request, h) => {
+                try {
+                    const { category, subcategory, year } = request.params;
+                    console.log('Fetching disqualified papers for:', { category, subcategory, year });
+                    
+                    // Resolve path to the papers directory in the project root
+                    const papersDir = path.resolve(__dirname, '../../../../papers');
+                    console.log('papersDir', papersDir);
+
+
+                    try {
+
+                        // Read and parse the YAML file
+                        const yamlFile = path.join(papersDir, category, subcategory, year.toString(), `${category}-${subcategory}-${year}-disqualification.yaml`);
+                        if (!fs.existsSync(yamlFile)) {
+                            console.error(`YAML file does not exist: ${yamlFile}`);
+                            throw Boom.notFound(`Papers YAML file not found for ${category}/${subcategory}/${year}`);
+                        }
+                        let yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
+                        //const yamlContent = await fs.readFile(yamlPath, 'utf8');
+                        console.log('Successfully read YAML file');
+                        //console.log('Parsed YAML data:', yamlData);
+
+                        if (!yamlData || !yamlData.papers) {
+                            console.log('No papers found in YAML data');
+                            return h.response({ papers: [] });
+                        }
+
+                        const response = {
+                            category,
+                            subcategory,
+                            year,
+                            papers: yamlData.papers
+                        };
+                        //console.log('Sending Disqualification response:', response);
+                        return response;
+                    } catch (error) {
+                        console.error('Error reading YAML file:', error);
+                        if (error.code === 'ENOENT') {
+                            console.log('YAML file not found');
+                            return h.response({ papers: [] });
+                        }
+                        throw error;
+                    }
+                } catch (error) {
+                    console.error('Error in disqualified papers endpoint:', error);
+                    throw Boom.badImplementation('Error fetching disqualified papers');
+                }
+            }
+        }
+    },
+    {
+        method: 'GET',
+        path: '/api/v2/papers/search',
+        options: {
+            description: 'Search papers with suggestions',
+            tags: ['api', 'v2', 'papers'],
+            validate: {
+                query: Joi.object({
+                    q: Joi.string().required().description('Search query'),
+                    type: Joi.string().valid('all', 'title', 'author', 'category', 'subcategory', 'year').default('all'),
+                    category: Joi.string().allow('').optional(),
+                    year: Joi.number().integer().allow('').optional(),
+                    page: Joi.number().integer().min(1).default(1),
+                    limit: Joi.number().integer().min(1).max(100).default(20)
+                })
+            },
+            handler: async (request, h) => {
+                try {
+                    const { q, type, category, year, page, limit } = request.query;
+                    const papersDir = path.resolve(__dirname, '../../../../papers');
+                    
+                    console.log('Searching papers for:', { q, type, category, year, page, limit });
+                    // Get all categories
+                    const categories = fs.readdirSync(papersDir);
+                    let results = [];
+                    
+                    // Search through all YAML files
+                    for (const cat of categories) {
+                        const categoryPath = path.join(papersDir, cat);
+                        if (!fs.statSync(categoryPath).isDirectory()) continue;
+                        
+                        const subcategories = fs.readdirSync(categoryPath);
+                        for (const subcat of subcategories) {
+                            const subcategoryPath = path.join(categoryPath, subcat);
+                            if (!fs.statSync(subcategoryPath).isDirectory()) continue;
+                            
+                            const years = fs.readdirSync(subcategoryPath);
+                            for (const yr of years) {
+                                const yearPath = path.join(subcategoryPath, yr);
+                                if (!fs.statSync(yearPath).isDirectory()) continue;
+                                
+                                // Skip if year filter is set and doesn't match
+                                if (year && year !== '' && parseInt(yr) !== parseInt(year)) continue;
+                                
+                                // Skip if category filter is set and doesn't match
+                                if (category && category !== '' && cat !== category) continue;
+                                
+                                const yamlFile = path.join(yearPath, `${cat}-${subcat}-${yr}-papers.yaml`);
+                                if (!fs.existsSync(yamlFile)) continue;
+                                
+                                try {
+                                    const yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
+                                    if (!yamlData || !yamlData.papers) continue;
+                                    
+                                    // Filter papers based on search type and query
+                                    const matchingPapers = yamlData.papers.filter(paper => {
+                                        const searchQuery = q.toLowerCase();
+                                        
+                                        switch (type) {
+                                            case 'title':
+                                                return paper.title?.toLowerCase().includes(searchQuery) || false;
+                                            case 'author':
+                                                return Array.isArray(paper.authors) && paper.authors.some(author => 
+                                                    author?.toLowerCase().includes(searchQuery)
+                                                );
+                                            case 'category':
+                                                return cat.toLowerCase().includes(searchQuery);
+                                            case 'subcategory':
+                                                return subcat.toLowerCase().includes(searchQuery);
+                                            case 'year':
+                                                return yr.includes(searchQuery);
+                                            default: // 'all'
+                                                return (
+                                                    (paper.title?.toLowerCase().includes(searchQuery) || false) ||
+                                                    (Array.isArray(paper.authors) && paper.authors.some(author => 
+                                                        author?.toLowerCase().includes(searchQuery)
+                                                    )) ||
+                                                    cat.toLowerCase().includes(searchQuery) ||
+                                                    subcat.toLowerCase().includes(searchQuery) ||
+                                                    yr.includes(searchQuery)
+                                                );
+                                        }
+                                    });
+                                    
+                                    // Add category and subcategory info to each paper
+                                    const enrichedPapers = matchingPapers.map(paper => ({
+                                        ...paper,
+                                        category: cat,
+                                        subcategory: subcat,
+                                        year: parseInt(yr)
+                                    }));
+                                    
+                                    results = results.concat(enrichedPapers);
+                                } catch (err) {
+                                    console.error(`Error reading YAML file ${yamlFile}:`, err);
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Sort results by relevance (exact matches first)
+                    results.sort((a, b) => {
+                        const aTitle = a.title.toLowerCase();
+                        const bTitle = b.title.toLowerCase();
+                        const query = q.toLowerCase();
+                        
+                        const aExactMatch = aTitle === query;
+                        const bExactMatch = bTitle === query;
+                        
+                        if (aExactMatch && !bExactMatch) return -1;
+                        if (!aExactMatch && bExactMatch) return 1;
+                        
+                        const aStartsWith = aTitle.startsWith(query);
+                        const bStartsWith = bTitle.startsWith(query);
+                        
+                        if (aStartsWith && !bStartsWith) return -1;
+                        if (!aStartsWith && bStartsWith) return 1;
+                        
+                        return 0;
+                    });
+                    
+                    // Apply pagination
+                    const startIndex = (page - 1) * limit;
+                    const endIndex = startIndex + limit;
+                    const paginatedResults = results.slice(startIndex, endIndex);
+                    
+                    return h.response({
+                        papers: paginatedResults,
+                        pagination: {
+                            total: results.length,
+                            page: parseInt(page),
+                            limit: parseInt(limit),
+                            pages: Math.ceil(results.length / limit)
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error searching papers:', error);
+                    throw Boom.badImplementation('Failed to search papers', error);
+                }
+            }
+        },
+    },
+    {
+        method: 'GET',
+        path: '/api/v2/papers/suggestions',
+        options: {
+            description: 'Get paper suggestions for autocomplete',
+            tags: ['api', 'v2', 'papers'],
+            validate: {
+                query: Joi.object({
+                    q: Joi.string().required().min(2).description('Search query'),
+                    type: Joi.string().valid('title', 'author').required().description('Search type')
+                })
+            },
+            handler: async (request, h) => {
+                try {
+                    const { q, type } = request.query;
+                    const papersDir = path.resolve(__dirname, '../../../../papers');
+                    const suggestions = new Set();
+                    
+                    // Get all categories
+                    const categories = fs.readdirSync(papersDir);
+                    
+                    // Search through all YAML files
+                    for (const cat of categories) {
+                        const categoryPath = path.join(papersDir, cat);
+                        if (!fs.statSync(categoryPath).isDirectory()) continue;
+                        
+                        const subcategories = fs.readdirSync(categoryPath);
+                        for (const subcat of subcategories) {
+                            const subcategoryPath = path.join(categoryPath, subcat);
+                            if (!fs.statSync(subcategoryPath).isDirectory()) continue;
+                            
+                            const years = fs.readdirSync(subcategoryPath);
+                            for (const yr of years) {
+                                const yearPath = path.join(subcategoryPath, yr);
+                                if (!fs.statSync(yearPath).isDirectory()) continue;
+                                
+                                const yamlFile = path.join(yearPath, `${cat}-${subcat}-${yr}-papers.yaml`);
+                                if (!fs.existsSync(yamlFile)) continue;
+                                
+                                try {
+                                    const yamlData = yaml.load(fs.readFileSync(yamlFile, "utf8"));
+                                    if (!yamlData || !yamlData.papers) continue;
+                                    
+                                    const searchQuery = q.toLowerCase();
+                                    
+                                    if (type === 'title') {
+                                        // Add matching titles
+                                        yamlData.papers.forEach(paper => {
+                                            if (paper.title.toLowerCase().includes(searchQuery)) {
+                                                suggestions.add(JSON.stringify({
+                                                    title: paper.title,
+                                                    authors: paper.authors,
+                                                    year: parseInt(yr)
+                                                }));
+                                            }
+                                        });
+                                    } else if (type === 'author') {
+                                        // Add matching authors
+                                        yamlData.papers.forEach(paper => {
+                                            paper.authors.forEach(author => {
+                                                if (author.toLowerCase().includes(searchQuery)) {
+                                                    suggestions.add(JSON.stringify({
+                                                        name: author,
+                                                        paperCount: yamlData.papers.filter(p => 
+                                                            p.authors.includes(author)
+                                                        ).length
+                                                    }));
+                                                }
+                                            });
+                                        });
+                                    }
+                                } catch (err) {
+                                    console.error(`Error reading YAML file ${yamlFile}:`, err);
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Convert Set to Array and parse JSON strings
+                    const results = Array.from(suggestions).map(item => JSON.parse(item));
+                    
+                    // Sort results by relevance
+                    results.sort((a, b) => {
+                        const query = q.toLowerCase();
+                        const aValue = type === 'title' ? a.title.toLowerCase() : a.name.toLowerCase();
+                        const bValue = type === 'title' ? b.title.toLowerCase() : b.name.toLowerCase();
+                        
+                        const aExactMatch = aValue === query;
+                        const bExactMatch = bValue === query;
+                        
+                        if (aExactMatch && !bExactMatch) return -1;
+                        if (!aExactMatch && bExactMatch) return 1;
+                        
+                        const aStartsWith = aValue.startsWith(query);
+                        const bStartsWith = bValue.startsWith(query);
+                        
+                        if (aStartsWith && !bStartsWith) return -1;
+                        if (!aStartsWith && bStartsWith) return 1;
+                        
+                        return 0;
+                    });
+                    
+                    // Return top 10 suggestions
+                    return h.response(results.slice(0, 10));
+                } catch (error) {
+                    console.error('Error getting suggestions:', error);
+                    throw Boom.badImplementation('Failed to get suggestions', error);
                 }
             }
         }

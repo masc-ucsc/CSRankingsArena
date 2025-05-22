@@ -457,16 +457,46 @@ module.exports = [
                         .whereIn('match_id', matchIds)
                         .orderBy('created_at', 'asc');
 
-                    // Group interactions by match_id
+                    // Fetch user information for all interactions
+                    const userIds = [...new Set(interactions.map(i => i.user_id))];
+                    // Filter out non-numeric user IDs
+                    const numericUserIds = userIds.filter(id => !isNaN(Number(id)));
+                    
+                    let users = [];
+                    if (numericUserIds.length > 0) {
+                        users = await request.db('users')
+                            .whereIn('id', numericUserIds)
+                            .select('id', 'username', 'email', 'created_at');
+                    }
+
+                    // Create a map of user IDs to user data
+                    const userMap = new Map(users.map(user => [user.id, user]));
+
+                    // Default user for anonymous or missing user data
+                    const defaultUser = {
+                        id: 'system',
+                        username: 'System User',
+                        email: 'system@csrankingsarena.com',
+                        created_at: new Date('2024-01-01').toISOString()
+                    };
+
+                    // Group interactions by match_id and include user information
                     const interactionsByMatch = interactions.reduce((acc, interaction) => {
                         if (!acc[interaction.match_id]) {
                             acc[interaction.match_id] = [];
                         }
+                        const user = userMap.get(interaction.user_id) || defaultUser;
                         acc[interaction.match_id].push({
                             type: interaction.type,
                             content: interaction.content,
                             is_anonymous: interaction.is_anonymous,
-                            created_at: interaction.created_at
+                            created_at: interaction.created_at,
+                            user: interaction.is_anonymous ? defaultUser : {
+                                id: user.id,
+                                username: user.username,
+                                email: user.email,
+                                created_at: user.created_at
+                            }
                         });
                         return acc;
                     }, {});

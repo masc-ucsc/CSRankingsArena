@@ -33,7 +33,8 @@ import {
   Result,
   Divider,
   Popover,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -46,10 +47,17 @@ import {
   FilterOutlined,
   BarChartOutlined,
   DownloadOutlined,
-  WarningOutlined
+  WarningOutlined,
+  LikeOutlined,
+  DislikeOutlined,
+  LikeFilled,
+  DislikeFilled,
+  CommentOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import { getMockLeaderboardData } from '../mock/paperData';
+import yaml from 'yaml';
+import PaperInteractions from '../components/PaperInteractions';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -116,6 +124,19 @@ const SubcategoryPage = () => {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [usingMockLeaderboard, setUsingMockLeaderboard] = useState(false);
+  const [disqualifiedPapers, setDisqualifiedPapers] = useState([]);
+  const [loadingDisqualified, setLoadingDisqualified] = useState(false);
+
+  // Add state for modal
+  const [selectedDisqualifiedPaper, setSelectedDisqualifiedPaper] = useState(null);
+  const [isDecisionModalVisible, setIsDecisionModalVisible] = useState(false);
+
+  // Add state for mock interactions
+  const [mockInteractions, setMockInteractions] = useState({});
+  const [mockComments, setMockComments] = useState({});
+  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [selectedPaperForComment, setSelectedPaperForComment] = useState(null);
+  const [newComment, setNewComment] = useState('');
 
   // Find category and subcategory with null checks
   const category = categories?.find((cat) => cat.slug === categorySlug);
@@ -838,6 +859,368 @@ const SubcategoryPage = () => {
     }
   }, [selectedYear, categorySlug, subcategorySlug]);
 
+  // Add function to fetch disqualified papers
+  const fetchDisqualifiedPapers = async () => {
+    setLoadingDisqualified(true);
+    try {
+      // First try to fetch from the API endpoint
+      console.log('Attempting to fetch from API endpoint:', `/papers/${categorySlug}/${subcategorySlug}/${selectedYear}/disqualified`);
+      const response = await api.get(`/papers/${categorySlug}/${subcategorySlug}/${selectedYear}/disqualified`);
+      console.log('Disqualification API Response:', response);
+      
+      if (response.data && response.data.papers) {
+        console.log('Setting disqualified papers from API:', response.data.papers);
+        setDisqualifiedPapers(response.data.papers);
+        return;
+      } else {
+        console.log('No papers found in API response');
+        setDisqualifiedPapers([]);
+      }
+    } catch (apiError) {
+      console.error('API fetch failed:', apiError);
+      console.log('Falling back to local YAML file');
+      
+      // If API fails, try to read from the local YAML file
+      try {
+        const yamlPath = `/papers/${categorySlug}/${subcategorySlug}/${selectedYear}/${categorySlug}-${subcategorySlug}-${selectedYear}-disqualification.yaml`;
+        console.log('Attempting to fetch local YAML from:', yamlPath);
+        
+        const response = await fetch(yamlPath);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const yamlText = await response.text();
+        console.log('YAML file content:', yamlText);
+        
+        const parsedData = yaml.load(yamlText);
+        //console.log('Parsed YAML data:', parsedData);
+        
+        if (parsedData && parsedData.papers) {
+          console.log('Setting disqualified papers from YAML:', parsedData.papers);
+          setDisqualifiedPapers(parsedData.papers);
+        } else {
+          console.log('No papers found in YAML data');
+          setDisqualifiedPapers([]);
+        }
+      } catch (yamlError) {
+        console.error('Error loading local YAML file:', yamlError);
+        setDisqualifiedPapers([]);
+      }
+    } finally {
+      setLoadingDisqualified(false);
+    }
+  };
+
+  // Add effect to fetch disqualified papers when year changes
+  useEffect(() => {
+    if (selectedYear && categorySlug && subcategorySlug) {
+      console.log('Fetching disqualified papers for:', {
+        categorySlug,
+        subcategorySlug,
+        selectedYear
+      });
+      fetchDisqualifiedPapers();
+    }
+  }, [selectedYear, categorySlug, subcategorySlug]);
+
+  // Add function to handle paper click
+  const handleDisqualifiedPaperClick = (paper) => {
+    setSelectedDisqualifiedPaper(paper);
+    setIsDecisionModalVisible(true);
+  };
+
+  // Add function to render decision content
+  const renderDecisionContent = (prompt, type) => {
+    if (!prompt) return null;
+    
+    const parts = prompt.split('Reason:');
+    const decision = parts[0].trim();
+    const reason = parts[1]?.trim() || 'No reason provided';
+    
+    return (
+      <div style={{ marginBottom: '16px' }}>
+        <Text strong style={{ color: '#cf1322' }}>{type}</Text>
+        <div style={{ marginTop: '8px' }}>
+          <Text strong>Decision:</Text>
+          <div style={{ marginTop: '4px' }}>{decision}</div>
+        </div>
+        <div style={{ marginTop: '8px' }}>
+          <Text strong>Reason:</Text>
+          <div style={{ marginTop: '4px' }}>{reason}</div>
+        </div>
+      </div>
+    );
+  };
+
+  // Add handlers for mock interactions
+  const handleMockLike = (paperId) => {
+    setMockInteractions(prev => {
+      const current = prev[paperId] || { likes: 0, dislikes: 0 };
+      return {
+        ...prev,
+        [paperId]: {
+          ...current,
+          likes: current.likes + 1
+        }
+      };
+    });
+    message.success('Liked paper');
+  };
+
+  const handleMockDislike = (paperId) => {
+    setMockInteractions(prev => {
+      const current = prev[paperId] || { likes: 0, dislikes: 0 };
+      return {
+        ...prev,
+        [paperId]: {
+          ...current,
+          dislikes: current.dislikes + 1
+        }
+      };
+    });
+    message.success('Disliked paper');
+  };
+
+  const handleMockComment = (paper) => {
+    setSelectedPaperForComment(paper);
+    setCommentModalVisible(true);
+  };
+
+  const handleSubmitComment = () => {
+    if (!newComment.trim()) {
+      message.warning('Please enter a comment');
+      return;
+    }
+
+    setMockComments(prev => ({
+      ...prev,
+      [selectedPaperForComment.id]: [
+        ...(prev[selectedPaperForComment.id] || []),
+        {
+          id: Date.now(),
+          text: newComment,
+          timestamp: new Date().toISOString()
+        }
+      ]
+    }));
+
+    setNewComment('');
+    setCommentModalVisible(false);
+    message.success('Comment added');
+  };
+
+  // Update the renderDisqualifiedPapers function to include interaction buttons
+  const renderDisqualifiedPapers = () => {
+    if (loadingDisqualified) {
+      return (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: '16px' }}>Loading disqualified papers...</div>
+        </div>
+      );
+    }
+
+    if (!disqualifiedPapers || disqualifiedPapers.length === 0) {
+      return (
+        <Alert
+          message="No Disqualified Papers"
+          description={`No disqualified papers found for ${subcategory?.name || subcategorySlug} in ${selectedYear}.`}
+          type="info"
+          showIcon
+        />
+      );
+    }
+
+    return (
+      <>
+        <div style={{ 
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '24px',
+          width: '100%',
+          padding: '16px 0'
+        }}>
+          {disqualifiedPapers.map((paper, index) => {
+            const interactions = mockInteractions[paper.id] || { likes: 0, dislikes: 0 };
+            const comments = mockComments[paper.id] || [];
+            
+            return (
+              <Card 
+                key={index}
+                style={{ 
+                  height: '100%',
+                  borderColor: '#ff4d4f',
+                  backgroundColor: '#fff1f0',
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleDisqualifiedPaperClick(paper)}
+                actions={[
+                  <Tooltip title="Like">
+                    <Button 
+                      type="text" 
+                      icon={<LikeOutlined />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMockLike(paper.id);
+                      }}
+                    >
+                      {interactions.likes}
+                    </Button>
+                  </Tooltip>,
+                  <Tooltip title="Dislike">
+                    <Button 
+                      type="text" 
+                      icon={<DislikeOutlined />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMockDislike(paper.id);
+                      }}
+                    >
+                      {interactions.dislikes}
+                    </Button>
+                  </Tooltip>,
+                  <Tooltip title="Comment">
+                    <Button 
+                      type="text" 
+                      icon={<CommentOutlined />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMockComment(paper);
+                      }}
+                    >
+                      {comments.length}
+                    </Button>
+                  </Tooltip>
+                ]}
+              >
+                <Card.Meta
+                  title={
+                    <div style={{ 
+                      color: '#cf1322',
+                      fontSize: '16px',
+                      fontWeight: '500'
+                    }}>
+                      {paper.title}
+                    </div>
+                  }
+                  description={
+                    <Space direction="vertical" size="small">
+                      <Tag color="error">Disqualified</Tag>
+                      <div style={{ color: '#595959' }}>
+                        {paper.decisions?.evaluation_prompt?.split('Reason:')[1]?.trim() || 
+                         paper.decisions?.novelty_prompt?.split('Reason:')[1]?.trim() || 
+                         'No reason provided'}
+                      </div>
+                    </Space>
+                  }
+                />
+              </Card>
+            );
+          })}
+        </div>
+
+        <Modal
+          title={
+            <div style={{ color: '#cf1322' }}>
+              <WarningOutlined style={{ marginRight: '8px' }} />
+              Disqualified Paper Details
+            </div>
+          }
+          open={isDecisionModalVisible}
+          onCancel={() => setIsDecisionModalVisible(false)}
+          footer={[
+            <Button key="close" onClick={() => setIsDecisionModalVisible(false)}>
+              Close
+            </Button>
+          ]}
+          width={800}
+        >
+          {selectedDisqualifiedPaper && (
+            <div style={{ padding: '16px' }}>
+              <Title level={4} style={{ marginBottom: '24px' }}>
+                {selectedDisqualifiedPaper.title}
+              </Title>
+              
+              <Divider style={{ margin: '16px 0' }} />
+              
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.evaluation_prompt, 'Evaluation Decision')}
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.related_work_prompt, 'Related Work Decision')}
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.novelty_prompt, 'Novelty Decision')}
+              {renderDecisionContent(selectedDisqualifiedPaper.decisions?.review_only_prompt, 'Review Decision')}
+
+              <Divider style={{ margin: '24px 0' }} />
+              
+              {/* Add comment history section */}
+              <div style={{ marginBottom: '24px' }}>
+                <Title level={5}>Comments</Title>
+                {mockComments[selectedDisqualifiedPaper.id]?.length > 0 ? (
+                  <List
+                    dataSource={mockComments[selectedDisqualifiedPaper.id]}
+                    renderItem={comment => (
+                      <List.Item>
+                        <div style={{ width: '100%' }}>
+                          <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between',
+                            marginBottom: '4px'
+                          }}>
+                            <Text type="secondary">
+                              {new Date(comment.timestamp).toLocaleString()}
+                            </Text>
+                          </div>
+                          <div style={{ 
+                            padding: '12px',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '4px'
+                          }}>
+                            {comment.text}
+                          </div>
+                        </div>
+                      </List.Item>
+                    )}
+                  />
+                ) : (
+                  <Text type="secondary">No comments yet</Text>
+                )}
+              </div>
+
+              <Divider style={{ margin: '24px 0' }} />
+              
+              <PaperInteractions 
+                paperPath={`${categorySlug}/${subcategorySlug}/${selectedYear}/${selectedDisqualifiedPaper.title}`} 
+              />
+            </div>
+          )}
+        </Modal>
+
+        {/* Add comment modal */}
+        <Modal
+          title="Add Comment"
+          open={commentModalVisible}
+          onOk={handleSubmitComment}
+          onCancel={() => {
+            setCommentModalVisible(false);
+            setNewComment('');
+          }}
+          okText="Submit"
+          cancelText="Cancel"
+        >
+          <Form layout="vertical">
+            <Form.Item label="Comment">
+              <Input.TextArea
+                rows={4}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Enter your comment..."
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </>
+    );
+  };
+
   // Show loading state while categories are loading
   if (loadingCategories) {
     return (
@@ -1075,6 +1458,39 @@ const SubcategoryPage = () => {
                     Download Matches YAML
                   </Button>
                 </Space>
+              </Space>
+            </TabPane>
+
+            <TabPane 
+              tab={
+                <Space>
+                  <WarningOutlined />
+                  Disqualified Papers
+                </Space>
+              } 
+              key="disqualified"
+            >
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  <Title level={4} style={{ margin: 0 }}>Disqualified Papers</Title>
+                  <Select
+                    style={{ width: 120 }}
+                    placeholder="Select Year"
+                    value={selectedYear}
+                    onChange={setSelectedYear}
+                    allowClear
+                  >
+                    {availableYears.map(year => (
+                      <Option key={year} value={year}>{year}</Option>
+                    ))}
+                  </Select>
+                </div>
+                {renderDisqualifiedPapers()}
               </Space>
             </TabPane>
           </Tabs>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Table, Card, Typography, Spin, Alert, Tag, Space, Collapse, Descriptions, Rate, Tooltip, Button, Input, Modal, message, Select, Radio, Divider, Badge, Popover, List, Avatar, Empty, Row, Col } from 'antd';
 import { 
   TrophyOutlined, 
@@ -68,6 +68,25 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
   const [feedbackLoading, setFeedbackLoading] = useState({});
   const [commentLoading, setCommentLoading] = useState(false);
   const [matchFeedback, setMatchFeedback] = useState({});
+  const tableRef = useRef(null);
+
+  // Add scrollToPaper function
+  const scrollToPaper = useCallback((paperId) => {
+    if (!tableRef.current) return;
+    
+    const tableElement = tableRef.current;
+    const paperRow = tableElement.querySelector(`[data-row-key="${paperId}"]`);
+    
+    if (paperRow) {
+      // Expand the row if it's not already expanded
+      if (!expandedRowKeys.includes(paperId)) {
+        setExpandedRowKeys(prev => [...prev, paperId]);
+      }
+      
+      // Scroll to the paper row with smooth behavior
+      paperRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [expandedRowKeys]);
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
@@ -420,7 +439,16 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
                    <MinusCircleOutlined />}
                   {match.result.toUpperCase()}
                 </Tag>
-                <Text>vs {match.opponent.title}</Text>
+                <Text>vs </Text>
+                <Button 
+                  type="link" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    scrollToPaper(match.opponent.paperId);
+                  }}
+                >
+                  {match.opponent.title}
+                </Button>
                 <Text type="secondary">Score: {match.score} - {match.opponent.score}</Text>
                 <Text type="secondary">{new Date(match.date).toLocaleDateString()}</Text>
               </Space>
@@ -899,19 +927,21 @@ const LeaderboardTable = ({ category, subcategory, year }) => {
               }
             </Text>
           </div>
-          <Table
-            columns={columns}
-            dataSource={data}
-            pagination={false}
-            rowKey="paperId"
-            scroll={{ x: true }}
-            expandable={{
-              expandedRowRender,
-              expandedRowKeys,
-              onExpandedRowsChange: setExpandedRowKeys,
-              expandRowByClick: true
-            }}
-          />
+          <div ref={tableRef}>
+            <Table
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+              rowKey="paperId"
+              scroll={{ x: true }}
+              expandable={{
+                expandedRowRender,
+                expandedRowKeys,
+                onExpandedRowsChange: setExpandedRowKeys,
+                expandRowByClick: true
+              }}
+            />
+          </div>
         </Space>
       </Card>
 
