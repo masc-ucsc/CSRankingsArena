@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Input, Space } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+
+const { Search } = Input;
 
 const SearchBar = () => {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+  const handleSearch = (value) => {
+    if (value.trim()) {
+      const searchParams = new URLSearchParams({
+        q: value.trim()
+      });
+      navigate(`/search?${searchParams.toString()}`);
     }
   };
   
   return (
-    <form className="search-form" onSubmit={handleSearch}>
-      <input
-        type="text"
-        className="search-input"
-        placeholder="Search papers, topics, authors..."
+    <Space.Compact style={{ width: '100%' }}>
+      <Search
+        placeholder="Search by title..."
+        allowClear
+        enterButton={<SearchOutlined />}
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={e => setQuery(e.target.value)}
+        onSearch={handleSearch}
       />
-      <button type="submit" className="search-button">
-        <i className="search-icon"></i>
-        Search
-      </button>
-    </form>
+    </Space.Compact>
   );
 };
 

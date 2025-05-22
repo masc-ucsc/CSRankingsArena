@@ -192,25 +192,26 @@ export const fetchPapers = async (categorySlug, subcategorySlug, year) => {
  */
 export const searchPapers = async (query, filters = {}) => {
   try {
-    // Check if using mock data
-    if (config.useMockData) {
-      debugLog('Using mock data for search');
-      return mockApi.searchPapers(query, filters);
-    }
-    
-    debugger; // Breakpoint for debugging
-    debugLog('Searching papers', { query, filters });
-    const response = await api.get('/papers/search', {
+    const { type = 'all', category, year, page = 1, limit = 20 } = filters;
+    const params = new URLSearchParams({
+      q: query,
+      type,
+      page,
+      limit
+    });
+
+    if (category) params.append('category', category);
+    if (year) params.append('year', year);
+
+    const response = await api.get('/v2/papers/search', {
       params: {
         q: query,
         ...filters,
       },
     });
-    debugger; // Breakpoint for debugging
     return response.data;
   } catch (error) {
-    debugger; // Breakpoint for debugging on error
-    errorLog('Error searching papers:', error);
+    console.error('Error searching papers:', error);
     throw error;
   }
 };
@@ -415,6 +416,27 @@ export const testApiConnection = async () => {
     }
 
     return errorDetails;
+  }
+};
+
+/**
+ * Get paper suggestions based on search type and query
+ * @param {string} query - Search query
+ * @param {string} type - Search type (title or author)
+ * @returns {Promise<Array>} List of suggestions
+ */
+export const getPaperSuggestions = async (query, type = 'title') => {
+  try {
+    const response = await api.get('/papers/suggestions', {
+      params: {
+        q: query,
+        type
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching paper suggestions:', error);
+    return [];
   }
 };
 
