@@ -20,6 +20,7 @@ const Header = () => {
   const { user, isAuthenticated, login, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isCompetitionRoute = location.pathname.startsWith('/competition');
+  const isHomePage = location.pathname === '/';
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -102,9 +103,11 @@ const Header = () => {
           </nav>
 
           <div className="header-actions">
-            <div className="header-search">
-              <SearchBar />
-            </div>
+            {isHomePage && (
+              <div className="header-search">
+                <SearchBar />
+              </div>
+            )}
             
             <div className="auth-section">
               {isAuthenticated ? (
