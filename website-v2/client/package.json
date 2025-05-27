@@ -27,6 +27,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:e2e": "playwright test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "lighthouse": "lighthouse-ci",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,6 +51,8 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "lighthouse-ci": "^0.12.0",
     "sass": "^1.87.0",
     "sass-loader": "^12.6.0"
   }
