@@ -72,6 +72,17 @@ const Header = () => {
           </Space>
         </Link>
       )
+    },
+    {
+      key: 'about',
+      label: (
+        <Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>
+          <Space>
+            <RobotOutlined />
+            About
+          </Space>
+        </Link>
+      )
     }
   ];
 
