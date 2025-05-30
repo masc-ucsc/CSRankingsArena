@@ -4,7 +4,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 
 // Import the paper generation functions
-const { generatePaper, generateAbstract, generateTitle, generateURL, generateArxivId } = require('../../../../generate-batch-mock-papers')
+const { generatePaper, generateAbstract, generateTitle, generateURL, generateArxivId } = require('../../../../scripts/generate-batch-mock-papers')
 const routes = [
     {
         method: 'POST',
