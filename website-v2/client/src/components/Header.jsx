@@ -20,6 +20,7 @@ const Header = () => {
   const { user, isAuthenticated, login, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isCompetitionRoute = location.pathname.startsWith('/competition');
+  const isHomePage = location.pathname === '/';
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -71,6 +72,17 @@ const Header = () => {
           </Space>
         </Link>
       )
+    },
+    {
+      key: 'about',
+      label: (
+        <Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>
+          <Space>
+            <RobotOutlined />
+            About
+          </Space>
+        </Link>
+      )
     }
   ];
 
@@ -102,9 +114,11 @@ const Header = () => {
           </nav>
 
           <div className="header-actions">
-            <div className="header-search">
-              <SearchBar />
-            </div>
+            {isHomePage && (
+              <div className="header-search">
+                <SearchBar />
+              </div>
+            )}
             
             <div className="auth-section">
               {isAuthenticated ? (

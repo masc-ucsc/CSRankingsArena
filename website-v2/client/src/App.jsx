@@ -11,6 +11,7 @@ import SubcategoryPageV2 from './pages/v2/SubCategoryPage';
 import SearchPage from './pages/SearchPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CategoryMatchPage from './pages/CategoryMatchPage';
+import About from './pages/About';
 import ApiDebugger from './components/ApiDebugger';
 import AuthCallback from './components/auth/AuthCallback';
 import Profile from './components/profile/Profile';
@@ -35,6 +36,7 @@ const App = () => {
           
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/category/:slug" element={<CategoryPage />} />

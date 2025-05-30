@@ -40,13 +40,6 @@ const Home = () => {
               >
                 Create New Match
               </Button>
-              <Button
-                size="large"
-                icon={<TrophyOutlined />}
-                onClick={() => navigate('/competition')}
-              >
-                View Leaderboard
-              </Button>
             </Space>
 
             <div className="competition-features">

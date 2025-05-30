@@ -31,6 +31,7 @@ const feedbackRoutes = require('./src/routes/v2/feedback');
 const categoriesRoutes = require('./src/routes/v2/categories');
 const matchInteractionRoutes = require('./src/routes/v2/matchInteractions');
 const paperInteractionRoutes = require('./src/routes/v2/paperInteractions');
+const mockPapersRoutes = require('./src/routes/v2/mockPapers');
 // const matchFeedbackRoutes = require('./src/routes/v2/matchFeedback'); // Commented out as routes moved to matches.js
 
 // Server configuration
@@ -186,7 +187,7 @@ const init = async () => {
     server.route(categoriesRoutes);
     server.route(matchInteractionRoutes);
     server.route(paperInteractionRoutes);
-    // server.route(matchFeedbackRoutes); // Commented out as routes moved to matches.js
+    server.route(mockPapersRoutes);
     server.route(require('./src/routes/v2/auth'));
 
     // Error handling
