@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Spin, Result, message } from 'antd';
+import { Spin, Result } from 'antd';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AuthCallback = () => {
@@ -10,65 +10,85 @@ const AuthCallback = () => {
 
     useEffect(() => {
         const handleCallback = async () => {
-            const params = new URLSearchParams(location.search);
-            const token = params.get('token');
-            const error = params.get('error');
-            const redirect = params.get('redirect') || '/';
+            try {
+                console.log('Processing auth callback...');
+                const params = new URLSearchParams(location.search);
+                const token = params.get('token');
+                const error = params.get('error');
+                const redirect = params.get('redirect') || '/';
 
-            if (error) {
-                message.error('Failed to authenticate with GitHub');
-                navigate('/?error=auth_failed');
-                return;
-            }
+                console.log('Auth callback params:', {
+                    hasToken: !!token,
+                    tokenLength: token?.length,
+                    error,
+                    redirect
+                });
 
-            if (token) {
-                try {
-                    // Attempt to login with the token
-                    const result = await login(token);
-                    
-                    if (result.success) {
-                        message.success('Successfully logged in with GitHub');
-                        
-                        // Check for stored state
-                        const storedState = sessionStorage.getItem('authRedirectState');
-                        if (storedState) {
+                if (error) {
+                    console.error('Auth error:', error);
+                    navigate(`/?error=${error}`);
+                    return;
+                }
+
+                if (!token) {
+                    console.error('No token received');
+                    navigate('/?error=no_token');
+                    return;
+                }
+
+                // Store token in localStorage before attempting login
+                console.log('Storing token in localStorage...');
+                localStorage.setItem('token', token);
+
+                // Attempt to login with the token
+                console.log('Attempting login with token...');
+                const result = await login(token);
+                console.log('Login result:', result);
+
+                if (result.success) {
+                    // Restore any stored state
+                    const storedState = sessionStorage.getItem('authRedirectState');
+                    if (storedState) {
+                        try {
                             const state = JSON.parse(storedState);
+                            console.log('Restoring stored state:', state);
+                            
+                            // Clear the stored state
+                            sessionStorage.removeItem('authRedirectState');
+                            
                             // Navigate to the stored path
                             navigate(state.path);
-                        } else {
-                            // Navigate to the original destination or home
-                            navigate(redirect);
+                            return;
+                        } catch (e) {
+                            console.error('Error parsing stored state:', e);
+                            sessionStorage.removeItem('authRedirectState');
                         }
-                    } else {
-                        throw new Error(result.error || 'Login failed');
                     }
-                } catch (err) {
-                    console.error('Auth callback error:', err);
-                    message.error('Failed to complete authentication');
-                    navigate('/?error=auth_failed');
+
+                    // If no stored state, use the redirect parameter
+                    console.log('Navigating to:', redirect);
+                    navigate(redirect);
+                } else {
+                    console.error('Login failed:', result.error);
+                    navigate(`/?error=${result.error}`);
                 }
-            } else {
-                message.error('No authentication token received');
-                navigate('/?error=no_token');
+            } catch (error) {
+                console.error('Auth callback error:', error);
+                navigate('/?error=auth_failed');
             }
         };
 
         handleCallback();
-    }, [location, login, navigate]);
+    }, [location, navigate, login]);
 
     return (
         <div style={{ 
             display: 'flex', 
             justifyContent: 'center', 
             alignItems: 'center', 
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #1a1a2e, #16213e)'
+            height: '100vh' 
         }}>
-            <Result
-                icon={<Spin size="large" />}
-                title="Completing authentication..."
-                subTitle="Please wait while we log you in"
-            />
+            <Spin size="large" tip="Completing authentication..." />
         </div>
     );
 };

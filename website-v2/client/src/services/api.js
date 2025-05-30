@@ -103,28 +103,65 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
+      // Ensure the token is properly formatted
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Adding auth token to request:', {
+        url: config.url,
+        hasToken: !!token,
+        tokenLength: token.length,
+        headers: {
+          ...config.headers,
+          Authorization: 'Bearer [REDACTED]'
+        }
+      });
+    } else {
+      console.log('No auth token found for request:', config.url);
     }
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
 // Add response interceptor to handle auth errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('Response received:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data,
+      headers: response.headers
+    });
+    return response;
+  },
   (error) => {
-    // Skip auth redirect for feedback endpoints
-    if (error.response?.status === 401 && !error.config.url.includes('/feedback')) {
-      // Clear token and redirect to login
-      localStorage.removeItem('token');
-      // Store current location for redirect after login
-      const currentPath = window.location.pathname + window.location.search;
-      const redirectUrl = encodeURIComponent(currentPath);
-      const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
-      window.location.href = `${serverUrl}/auth/github?redirect=${redirectUrl}`;
+    console.log('Response error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data,
+      headers: error.response?.headers
+    });
+
+    if (error.response?.status === 401) {
+      // Skip auth redirect for auth-related endpoints and callback
+      if (error.config.url.includes('/auth') || 
+          window.location.pathname.includes('/auth/callback')) {
+        console.log('Skipping auth redirect for auth endpoint');
+        return Promise.reject(error);
+      }
+
+      // Only redirect if we're not already on the login page
+      if (!window.location.pathname.includes('/auth/callback')) {
+        console.log('Initiating auth redirect');
+        // Store current location for redirect after login
+        const currentPath = window.location.pathname + window.location.search;
+        const redirectUrl = encodeURIComponent(currentPath);
+        const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
+        window.location.href = `${serverUrl}/auth/github?redirect=${redirectUrl}`;
+      }
     }
     return Promise.reject(error);
   }

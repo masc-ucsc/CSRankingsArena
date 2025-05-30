@@ -4,12 +4,14 @@ const axios = require('axios');
 const { query } = require('../../config/db');
 const config = require('../../config');
 const { generateToken, verifyToken } = require('../../config/auth');
+const jwt = require('jsonwebtoken');
 
 // GitHub OAuth configuration
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 const GITHUB_CALLBACK_URL = process.env.GITHUB_CALLBACK_URL || 'http://localhost:5000/api/v2/auth/github/callback';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const JWT_SECRET = process.env.JWT_SECRET || 'a4305c89bedf2d80a844b0296bb3912b3cd1bb05bf302d6beb6578d03df948183e7fb97f9e4a5427c7580c367c481997a1cf1d98aff6d124fa3cf71f1ab3b5ba';
 
 module.exports = [
     {
@@ -159,7 +161,9 @@ module.exports = [
                     });
 
                     // Redirect to frontend with token and original redirect URL
-                    return h.redirect(`${FRONTEND_URL}/auth/callback?token=${token}&redirect=${encodeURIComponent(redirectUrl)}`);
+                    const callbackUrl = `${FRONTEND_URL}/auth/callback?token=${token}&redirect=${encodeURIComponent(redirectUrl)}`;
+                    console.log('Final callback URL:', callbackUrl);
+                    return h.redirect(callbackUrl);
                 } catch (error) {
                     console.error('GitHub OAuth error:', error);
                     console.error('Error details:', {
@@ -167,7 +171,10 @@ module.exports = [
                         stack: error.stack,
                         response: error.response?.data
                     });
-                    throw Boom.unauthorized('Failed to authenticate with GitHub');
+                    // Redirect to frontend with error
+                    const errorUrl = `${FRONTEND_URL}/auth/callback?error=auth_failed`;
+                    console.log('Error redirect URL:', errorUrl);
+                    return h.redirect(errorUrl);
                 }
             }
         }
@@ -176,26 +183,48 @@ module.exports = [
         method: 'GET',
         path: '/api/v2/auth/profile',
         options: {
-            auth: 'jwt', // Enable JWT authentication
+            // auth: 'jwt', // Temporarily disabled JWT authentication
             tags: ['api', 'auth'],
             description: 'Get current user profile',
             handler: async (request, h) => {
                 try {
-                    // Get user ID from JWT token
-                    const userId = request.auth.credentials.id;
+                    console.log('Profile request received:', {
+                        headers: request.headers,
+                        token: request.headers.authorization?.split(' ')[1]
+                    });
+
+                    // Get user ID from token if available
+                    const token = request.headers.authorization?.split(' ')[1];
+                    let userId;
                     
-                    if (!userId) {
-                        throw Boom.unauthorized('Invalid token: missing user ID');
+                    if (token) {
+                        try {
+                            const decoded = jwt.verify(token, JWT_SECRET);
+                            userId = decoded.id;
+                        } catch (error) {
+                            console.error('Token verification failed:', error);
+                        }
                     }
 
+                    if (!userId) {
+                        console.error('No valid user ID found');
+                        throw Boom.unauthorized('Authentication required');
+                    }
+
+                    console.log('Querying database for user:', userId);
                     const { rows } = await query(
                         'SELECT id, username, email, avatar_url, created_at FROM users WHERE id = $1',
                         [userId]
                     );
 
+                    console.log('Database query result:', { rows });
+
                     if (!rows.length) {
+                        console.error('User not found:', userId);
                         throw Boom.notFound('User not found');
                     }
+
+                    console.log('Profile found for user:', rows[0].username);
 
                     return { 
                         success: true,
@@ -205,6 +234,11 @@ module.exports = [
                     };
                 } catch (error) {
                     console.error('Profile fetch error:', error);
+                    console.error('Error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        isBoom: error.isBoom
+                    });
                     if (error.isBoom) {
                         throw error;
                     }
@@ -213,63 +247,63 @@ module.exports = [
             }
         }
     },
-    {
-        method: 'POST',
-        path: '/api/v2/auth/logout',
-        options: {
-            // auth: 'jwt', // Temporarily disabled auth
-            tags: ['api', 'auth'],
-            description: 'Logout user',
-            handler: async (request, h) => {
-                // In a JWT-based system, we don't need to do anything server-side
-                // The client should remove the token
-                return { message: 'Logged out successfully' };
-            }
-        }
-    },
-    {
-        method: 'POST',
-        path: '/api/v2/auth/login',
-        options: {
-            description: 'Login user and return JWT token',
-            tags: ['api', 'v2', 'auth'],
-            auth: false, // No auth required for login
-            validate: {
-                payload: Joi.object({
-                    email: Joi.string().email().required(),
-                    password: Joi.string().required()
-                })
-            },
-            handler: async (request, h) => {
-                try {
-                    const { email, password } = request.payload;
+    // {
+    //     method: 'POST',
+    //     path: '/api/v2/auth/logout',
+    //     options: {
+    //         // auth: 'jwt', // Temporarily disabled auth
+    //         tags: ['api', 'auth'],
+    //         description: 'Logout user',
+    //         handler: async (request, h) => {
+    //             // In a JWT-based system, we don't need to do anything server-side
+    //             // The client should remove the token
+    //             return { message: 'Logged out successfully' };
+    //         }
+    //     }
+    // },
+    // {
+    //     method: 'POST',
+    //     path: '/api/v2/auth/login',
+    //     options: {
+    //         description: 'Login user and return JWT token',
+    //         tags: ['api', 'v2', 'auth'],
+    //         auth: false, // No auth required for login
+    //         validate: {
+    //             payload: Joi.object({
+    //                 email: Joi.string().email().required(),
+    //                 password: Joi.string().required()
+    //             })
+    //         },
+    //         handler: async (request, h) => {
+    //             try {
+    //                 const { email, password } = request.payload;
 
-                    // Here you would typically validate credentials against your database
-                    // For now, we'll use a mock user
-                    const mockUser = {
-                        id: '1',
-                        email: 'test@example.com',
-                        role: 'user'
-                    };
+    //                 // Here you would typically validate credentials against your database
+    //                 // For now, we'll use a mock user
+    //                 const mockUser = {
+    //                     id: '1',
+    //                     email: 'test@example.com',
+    //                     role: 'user'
+    //                 };
 
-                    // In a real application, you would:
-                    // 1. Find the user by email
-                    // 2. Verify the password
-                    // 3. Generate a token
-                    const token = generateToken(mockUser);
+    //                 // In a real application, you would:
+    //                 // 1. Find the user by email
+    //                 // 2. Verify the password
+    //                 // 3. Generate a token
+    //                 const token = generateToken(mockUser);
 
-                    return h.response({
-                        success: true,
-                        token,
-                        user: mockUser
-                    });
-                } catch (error) {
-                    console.error('Login error:', error);
-                    throw Boom.unauthorized('Invalid credentials');
-                }
-            }
-        }
-    },
+    //                 return h.response({
+    //                     success: true,
+    //                     token,
+    //                     user: mockUser
+    //                 });
+    //             } catch (error) {
+    //                 console.error('Login error:', error);
+    //                 throw Boom.unauthorized('Invalid credentials');
+    //             }
+    //         }
+    //     }
+    // },
     {
         method: 'GET',
         path: '/api/v2/auth/verify',
