@@ -244,7 +244,9 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
                             avatar={<Avatar icon={<UserOutlined />} src={item.user?.avatar_url} />}
                             title={
                                 <Space>
-                                    <Text strong>{item.is_anonymous ? 'Anonymous' : (item.user?.username || 'Anonymous')}</Text>
+                                    <Text strong>
+                                        {item.is_anonymous ? 'Anonymous' : `User ${item.user?.id || ''}`}
+                                    </Text>
                                     {item.created_at && (
                                         <Text type="secondary">
                                             {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}

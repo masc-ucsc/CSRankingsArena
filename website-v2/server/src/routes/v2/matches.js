@@ -262,8 +262,17 @@ module.exports = [
 
                     // Get all interactions for the match
                     const interactions = await request.db('match_interactions')
-                        .where('match_id', id)
-                        .orderBy('created_at', 'desc');
+                        .select(
+                            'match_interactions.*',
+                            'users.username',
+                            'users.avatar_url'
+                        )
+                        .leftJoin('users', function() {
+                            this.onNotNull('match_interactions.user_id');
+                        })
+                        .whereRaw('(match_interactions.user_id ~ \'^[0-9]+$\' AND CAST(match_interactions.user_id AS INTEGER) = users.id) OR match_interactions.user_id IS NULL')
+                        .where('match_interactions.match_id', id)
+                        .orderBy('match_interactions.created_at', 'desc');
 
                     return h.response({
                         success: true,
@@ -273,7 +282,12 @@ module.exports = [
                                 type: f.type,
                                 content: f.content,
                                 isAnonymous: f.is_anonymous,
-                                createdAt: f.created_at
+                                createdAt: f.created_at,
+                                user: f.is_anonymous || !f.username ? null : {
+                                    id: f.user_id,
+                                    username: f.username,
+                                    avatar_url: f.avatar_url
+                                }
                             })),
                             counts: {
                                 likes: parseInt(likeCount.count),
