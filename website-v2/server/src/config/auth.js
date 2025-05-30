@@ -3,7 +3,7 @@ const Boom = require('@hapi/boom');
 const { query } = require('../config/db');
 
 // Get JWT secret from environment variable or use a default for development
-const JWT_SECRET = process.env.JWT_SECRET || 'a4305c89bedf2d80a844b0296bb3912b3cd1bb05bf302d6beb6578d03df948183e7fb97f9e4a5427c7580c367c481997a1cf1d98aff6d124fa3cf71f1ab3b5ba';
+const JWT_SECRET = process.env.JWT_SECRET || 'dummy_secret';
 const JWT_EXPIRATION = '24h';
 
 if (!JWT_SECRET) {
