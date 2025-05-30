@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Space, Input, List, Avatar, message, Modal, Typography, Tabs, Divider } from 'antd';
-import { LikeOutlined, LikeFilled, DislikeOutlined, DislikeFilled, CommentOutlined, UserOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { Card, Button, Space, Input, List, Avatar, message, Modal, Typography, Tabs, Divider, Checkbox } from 'antd';
+import { LikeOutlined, LikeFilled, DislikeOutlined, DislikeFilled, CommentOutlined, UserOutlined, GithubOutlined } from '@ant-design/icons';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '../../contexts/AuthContext';
+import { submitMatchFeedback, getMatchFeedback } from '../../services/api';
 
 const { TextArea } = Input;
 const { Text } = Typography;
 const { TabPane } = Tabs;
 
 const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
-    const [feedback, setFeedback] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { isAuthenticated } = useAuth();
+    const [feedback, setFeedback] = useState({
+        comment: '',
+        liked: false,
+        disliked: false,
+        created_at: null,
+        user: null,
+        is_anonymous: false
+    });
+    const [loading, setLoading] = useState(false);
     const [comment, setComment] = useState('');
     const [showCommentModal, setShowCommentModal] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [activeTab, setActiveTab] = useState('comments');
+    const [activeTab, setActiveTab] = useState('feedback');
     const [userFeedback, setUserFeedback] = useState({
         liked: false,
         disliked: false
@@ -23,98 +33,110 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
         likes: 0,
         dislikes: 0
     });
+    const [isAnonymous, setIsAnonymous] = useState(false);
 
     useEffect(() => {
         fetchFeedback();
     }, [matchId]);
 
+    // Add effect to handle auth state restoration
+    useEffect(() => {
+        if (isAuthenticated) {
+            const storedState = sessionStorage.getItem('authRedirectState');
+            if (storedState) {
+                try {
+                    const state = JSON.parse(storedState);
+                    if (state.matchId === matchId) {
+                        if (state.showCommentModal) {
+                            setShowCommentModal(true);
+                            setComment(state.comment || '');
+                        }
+                        sessionStorage.removeItem('authRedirectState');
+                    }
+                } catch (e) {
+                    console.error('Error parsing stored state:', e);
+                    sessionStorage.removeItem('authRedirectState');
+                }
+            }
+        }
+    }, [isAuthenticated, matchId]);
+
     const fetchFeedback = async () => {
         try {
-            const response = await axios.get(`/api/v2/feedback/${matchId}`);
-            setFeedback(response.data.feedback);
-            
-            // Calculate total likes and dislikes
-            const totalLikes = response.data.feedback.filter(f => f.liked).length;
-            const totalDislikes = response.data.feedback.filter(f => f.disliked).length;
-            setCounts({
-                likes: totalLikes,
-                dislikes: totalDislikes
-            });
-            
-            // Get user's feedback for this match
-            const userFeedbackResponse = await axios.get(`/api/v2/feedback/${matchId}/user`);
-            if (userFeedbackResponse.data) {
+            setLoading(true);
+            const response = await getMatchFeedback(matchId);
+            if (response.success && response.data) {
+                setFeedback(response.data);
                 setUserFeedback({
-                    liked: userFeedbackResponse.data.liked,
-                    disliked: userFeedbackResponse.data.disliked
+                    liked: response.data.liked || false,
+                    disliked: response.data.disliked || false
+                });
+                setCounts({
+                    likes: response.data.liked ? 1 : 0,
+                    dislikes: response.data.disliked ? 1 : 0
                 });
             }
-            
-            setLoading(false);
         } catch (error) {
             console.error('Error fetching feedback:', error);
             message.error('Failed to load feedback');
+        } finally {
             setLoading(false);
         }
     };
 
     const handleLike = async () => {
+        if (!isAuthenticated) {
+            setShowLoginModal(true);
+            return;
+        }
         try {
-            const response = await axios.post(`/api/v2/feedback/${matchId}`, {
-                liked: !userFeedback.liked,
+            const response = await submitMatchFeedback(matchId, {
+                liked: true,
                 disliked: false
             });
-            
-            // Update user feedback state
-            setUserFeedback({
-                liked: response.data.liked,
-                disliked: response.data.disliked
-            });
-            
-            // Update counts
-            setCounts(prev => ({
-                likes: response.data.liked ? prev.likes + 1 : prev.likes - 1,
-                dislikes: response.data.disliked ? prev.dislikes + 1 : prev.dislikes - 1
-            }));
-            
-            if (onFeedbackUpdate) {
-                onFeedbackUpdate();
+            if (response.success && response.data) {
+                setFeedback(response.data);
+                setUserFeedback({
+                    liked: true,
+                    disliked: false
+                });
+                setCounts(prev => ({
+                    likes: prev.likes + 1,
+                    dislikes: prev.dislikes
+                }));
+                onFeedbackUpdate?.(response.data);
             }
-            
-            message.success(response.data.liked ? 'Liked match' : 'Removed like');
         } catch (error) {
-            console.error('Error liking match:', error);
-            message.error('Failed to update like status');
+            console.error('Error submitting like:', error);
+            message.error('Failed to submit feedback');
         }
     };
 
     const handleDislike = async () => {
+        if (!isAuthenticated) {
+            setShowLoginModal(true);
+            return;
+        }
         try {
-            const response = await axios.post(`/api/v2/feedback/${matchId}`, {
+            const response = await submitMatchFeedback(matchId, {
                 liked: false,
-                disliked: !userFeedback.disliked
+                disliked: true
             });
-            
-            // Update user feedback state
-            setUserFeedback({
-                liked: response.data.liked,
-                disliked: response.data.disliked
-            });
-            
-            // Update counts
-            setCounts(prev => ({
-                likes: response.data.liked ? prev.likes + 1 : prev.likes - 1,
-                dislikes: response.data.disliked ? prev.dislikes + 1 : prev.dislikes - 1
-            }));
-            
-            if (onFeedbackUpdate) {
-                onFeedbackUpdate();
+            if (response.success && response.data) {
+                setFeedback(response.data);
+                setUserFeedback({
+                    liked: false,
+                    disliked: true
+                });
+                setCounts(prev => ({
+                    likes: prev.likes,
+                    dislikes: prev.dislikes + 1
+                }));
+                onFeedbackUpdate?.(response.data);
             }
-            
-            message.success(response.data.disliked ? 'Disliked match' : 'Removed dislike');
         } catch (error) {
-            console.error('Error disliking match:', error);
-            message.error('Failed to update dislike status');
+            console.error('Error submitting dislike:', error);
+            message.error('Failed to submit feedback');
         }
     };
 
@@ -124,26 +146,54 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
             return;
         }
 
+        if (!isAuthenticated) {
+            setShowLoginModal(true);
+            return;
+        }
+
         setSubmitting(true);
         try {
-            const response = await axios.post(`/api/v2/feedback/${matchId}`, {
-                comment: comment.trim()
+            const response = await submitMatchFeedback(matchId, {
+                comment,
+                liked: userFeedback.liked,
+                disliked: userFeedback.disliked,
+                is_anonymous: isAnonymous
             });
-
-            setFeedback(prevFeedback => [response.data, ...prevFeedback]);
-            setComment('');
-            setShowCommentModal(false);
-            
-            if (onFeedbackUpdate) {
-                onFeedbackUpdate();
+            if (response.success && response.data) {
+                setFeedback(response.data);
+                setComment('');
+                setShowCommentModal(false);
+                setIsAnonymous(false);
+                onFeedbackUpdate?.(response.data);
+                message.success('Comment submitted successfully');
             }
-            
-            message.success('Comment added successfully');
         } catch (error) {
             console.error('Error submitting comment:', error);
             message.error('Failed to submit comment');
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleGitHubLogin = () => {
+        // Store current state for after login
+        sessionStorage.setItem('authRedirectState', JSON.stringify({
+            path: window.location.pathname,
+            matchId: matchId,
+            showCommentModal: true,
+            comment: comment
+        }));
+        
+        // Redirect to GitHub OAuth
+        const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v2';
+        window.location.href = `${serverUrl}/auth/github?redirect=${encodeURIComponent(window.location.pathname)}`;
+    };
+
+    const handleAddComment = () => {
+        if (!isAuthenticated) {
+            setShowLoginModal(true);
+        } else {
+            setShowCommentModal(true);
         }
     };
 
@@ -167,40 +217,52 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
             <Button
                 type="primary"
                 icon={<CommentOutlined />}
-                onClick={() => setShowCommentModal(true)}
+                onClick={handleAddComment}
             >
                 Add Comment
             </Button>
         </Space>
     );
 
-    const renderCommentsList = () => (
-        <List
-            loading={loading}
-            itemLayout="horizontal"
-            dataSource={feedback.filter(item => item.comment)}
-            renderItem={item => (
-                <List.Item>
-                    <List.Item.Meta
-                        avatar={<Avatar icon={<UserOutlined />} src={item.user?.avatar_url} />}
-                        title={
-                            <Space>
-                                <Text strong>{item.user?.username || 'Anonymous'}</Text>
-                                <Text type="secondary">
-                                    {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
-                                </Text>
-                            </Space>
-                        }
-                        description={
-                            <Space direction="vertical" size="small">
-                                <Text>{item.comment}</Text>
-                            </Space>
-                        }
-                    />
-                </List.Item>
-            )}
-        />
-    );
+    const renderCommentsList = () => {
+        if (!feedback?.comment) {
+            return (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <Text type="secondary">No comments yet. Be the first to comment!</Text>
+                </div>
+            );
+        }
+
+        return (
+            <List
+                loading={loading}
+                itemLayout="horizontal"
+                dataSource={[feedback]}
+                renderItem={item => (
+                    <List.Item>
+                        <List.Item.Meta
+                            avatar={<Avatar icon={<UserOutlined />} src={item.user?.avatar_url} />}
+                            title={
+                                <Space>
+                                    <Text strong>{item.is_anonymous ? 'Anonymous' : (item.user?.username || 'Anonymous')}</Text>
+                                    {item.created_at && (
+                                        <Text type="secondary">
+                                            {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                                        </Text>
+                                    )}
+                                </Space>
+                            }
+                            description={
+                                <Space direction="vertical" size="small">
+                                    <Text>{item.comment}</Text>
+                                </Space>
+                            }
+                        />
+                    </List.Item>
+                )}
+            />
+        );
+    };
 
     return (
         <Card>
@@ -222,6 +284,7 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
                 </TabPane>
             </Tabs>
 
+            {/* Comment Modal */}
             <Modal
                 title="Add Comment"
                 open={showCommentModal}
@@ -229,15 +292,57 @@ const MatchFeedback = ({ matchId, onFeedbackUpdate }) => {
                 onCancel={() => {
                     setShowCommentModal(false);
                     setComment('');
+                    setIsAnonymous(false);
                 }}
                 confirmLoading={submitting}
             >
-                <TextArea
-                    rows={4}
-                    value={comment}
-                    onChange={e => setComment(e.target.value)}
-                    placeholder="Share your thoughts about this match..."
-                />
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    <TextArea
+                        rows={4}
+                        value={comment}
+                        onChange={e => setComment(e.target.value)}
+                        placeholder="Share your thoughts about this match..."
+                    />
+                    <Checkbox
+                        checked={isAnonymous}
+                        onChange={e => setIsAnonymous(e.target.checked)}
+                    >
+                        Post as Anonymous
+                    </Checkbox>
+                </Space>
+            </Modal>
+
+            {/* Login Modal */}
+            <Modal
+                title="Authentication Required"
+                open={showLoginModal}
+                onCancel={() => setShowLoginModal(false)}
+                footer={null}
+                centered
+            >
+                <Space direction="vertical" style={{ width: '100%', textAlign: 'center', padding: '20px 0' }}>
+                    <Text style={{ fontSize: '16px', marginBottom: '20px' }}>
+                        Please log in with GitHub to interact with this match
+                    </Text>
+                    <Button
+                        type="primary"
+                        icon={<GithubOutlined />}
+                        onClick={handleGitHubLogin}
+                        size="large"
+                        style={{ 
+                            backgroundColor: '#24292e',
+                            borderColor: '#24292e',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            margin: '0 auto',
+                            padding: '8px 24px',
+                            height: 'auto'
+                        }}
+                    >
+                        Sign in with GitHub
+                    </Button>
+                </Space>
             </Modal>
         </Card>
     );
