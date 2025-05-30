@@ -67,8 +67,11 @@ This script processes a papers.yaml file and classifies each paper based on pred
 uv run .\disqualified\merge_filter.py papers.yaml
 ```
 The output YAML files, disqualified_papers.yaml and qualified_papers.yaml, should include only the following fields for each paper:
+
 	•	id: the unique identifier of the paper
+ 
 	•	title: the title of the paper
+ 
 	•	decisions: a dictionary containing the evaluation decisions for each prompt
 
 All other fields such as abstract, full text, keywords, etc., should be excluded from the output.
