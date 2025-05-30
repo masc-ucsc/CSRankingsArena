@@ -333,20 +333,35 @@
 			]
 		},
 		{
-			"name": "Mock Data (Development Only)",
+			"name": "Mock Data",
 			"item": [
 				{
-					"name": "Get Mock YAML",
+					"name": "Generate Mock Papers",
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"url": {
-							"raw": "http://localhost:5000/api/v2/mock/papers/ai/machine-learning/2023/papers.yaml",
+							"raw": "http://localhost:5000/api/v2/mock/generate-papers",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "5000",
-							"path": ["api", "v2", "mock", "papers", "ai", "machine-learning", "2023", "papers.yaml"]
+							"path": ["api", "v2", "mock", "generate-papers"]
 						},
-						"description": "Get mock YAML file (development only)"
+						"description": "Generate mock papers in batches",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"numPapers\": 10,\n    \"year\": \"2023\",\n    \"category\": \"ai\",\n    \"subcategory\": \"ml\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
 					}
 				}
 			]
