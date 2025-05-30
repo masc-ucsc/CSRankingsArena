@@ -300,12 +300,6 @@ module.exports = [
                                 const yearPath = path.join(subcategoryPath, yr);
                                 if (!fs.statSync(yearPath).isDirectory()) continue;
                                 
-                                // Skip if year filter is set and doesn't match
-                                if (year && year !== '' && parseInt(yr) !== parseInt(year)) continue;
-                                
-                                // Skip if category filter is set and doesn't match
-                                if (category && category !== '' && cat !== category) continue;
-                                
                                 const yamlFile = path.join(yearPath, `${cat}-${subcat}-${yr}-papers.yaml`);
                                 if (!fs.existsSync(yamlFile)) continue;
                                 
@@ -324,34 +318,127 @@ module.exports = [
                                                 return Array.isArray(paper.authors) && paper.authors.some(author => 
                                                     author?.toLowerCase().includes(searchQuery)
                                                 );
-                                            case 'category':
-                                                return cat.toLowerCase().includes(searchQuery);
-                                            case 'subcategory':
-                                                return subcat.toLowerCase().includes(searchQuery);
-                                            case 'year':
-                                                return yr.includes(searchQuery);
+                                            case 'abstract':
+                                                return paper.abstract?.toLowerCase().includes(searchQuery) || false;
                                             default: // 'all'
                                                 return (
                                                     (paper.title?.toLowerCase().includes(searchQuery) || false) ||
                                                     (Array.isArray(paper.authors) && paper.authors.some(author => 
                                                         author?.toLowerCase().includes(searchQuery)
                                                     )) ||
-                                                    cat.toLowerCase().includes(searchQuery) ||
-                                                    subcat.toLowerCase().includes(searchQuery) ||
-                                                    yr.includes(searchQuery)
+                                                    (paper.abstract?.toLowerCase().includes(searchQuery) || false)
                                                 );
                                         }
                                     });
                                     
-                                    // Add category and subcategory info to each paper
-                                    const enrichedPapers = matchingPapers.map(paper => ({
-                                        ...paper,
-                                        category: cat,
-                                        subcategory: subcat,
-                                        year: parseInt(yr)
-                                    }));
-                                    
-                                    results = results.concat(enrichedPapers);
+                                    // For each matching paper, calculate its leaderboard data from matches
+                                    for (const paper of matchingPapers) {
+                                        // Load matches data for this paper
+                                        const matchesFile = path.join(yearPath, `${cat}-${subcat}-${yr}-matches.yaml`);
+                                        let leaderboardData = null;
+                                        
+                                        if (fs.existsSync(matchesFile)) {
+                                            try {
+                                                const matchesYaml = yaml.load(fs.readFileSync(matchesFile, "utf8"));
+                                                if (matchesYaml && matchesYaml.matches) {
+                                                    // Calculate paper stats from matches
+                                                    const paperMatches = matchesYaml.matches.filter(match => 
+                                                        match.paperIds.includes(paper.id) && match.status === 'completed'
+                                                    );
+                                                    
+                                                    const wins = paperMatches.filter(match => 
+                                                        match.comparison.winner === paper.id
+                                                    ).length;
+                                                    
+                                                    const totalMatches = paperMatches.length;
+                                                    const winRate = totalMatches > 0 ? wins / totalMatches : 0;
+                                                    
+                                                    // Calculate average score
+                                                    const scores = paperMatches.map(match => {
+                                                        const review = match.reviews.find(r => r.paperId === paper.id);
+                                                        return review ? review.overallScore : 0;
+                                                    });
+                                                    const avgScore = scores.length > 0 ? 
+                                                        scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+                                                    
+                                                    // Create match details
+                                                    const matchDetails = paperMatches.map(match => {
+                                                        const opponentId = match.paperIds.find(id => id !== paper.id);
+                                                        const opponentPaper = yamlData.papers.find(p => p.id === opponentId);
+                                                        const review = match.reviews.find(r => r.paperId === paper.id);
+                                                        
+                                                        return {
+                                                            matchId: match.id,
+                                                            opponent: {
+                                                                paperId: opponentId,
+                                                                title: opponentPaper?.title || 'Unknown Paper',
+                                                                url: opponentPaper?.url || ''
+                                                            },
+                                                            score: review?.overallScore || 0,
+                                                            result: match.comparison.winner === paper.id ? 'win' : 'loss',
+                                                            date: match.createdAt
+                                                        };
+                                                    });
+                                                    
+                                                    // Calculate rank based on win rate and score
+                                                    const allPapers = yamlData.papers;
+                                                    const paperRankings = allPapers.map(p => {
+                                                        const pMatches = matchesYaml.matches.filter(m => 
+                                                            m.paperIds.includes(p.id) && m.status === 'completed'
+                                                        );
+                                                        const pWins = pMatches.filter(m => 
+                                                            m.comparison.winner === p.id
+                                                        ).length;
+                                                        const pTotalMatches = pMatches.length;
+                                                        const pWinRate = pTotalMatches > 0 ? pWins / pTotalMatches : 0;
+                                                        
+                                                        const pScores = pMatches.map(m => {
+                                                            const review = m.reviews.find(r => r.paperId === p.id);
+                                                            return review ? review.overallScore : 0;
+                                                        });
+                                                        const pAvgScore = pScores.length > 0 ? 
+                                                            pScores.reduce((a, b) => a + b, 0) / pScores.length : 0;
+                                                        
+                                                        return {
+                                                            paperId: p.id,
+                                                            winRate: pWinRate,
+                                                            score: pAvgScore
+                                                        };
+                                                    });
+                                                    
+                                                    // Sort by win rate and score to determine rank
+                                                    paperRankings.sort((a, b) => {
+                                                        if (a.winRate !== b.winRate) {
+                                                            return b.winRate - a.winRate;
+                                                        }
+                                                        return b.score - a.score;
+                                                    });
+                                                    
+                                                    const rank = paperRankings.findIndex(p => p.paperId === paper.id) + 1;
+                                                    
+                                                    leaderboardData = {
+                                                        rank,
+                                                        score: avgScore,
+                                                        matches: totalMatches,
+                                                        wins,
+                                                        winRate,
+                                                        matchDetails
+                                                    };
+                                                }
+                                            } catch (err) {
+                                                console.error(`Error reading matches file ${matchesFile}:`, err);
+                                            }
+                                        }
+                                        
+                                        // Add enriched paper data to results
+                                        results.push({
+                                            ...paper,
+                                            category: cat,
+                                            subcategory: subcat,
+                                            year: parseInt(yr),
+                                            leaderboard: leaderboardData
+                                        });
+                                    }
                                 } catch (err) {
                                     console.error(`Error reading YAML file ${yamlFile}:`, err);
                                     continue;
@@ -360,8 +447,14 @@ module.exports = [
                         }
                     }
                     
-                    // Sort results by relevance (exact matches first)
+                    // Sort results by year first (latest first) and then by relevance within each year
                     results.sort((a, b) => {
+                        // First sort by year (latest first)
+                        if (a.year !== b.year) {
+                            return b.year - a.year;
+                        }
+                        
+                        // If same year, sort by relevance
                         const aTitle = a.title.toLowerCase();
                         const bTitle = b.title.toLowerCase();
                         const query = q.toLowerCase();

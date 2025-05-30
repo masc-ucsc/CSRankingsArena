@@ -192,26 +192,40 @@ export const fetchPapers = async (categorySlug, subcategorySlug, year) => {
  */
 export const searchPapers = async (query, filters = {}) => {
   try {
-    const { type = 'all', category, year, page = 1, limit = 20 } = filters;
-    const params = new URLSearchParams({
-      q: query,
-      type,
-      page,
-      limit
-    });
-
-    if (category) params.append('category', category);
-    if (year) params.append('year', year);
-
+    console.log('API: Searching papers with query:', query, 'filters:', filters);
     const response = await api.get('/v2/papers/search', {
       params: {
         q: query,
         ...filters,
       },
     });
-    return response.data;
+    
+    console.log('API: Search response:', response.data);
+    
+    if (!response.data || !Array.isArray(response.data.papers)) {
+      console.error('API: Invalid response format:', response.data);
+      throw new Error('Invalid response format from server');
+    }
+    
+    return {
+      papers: response.data.papers.map(paper => ({
+        ...paper,
+        status: paper.status || 'qualified', // Default to qualified if status is not set
+        score: parseFloat(paper.score) || 0,
+        matches: parseInt(paper.matches) || 0,
+        winRate: parseFloat(paper.winRate) || 0,
+        authors: Array.isArray(paper.authors) ? paper.authors : [],
+        categories: Array.isArray(paper.categories) ? paper.categories : []
+      })),
+      pagination: response.data.pagination || {
+        total: response.data.papers.length,
+        page: filters.page || 1,
+        limit: filters.limit || 20,
+        pages: Math.ceil(response.data.papers.length / (filters.limit || 20))
+      }
+    };
   } catch (error) {
-    console.error('Error searching papers:', error);
+    console.error('API: Error searching papers:', error);
     throw error;
   }
 };

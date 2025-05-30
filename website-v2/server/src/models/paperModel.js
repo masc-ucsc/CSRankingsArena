@@ -59,42 +59,175 @@ const getPapersByFilters = async (categorySlug, subcategorySlug, year) => {
 
 // Search papers
 const searchPapers = async (query, filters = {}) => {
-  const { category, subcategory, year, page = 1, limit = 20 } = filters;
+  const { category, subcategory, year, page = 1, limit = 20, type = 'all' } = filters;
   const offset = (page - 1) * limit;
   
   // Build query conditionally
   let sqlParts = {
     select: `
-      WITH paper_categories AS (
+      WITH matching_papers AS (
+        SELECT DISTINCT p.id
+        FROM papers p
+        JOIN paper_authors pa ON p.id = pa.paper_id
+        JOIN authors a ON pa.author_id = a.id
+        WHERE 
+          CASE 
+            WHEN $${paramIndex} = 'title' THEN p.title ILIKE $${paramIndex + 1}
+            WHEN $${paramIndex} = 'author' THEN a.name ILIKE $${paramIndex + 1}
+            WHEN $${paramIndex} = 'abstract' THEN p.abstract ILIKE $${paramIndex + 1}
+            ELSE (
+              p.title ILIKE $${paramIndex + 1} OR 
+              p.abstract ILIKE $${paramIndex + 1} OR
+              a.name ILIKE $${paramIndex + 1}
+            )
+          END
+      ),
+      matching_paper_categories AS (
         SELECT 
           p.id,
-          c.arxiv_categories
+          c.slug as category_slug,
+          s.slug as subcategory_slug,
+          p.published_year
         FROM papers p
         JOIN paper_subcategories ps ON p.id = ps.paper_id
         JOIN subcategories s ON ps.subcategory_id = s.id
         JOIN categories c ON s.category_id = c.id
-        ${category ? 'WHERE c.slug = $' + (filters.category ? 3 : 1) : ''}
-        ${subcategory ? 'AND s.slug = $' + (filters.category ? 4 : 2) : ''}
+        WHERE p.id IN (SELECT id FROM matching_papers)
+      ),
+      subcategory_leaderboards AS (
+        SELECT 
+          p.id,
+          c.slug as category_slug,
+          s.slug as subcategory_slug,
+          p.published_year,
+          json_agg(
+            json_build_object(
+              'id', p2.id,
+              'title', p2.title,
+              'authors', array_agg(DISTINCT a2.name),
+              'score', pm2.avg_score,
+              'matches', pm2.total_matches,
+              'wins', pm2.wins,
+              'win_rate', CASE 
+                WHEN pm2.total_matches > 0 THEN pm2.wins::float / pm2.total_matches
+                ELSE 0
+              END,
+              'match_details', (
+                SELECT json_agg(
+                  json_build_object(
+                    'match_id', m.id,
+                    'opponent_id', CASE WHEN m.paper1_id = p2.id THEN m.paper2_id ELSE m.paper1_id END,
+                    'opponent_title', CASE 
+                      WHEN m.paper1_id = p2.id THEN p3.title 
+                      ELSE p4.title 
+                    END,
+                    'score', m.score,
+                    'winner_id', m.winner_id,
+                    'created_at', m.created_at
+                  ) ORDER BY m.created_at DESC
+                )
+                FROM matches m
+                LEFT JOIN papers p3 ON m.paper1_id = p3.id
+                LEFT JOIN papers p4 ON m.paper2_id = p4.id
+                WHERE (m.paper1_id = p2.id OR m.paper2_id = p2.id)
+              ),
+              'rank', ROW_NUMBER() OVER (
+                PARTITION BY c.slug, s.slug, p.published_year 
+                ORDER BY pm2.avg_score DESC NULLS LAST
+              )
+            )
+            ORDER BY pm2.avg_score DESC NULLS LAST
+          ) as leaderboard
+        FROM matching_paper_categories mpc
+        JOIN papers p ON p.id = mpc.id
+        JOIN paper_subcategories ps ON p.id = ps.paper_id
+        JOIN subcategories s ON ps.subcategory_id = s.id
+        JOIN categories c ON s.category_id = c.id
+        JOIN papers p2 ON p2.published_year = mpc.published_year
+        JOIN paper_subcategories ps2 ON p2.id = ps2.paper_id
+        JOIN subcategories s2 ON ps2.subcategory_id = s2.id
+        JOIN categories c2 ON s2.category_id = c2.id
+        JOIN paper_authors pa2 ON p2.id = pa2.paper_id
+        JOIN authors a2 ON pa2.author_id = a2.id
+        LEFT JOIN paper_matches pm2 ON p2.id = pm2.id
+        WHERE c2.slug = mpc.category_slug 
+          AND s2.slug = mpc.subcategory_slug
+        GROUP BY p.id, c.slug, s.slug, p.published_year
+      ),
+      paper_matches AS (
+        SELECT 
+          p.id,
+          COUNT(m.id) as total_matches,
+          COUNT(CASE WHEN m.winner_id = p.id THEN 1 END) as wins,
+          COALESCE(AVG(m.score), 0) as avg_score,
+          json_agg(
+            json_build_object(
+              'match_id', m.id,
+              'opponent_id', CASE WHEN m.paper1_id = p.id THEN m.paper2_id ELSE m.paper1_id END,
+              'opponent_title', CASE 
+                WHEN m.paper1_id = p.id THEN p2.title 
+                ELSE p1.title 
+              END,
+              'score', m.score,
+              'winner_id', m.winner_id,
+              'created_at', m.created_at
+            ) ORDER BY m.created_at DESC
+          ) as match_details
+        FROM papers p
+        LEFT JOIN matches m ON p.id = m.paper1_id OR p.id = m.paper2_id
+        LEFT JOIN papers p1 ON m.paper1_id = p1.id
+        LEFT JOIN papers p2 ON m.paper2_id = p2.id
+        WHERE p.id IN (SELECT id FROM matching_papers)
+        GROUP BY p.id
+      ),
+      paper_status AS (
+        SELECT 
+          p.id,
+          CASE 
+            WHEN d.id IS NOT NULL THEN 'disqualified'
+            ELSE 'qualified'
+          END as status,
+          d.reason as disqualification_reason
+        FROM papers p
+        LEFT JOIN disqualifications d ON p.id = d.paper_id
+        WHERE p.id IN (SELECT id FROM matching_papers)
       )
       SELECT 
         p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
         p.journal, p.doi, p.comments, p.published_year,
         array_agg(DISTINCT a.name) as authors,
-        pc.arxiv_categories as categories
+        mpc.category_slug,
+        mpc.subcategory_slug,
+        ps.status,
+        ps.disqualification_reason,
+        pm.total_matches,
+        pm.wins,
+        pm.avg_score as score,
+        pm.match_details,
+        sl.leaderboard,
+        CASE 
+          WHEN pm.total_matches > 0 THEN pm.wins::float / pm.total_matches
+          ELSE 0
+        END as win_rate
     `,
     from: `
       FROM papers p
       JOIN paper_authors pa ON p.id = pa.paper_id
       JOIN authors a ON pa.author_id = a.id
-      JOIN paper_categories pc ON p.id = pc.id
+      JOIN matching_paper_categories mpc ON p.id = mpc.id
+      JOIN paper_status ps ON p.id = ps.id
+      LEFT JOIN paper_matches pm ON p.id = pm.id
+      LEFT JOIN subcategory_leaderboards sl ON p.id = sl.id
     `,
     joins: ``,
     where: [],
     groupBy: `
       GROUP BY p.id, p.arxiv_id, p.title, p.abstract, p.published, p.updated, p.url, p.pdf_url,
-        p.journal, p.doi, p.comments, p.published_year, pc.arxiv_categories
+        p.journal, p.doi, p.comments, p.published_year, pc.arxiv_categories,
+        pc.category_slug, pc.subcategory_slug, ps.status, ps.disqualification_reason,
+        pm.total_matches, pm.wins, pm.avg_score, pm.match_details, sl.leaderboard
     `,
-    orderBy: `ORDER BY p.published DESC`,
+    orderBy: `ORDER BY ps.status, pm.avg_score DESC NULLS LAST, p.published DESC`,
     limit: `LIMIT $${1} OFFSET $${2}`
   };
   
@@ -103,21 +236,56 @@ const searchPapers = async (query, filters = {}) => {
   
   // Add search query condition if provided
   if (query) {
-    sqlParts.where.push(`(p.title ILIKE $${paramIndex} OR p.abstract ILIKE $${paramIndex})`);
+    let searchCondition;
+    switch (type) {
+      case 'title':
+        searchCondition = `p.title ILIKE $${paramIndex}`;
+        break;
+      case 'author':
+        searchCondition = `EXISTS (
+          SELECT 1 FROM paper_authors pa2
+          JOIN authors a2 ON pa2.author_id = a2.id
+          WHERE pa2.paper_id = p.id AND a2.name ILIKE $${paramIndex}
+        )`;
+        break;
+      case 'abstract':
+        searchCondition = `p.abstract ILIKE $${paramIndex}`;
+        break;
+      default: // 'all'
+        searchCondition = `(
+          p.title ILIKE $${paramIndex} OR 
+          p.abstract ILIKE $${paramIndex} OR
+          EXISTS (
+            SELECT 1 FROM paper_authors pa2
+            JOIN authors a2 ON pa2.author_id = a2.id
+            WHERE pa2.paper_id = p.id AND a2.name ILIKE $${paramIndex}
+          )
+        )`;
+    }
+    
+    sqlParts.where.push(searchCondition);
     params.push(`%${query}%`);
     paramIndex++;
     
-    // Change order by to prioritize matches in title
-    sqlParts.orderBy = `
-      ORDER BY 
-        CASE WHEN p.title ILIKE $${paramIndex} THEN 0
-             WHEN p.abstract ILIKE $${paramIndex} THEN 1
-             ELSE 2
-        END,
-        p.published DESC
-    `;
-    params.push(`%${query}%`);
-    paramIndex++;
+    // Change order by to prioritize matches based on search type
+    if (type === 'all') {
+      sqlParts.orderBy = `
+        ORDER BY 
+          CASE 
+            WHEN p.title ILIKE $${paramIndex} THEN 0
+            WHEN EXISTS (
+              SELECT 1 FROM paper_authors pa2
+              JOIN authors a2 ON pa2.author_id = a2.id
+              WHERE pa2.paper_id = p.id AND a2.name ILIKE $${paramIndex}
+            ) THEN 1
+            WHEN p.abstract ILIKE $${paramIndex} THEN 2
+            ELSE 3
+          END,
+          p.published DESC
+      `;
+      params.push(`%${query}%`);
+      paramIndex++;
+    }
   }
   
   // Add category condition if provided
@@ -194,7 +362,8 @@ const searchPapers = async (query, filters = {}) => {
       title: row.title,
       authors: row.authors.filter(a => a !== null),
       abstract: row.abstract,
-      categories: row.categories || [],
+      categorySlug: row.category_slug,
+      subcategorySlug: row.subcategory_slug,
       published: row.published,
       updated: row.updated,
       url: row.url,
@@ -202,7 +371,14 @@ const searchPapers = async (query, filters = {}) => {
       journal: row.journal,
       doi: row.doi,
       comments: row.comments,
-      publishedYear: row.published_year
+      publishedYear: row.published_year,
+      status: row.status,
+      disqualificationReason: row.disqualification_reason,
+      score: row.score,
+      matches: row.total_matches,
+      winRate: row.win_rate,
+      matchDetails: row.match_details || [],
+      leaderboard: row.leaderboard || []
     }));
     
     return {
