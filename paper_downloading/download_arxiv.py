@@ -234,7 +234,7 @@ def generate_yaml(limit, output_dir, start_date, end_date, category):
                     "abstract": entry.summary,
                     "url": entry.id,
                     "keywords": keywords,
-                    "document": document
+                    "document": text
                 })
 
                 # Delete pdf after conversion
