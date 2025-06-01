@@ -132,6 +132,14 @@ def extract_authors(text, title_line=None):
             return line
     return ""
 
+def extract_references(sections):
+    references = []
+    for key in sections:
+        if "references" in key.lower():
+            references = sections[key].strip().split('\n')
+            break
+    return references
+
 def normalize(text):
     return re.sub(r'\W+', '_', text.strip().lower()).strip('_')
 
@@ -191,6 +199,9 @@ def main(input_path, output_yaml):
                 arxiv_url = metadata.get("url", url)
                 author_line = extract_authors(markdown_text, title)
                 unique_id = make_unique_id(title, author_line)
+
+                sections = split_sections(markdown_text)
+                references = extract_references(sections)
                 
                 papers.append({
                     "id": unique_id,
@@ -198,7 +209,8 @@ def main(input_path, output_yaml):
                     "abstract": abstract,
                     "url": arxiv_url,
                     "keywords": keywords,
-                    "document": markdown_text
+                    "document": markdown_text,
+                    "references": references
                 })
 
                 print(f"[✓] Added: {paper_id}")
@@ -223,12 +235,17 @@ def main(input_path, output_yaml):
                 sections = split_sections(markdown_text)
                 keywords = extract_metadata(sections, markdown_text)
                 title, abstract = extract_title_abstract(markdown_text, sections, paper_id)
+                author_line = extract_authors(markdown_text, title)
+                unique_id = make_unique_id(title, author_line)
+                references = extract_references(sections)
 
                 papers.append({
+                    "id": unique_id,
                     "title": title,
                     "abstract": abstract,
                     "keywords": keywords,
-                    "document": markdown_text
+                    "document": markdown_text,
+                    "references": references
                 })
 
                 print(f"[✓] Added: {paper_id}")
