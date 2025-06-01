@@ -1,4 +1,3 @@
-import marker_runner
 import yaml
 import os
 import argparse
@@ -31,21 +30,23 @@ def classify_papers(input_file: str, output_folder:str, api_key: Optional[str] =
 
     # Perform classification
     for paper in yaml_content['papers']:
-        sections = marker_runner.split_sections(paper['document'])
-        references = marker_runner.extract_references(sections)
-
+        id = paper.get('id', "")
         keywords = paper.get('keywords', "")
         abstract = paper.get('abstract', "")
         title = paper.get('title', "")
+        references = paper.get('references', [])
         reference_counts = count_ref_topics(references)
 
         topics = classify_paper_topic(keywords, title, abstract, reference_counts, api_key)
-        paper['topics'] = topics
 
-        output_dict[topics['main_topic']][topics['main_topic_sub']].append(paper)
+        classified_paper = {}
+        classified_paper['topics'] = topics
+        classified_paper['id'] = id
+
+        output_dict[topics['main_topic']][topics['main_topic_sub']].append(classified_paper)
 
         if topics['secondary_topic']:
-            output_dict[topics['secondary_topic']][topics['secondary_topic_sub']].append(paper)
+            output_dict[topics['secondary_topic']][topics['secondary_topic_sub']].append(classified_paper)
 
     # Seperate papers into folders
     for topic in output_dict.keys():

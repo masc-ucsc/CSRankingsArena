@@ -146,12 +146,6 @@ def classify_paper_topic(
     if api_key is not None:
         os.environ["OPENAI_API_KEY"] = api_key
     
-    categories = ["Artificial Intelligence", "Computer Vision", "Machine Learning", "Natural Language Processing", 
-                    "The Web & Information Retrieval", "Computer Architecture", "Computer Networks", "Computer Security", "Databases", "Design Automation", 
-                    "Embedded & Real-time Systems", "High-performance Computing", "Mobile Computing", "Measurement & Perf. Analysis", "Operating Systems", 
-                    "Programming Languages", "Software Engineering", "Algorithms & Complexity", "Cryptography", "Logic & Verification", "Comp. Bio & Bioinformatics", 
-                    "Computer Graphics", "Computer Science Education", "Economics & Computation", "Human-computer Interaction", "Robotics", "Visualization", "Other" ]
-
     messages = [
         {
             "role": "system",
@@ -168,7 +162,7 @@ def classify_paper_topic(
             "content": [
                 {
                     "type": "text",
-                    "text": f"Here is a list of topics for papers: {str(categories)}."
+                    "text": f"Here is a list of topics for papers: {str(TOPICS)}."
                     "Which topics from this list does this paper fit into? If only one applies, leave the secondary topic empty. Give your reasoning for these decisions.",
                 }
             ],
@@ -186,9 +180,9 @@ def classify_paper_topic(
     topics_dict = json.loads(response1['choices'][0]['message']['content'])
 
     # Default case for incorrect LLM output
-    if topics_dict['main_topic'] not in categories:
+    if topics_dict['main_topic'] not in TOPICS:
         topics_dict['main_topic'] = "Other"
-    if topics_dict['secondary_topic'] not in categories:
+    if topics_dict['secondary_topic'] not in TOPICS:
         topics_dict['secondary_topic'] = ""
         topics_dict['secondary_topic_reasoning'] = ""
 
