@@ -150,7 +150,6 @@ def main(input_path, output_yaml):
     papers = []
 
     if input_path.endswith(".txt"):
-        mode = "url"
         pdf_link_file = input_path
         download_dir = "./downloaded_pdfs"
         os.makedirs(download_dir, exist_ok=True)
@@ -219,7 +218,6 @@ def main(input_path, output_yaml):
                 print(f"[✗] Failed to convert {url}: {e}")
 
     else:
-        mode = "pdf"
         download_dir = input_path
 
         pdf_files = [f for f in os.listdir(download_dir) if f.lower().endswith(".pdf")]
