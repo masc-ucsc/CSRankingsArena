@@ -175,9 +175,15 @@ def classify_paper_topic(
         secondary_topic: str
         secondary_topic_reasoning: str
 
-    response1 = completion(model="gpt-4o-mini", messages=messages, response_format=topics_structure)
-
-    topics_dict = json.loads(response1['choices'][0]['message']['content'])
+    # Retry up to twice in case of error in structured response.
+    for i in range(3):
+        try:
+            response1 = completion(model="gpt-4o-mini", messages=messages, response_format=topics_structure)
+            topics_dict = json.loads(response1['choices'][0]['message']['content'])
+        except json.decoder.JSONDecodeError:
+            continue
+        else:
+            break    
 
     # Default case for incorrect LLM output
     if topics_dict['main_topic'] not in TOPICS:
@@ -212,9 +218,14 @@ def classify_paper_topic(
             class sub_topic_structure(BaseModel):
                 sub_category: str
 
-            response2 = completion(model="gpt-4o-mini", messages=new_messages, response_format=sub_topic_structure)
-
-            response2_dict = json.loads(response2['choices'][0]['message']['content'])
+            for i in range(3):
+                try:
+                    response2 = completion(model="gpt-4o-mini", messages=new_messages, response_format=sub_topic_structure)
+                    response2_dict = json.loads(response2['choices'][0]['message']['content'])
+                except json.decoder.JSONDecodeError:
+                    continue
+                else:
+                    break  
 
             sub_topics[topic + '_sub'] = response2_dict['sub_category']
 

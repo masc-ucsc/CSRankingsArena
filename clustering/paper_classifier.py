@@ -42,6 +42,7 @@ def classify_papers(input_file: str, output_folder:str, api_key: Optional[str] =
         classified_paper = {}
         classified_paper['topics'] = topics
         classified_paper['id'] = id
+        classified_paper['title'] = title
 
         output_dict[topics['main_topic']][topics['main_topic_sub']].append(classified_paper)
 
